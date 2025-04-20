@@ -15,14 +15,9 @@ PRAGMA foreign_keys=ON;
 -- Create tables and insert data as before
 -- User table with roles now
 CREATE TABLE user (
-    UID                     varchar(8) not null PRIMARY KEY,
-    role                    varchar(50) not null CHECK (role IN ('Student', 'Faculty', 'GS', 'CAC', 'Admin')),
-    password                varchar(50) not null
-);
-
--- Applicant personal information
-CREATE TABLE applicant (
-    UID                     varchar(8) PRIMARY KEY,
+    UID                     INT not null PRIMARY KEY,
+    role                    varchar(50) not null CHECK (role IN ('Applicant', 'Student', 'Faculty', 'GS', 'CAC', 'Admin', 'Alumni')),
+    password                varchar(50) not null,
     firstName               varchar(50) not null,
     lastName                varchar(50) not null,
     ssn                     varchar(50) not null,
@@ -30,7 +25,6 @@ CREATE TABLE applicant (
     phone                   varchar(50) not null,
     address                 varchar(50) not null,
     address2                varchar(50),
-    FOREIGN KEY (UID) REFERENCES user(UID)
 );
 
 -- Application status tracking with application date
