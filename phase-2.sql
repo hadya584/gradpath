@@ -27,6 +27,46 @@ CREATE TABLE user (
     address2                varchar(50),
 );
 
+DROP TABLE IF EXISTS grad_students;
+CREATE TABLE grad_students (
+  UID             INTEGER not null PRIMARY KEY,
+  advisor_id      INTEGER,
+  GPA             DECIMAL,
+  program   VARCHAR(50) CHECK (program IN ('Masters', 'PhD')),
+  thesis_status   VARCHAR(50),
+  FOREIGN KEY (UID) REFERENCES user(UID),
+  FOREIGN KEY (advisor_id) REFERENCES faculty(faculty_id)
+);
+
+DROP TABLE IF EXISTS faculty;
+CREATE TABLE faculty (
+  UID             INTEGER not null,
+  dname           VARCHAR(50) not null,
+  FOREIGN KEY (UID) REFERENCES user(UID)
+);
+
+DROP TABLE IF EXISTS grad_secretary;
+CREATE TABLE grad_secretary (
+  UID           INTEGER not null PRIMARY KEY,
+  office        VARCHAR(50),
+  foreign key (UID) references user(UID)
+);
+
+DROP TABLE IF EXISTS admin;
+CREATE TABLE admin (
+  UID           INTEGER not null PRIMARY KEY,
+  access_level  VARCHAR(50),
+  foreign key (UID) references user(UID)
+);
+
+DROP TABLE IF EXISTS alumni;
+CREATE TABLE alumni (
+  UID           INTEGER not null PRIMARY KEY,
+  grad_year,    INTEGER,
+  degree,       VARCHAR(50) CHECK (degree IN ('Masters', 'PhD')),
+  foreign key (UID) references user(UID)
+);
+
 -- Application status tracking with application date
 CREATE TABLE application (
     UID                     varchar(8) not null PRIMARY KEY,
@@ -98,4 +138,29 @@ CREATE TABLE reviewForm (
     comments                TEXT,
     FOREIGN KEY (UID) REFERENCES user(UID),
     FOREIGN KEY (reviewerUID) REFERENCES user(UID)
+);
+
+DROP TABLE IF EXISTS applied_for_grad;
+CREATE TABLE applied_for_grad (
+  application_id   INTEGER not null PRIMARY KEY,
+  UID              INTEGER not null,
+  cleared          VARCHAR(50) not null CHECK (cleared IN ('Cleared', 'Not Cleared')),
+  foreign key (UID) references grad_students(UID)
+);
+
+DROP TABLE IF EXISTS form1;
+CREATE TABLE form1 (
+  form1_id         INTEGER not null PRIMARY KEY,
+  UID              INTEGER not null,
+  status           VARCHAR(50) not null CHECK (cleared IN ('Submitted', 'Approved', 'Rejected')),
+  foreign key (UID) references grad_students(UID)
+);
+
+DROP TABLE IF EXISTS form1_course;
+CREATE TABLE form1_course (
+  form1_id         INTEGER not null,
+  course_id        INTEGER not null,
+  primary key (form1_id, course_id),
+  foreign key (form1_id) references form1(form1_id),
+  foreign key (course_id) references courses(course_id)
 );
