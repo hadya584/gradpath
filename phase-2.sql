@@ -8,6 +8,14 @@ DROP TABLE IF EXISTS academicInformation;
 DROP TABLE IF EXISTS priorDegree;
 DROP TABLE IF EXISTS recommendationLetter;
 DROP TABLE IF EXISTS reviewForm;
+DROP TABLE IF EXISTS student;
+DROP TABLE IF EXISTS faculty;
+DROP TABLE IF EXISTS grad_secretary;
+DROP TABLE IF EXISTS admin;
+DROP TABLE IF EXISTS alumni;
+DROP TABLE IF EXISTS applied_for_grad;
+DROP TABLE IF EXISTS form1;
+DROP TABLE IF EXISTS form1_course;
 
 -- Now enable foreign keys for table creation and data insertion
 PRAGMA foreign_keys=ON;
@@ -27,8 +35,7 @@ CREATE TABLE user (
     address2                varchar(50),
 );
 
-DROP TABLE IF EXISTS grad_students;
-CREATE TABLE grad_students (
+CREATE TABLE student (
   UID             INTEGER not null PRIMARY KEY,
   advisor_id      INTEGER,
   GPA             DECIMAL,
@@ -38,33 +45,73 @@ CREATE TABLE grad_students (
   FOREIGN KEY (advisor_id) REFERENCES faculty(faculty_id)
 );
 
-DROP TABLE IF EXISTS faculty;
 CREATE TABLE faculty (
   UID             INTEGER not null,
-  dname           VARCHAR(50) not null,
+  dept            VARCHAR(50) not null,
   FOREIGN KEY (UID) REFERENCES user(UID)
 );
 
-DROP TABLE IF EXISTS grad_secretary;
 CREATE TABLE grad_secretary (
   UID           INTEGER not null PRIMARY KEY,
   office        VARCHAR(50),
   foreign key (UID) references user(UID)
 );
 
-DROP TABLE IF EXISTS admin;
 CREATE TABLE admin (
   UID           INTEGER not null PRIMARY KEY,
   access_level  VARCHAR(50),
   foreign key (UID) references user(UID)
 );
 
-DROP TABLE IF EXISTS alumni;
 CREATE TABLE alumni (
   UID           INTEGER not null PRIMARY KEY,
   grad_year,    INTEGER,
   degree,       VARCHAR(50) CHECK (degree IN ('Masters', 'PhD')),
   foreign key (UID) references user(UID)
+);
+
+CREATE TABLE course (
+    course_id INT PRIMARY KEY,
+    dept VARCHAR(10),
+    course_num VARCHAR(10),
+    title VARCHAR(100),
+    credits INT,
+    instructor_id INT,
+    FOREIGN KEY (instructor_id) REFERENCES Instructor(UID)
+);
+
+CREATE TABLE course_prerequisite (
+    course_id INT,
+    prereq_id INT,
+    PRIMARY KEY (course_id, prereq_id),
+    FOREIGN KEY (course_id) REFERENCES Course(course_id),
+    FOREIGN KEY (prereq_id) REFERENCES Course(course_id)
+);
+
+CREATE TABLE schedule (
+    course_id INT,  
+    semester VARCHAR(20),
+    section INT,
+    year INT,
+    day VARCHAR(1) CHECK (day IN ('M','T','W','R','F')),
+    time_slot VARCHAR(20) CHECK (time_slot IN ('15:00-17:30', '16:00-18:30', '18:00-20:30')),
+    instructor_id INT,
+    PRIMARY KEY (course_id, section, semester),
+    FOREIGN KEY (course_id) REFERENCES course(course_id),
+    FOREIGN KEY (instructor_id) REFERENCES faculty(UID)
+);
+
+CREATE TABLE transcript (
+    student_uid INT,
+    course_id INT,
+    section INT,
+    semester VARCHAR(20),
+    year INT,
+    grade VARCHAR(2) CHECK (grade IN ('A','A-','B+','B','B-','C+','C','F','IP')),
+    graded BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (student_uid, course_id, section, semester),
+    FOREIGN KEY (student_uid) REFERENCES User(UID),
+    FOREIGN KEY (course_id, section, semester, year) REFERENCES schedule(course_id, section, semester, year)
 );
 
 -- Application status tracking with application date
@@ -140,7 +187,6 @@ CREATE TABLE reviewForm (
     FOREIGN KEY (reviewerUID) REFERENCES user(UID)
 );
 
-DROP TABLE IF EXISTS applied_for_grad;
 CREATE TABLE applied_for_grad (
   application_id   INTEGER not null PRIMARY KEY,
   UID              INTEGER not null,
@@ -148,7 +194,6 @@ CREATE TABLE applied_for_grad (
   foreign key (UID) references grad_students(UID)
 );
 
-DROP TABLE IF EXISTS form1;
 CREATE TABLE form1 (
   form1_id         INTEGER not null PRIMARY KEY,
   UID              INTEGER not null,
@@ -156,11 +201,10 @@ CREATE TABLE form1 (
   foreign key (UID) references grad_students(UID)
 );
 
-DROP TABLE IF EXISTS form1_course;
 CREATE TABLE form1_course (
   form1_id         INTEGER not null,
   course_id        INTEGER not null,
   primary key (form1_id, course_id),
   foreign key (form1_id) references form1(form1_id),
-  foreign key (course_id) references courses(course_id)
+  foreign key (course_id) references course(course_id)
 );
