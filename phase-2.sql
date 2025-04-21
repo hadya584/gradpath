@@ -2,7 +2,6 @@ PRAGMA foreign_keys=OFF;
 
 -- Drop all tables
 DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS applicant;
 DROP TABLE IF EXISTS application;
 DROP TABLE IF EXISTS academicInformation;
 DROP TABLE IF EXISTS priorDegree;
@@ -13,6 +12,10 @@ DROP TABLE IF EXISTS faculty;
 DROP TABLE IF EXISTS grad_secretary;
 DROP TABLE IF EXISTS admin;
 DROP TABLE IF EXISTS alumni;
+DROP TABLE IF EXISTS course;
+DROP TABLE IF EXISTS transcript;
+DROP TABLE IF EXISTS schedule;
+DROP TABLE IF EXISTS course_prerequisite;
 DROP TABLE IF EXISTS applied_for_grad;
 DROP TABLE IF EXISTS form1;
 DROP TABLE IF EXISTS form1_course;
