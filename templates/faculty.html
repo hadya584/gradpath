@@ -1,0 +1,18 @@
+<html>
+    <link href = "/static/styles/faculty_alum.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Employees</h1>
+    <a href="{{ url_for('admin_add_employee') }}" class = buttonsketch>Add New Employee</a>
+    <br><br>
+    <div class = sketchy>
+    {% for faculty in faculties %}
+        <a href="{{ url_for('personal_information', UID = faculty['UID']) }}" class = mem> Faculty Advisor: {{faculty['firstName']}} {{faculty['lastName']}} </p>
+    {% endfor %}
+
+    {% for gs in gsData %}
+        <a href="{{ url_for('personal_information', UID = gs['UID']) }}" class = mem> Graduate Secretary: {{gs['firstName']}} {{gs['lastName']}} </p>
+    {% endfor %}
+</div>
+    <br><br>
+    <a href="{{ url_for('home') }}" class = buttonsketch>Return to Home</a>
+</html>

@@ -2,7 +2,6 @@ PRAGMA foreign_keys=OFF;
 
 -- Drop all tables
 DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS applicant;
 DROP TABLE IF EXISTS application;
 DROP TABLE IF EXISTS academicInformation;
 DROP TABLE IF EXISTS priorDegree;
@@ -13,6 +12,10 @@ DROP TABLE IF EXISTS faculty;
 DROP TABLE IF EXISTS grad_secretary;
 DROP TABLE IF EXISTS admin;
 DROP TABLE IF EXISTS alumni;
+DROP TABLE IF EXISTS course;
+DROP TABLE IF EXISTS transcript;
+DROP TABLE IF EXISTS schedule;
+DROP TABLE IF EXISTS course_prerequisite;
 DROP TABLE IF EXISTS applied_for_grad;
 DROP TABLE IF EXISTS form1;
 DROP TABLE IF EXISTS form1_course;
@@ -35,20 +38,20 @@ CREATE TABLE user (
     address2                varchar(50)
 );
 
+CREATE TABLE faculty (
+  UID             INTEGER not null PRIMARY KEY,
+  dept            VARCHAR(50) not null,
+  FOREIGN KEY (UID) REFERENCES user(UID)
+);
+
 CREATE TABLE student (
   UID             INTEGER not null PRIMARY KEY,
   advisor_id      INTEGER,
   GPA             DECIMAL,
   program   VARCHAR(50) CHECK (program IN ('Masters', 'PhD')),
-  thesis_status   VARCHAR(50),
+  thesis_status   VARCHAR(50) CHECK (program IN ('Complete', 'Incomplete', NULL)), 
   FOREIGN KEY (UID) REFERENCES user(UID),
-  FOREIGN KEY (advisor_id) REFERENCES faculty(faculty_id)
-);
-
-CREATE TABLE faculty (
-  UID             INTEGER not null PRIMARY KEY,
-  dept            VARCHAR(50) not null,
-  FOREIGN KEY (UID) REFERENCES user(UID)
+  FOREIGN KEY (advisor_id) REFERENCES faculty(UID)
 );
 
 CREATE TABLE grad_secretary (
@@ -96,7 +99,7 @@ CREATE TABLE schedule (
     day VARCHAR(1) CHECK (day IN ('M','T','W','R','F')),
     time_slot VARCHAR(20) CHECK (time_slot IN ('15:00-17:30', '16:00-18:30', '18:00-20:30')),
     instructor_id INT,
-    PRIMARY KEY (course_id, section, semester),
+    PRIMARY KEY (course_id, section, semester, year),
     FOREIGN KEY (course_id) REFERENCES course(course_id),
     FOREIGN KEY (instructor_id) REFERENCES faculty(UID)
 );
@@ -110,7 +113,7 @@ CREATE TABLE transcript (
     grade VARCHAR(2) CHECK (grade IN ('A','A-','B+','B','B-','C+','C','F','IP')),
     graded BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (student_uid, course_id, section, semester),
-    FOREIGN KEY (student_uid) REFERENCES User(UID),
+    FOREIGN KEY (student_uid) REFERENCES student(UID),
     FOREIGN KEY (course_id, section, semester, year) REFERENCES schedule(course_id, section, semester, year)
 );
 
@@ -122,7 +125,7 @@ CREATE TABLE application (
     applyYear               varchar(4) not null,
     decisionType            varchar(20) CHECK (decisionType IN ('Admit with Aid', 'Admit without Aid', 'Reject', NULL)),
     recommendedAdvisor      varchar(100),
-    deficiencyCourses       TEXT,
+    deficiencycourse       TEXT,
     rejectReason            varchar(1) CHECK (rejectReason IN ('A', 'B', 'C', 'D', 'E', NULL)),
     finalDecisionDate       DATE,
     FOREIGN KEY (UID) REFERENCES user(UID)
@@ -208,3 +211,106 @@ CREATE TABLE form1_course (
   foreign key (form1_id) references form1(form1_id),
   foreign key (course_id) references course(course_id)
 );
+
+
+INSERT INTO course VALUES (1, 'CSCI', 6221, 'SW Paradigms', 3, NULL);
+INSERT INTO course VALUES (2, 'CSCI', 6461, 'Computer Architecture', 3, NULL);
+INSERT INTO course VALUES (3, 'CSCI', 6212, 'Algorithms', 3, NULL);
+INSERT INTO course VALUES (4, 'CSCI', 6220, 'Machine Learning', 3, NULL);
+INSERT INTO course VALUES (5, 'CSCI', 6232, 'Networks 1', 3, NULL);
+INSERT INTO course VALUES (6, 'CSCI', 6241, 'Database 1', 3, NULL);
+INSERT INTO course VALUES (7, 'CSCI', 6260, 'Multimedia', 3, NULL);
+INSERT INTO course VALUES (8, 'CSCI', 6262, 'Graphics 1', 3, NULL);
+INSERT INTO course VALUES (9, 'ECE', 6241, 'Communication Theory', 3, NULL);
+INSERT INTO course VALUES (10, 'ECE', 6242, 'Information Theory', 2, NULL);
+INSERT INTO course VALUES (11, 'MATH', 6210, 'Logic', 2, NULL);
+INSERT INTO course VALUES (12, 'CSCI', 6233, 'Networks 2', 3, NULL);
+INSERT INTO course VALUES (13, 'CSCI', 6242, 'Database 2', 3, NULL);
+INSERT INTO course VALUES (14, 'CSCI', 6246, 'Compilers', 3, NULL);
+INSERT INTO course VALUES (15, 'CSCI', 6251, 'Cloud Computing', 3, NULL);
+INSERT INTO course VALUES (16, 'CSCI', 6254, 'SW Engineering', 3, NULL);
+INSERT INTO course VALUES (17, 'CSCI', 6283, 'Security 1', 3, NULL);
+INSERT INTO course VALUES (18, 'CSCI', 6284, 'Cryptography', 3, NULL);
+INSERT INTO course VALUES (19, 'CSCI', 6286, 'Network Security', 3, NULL);
+INSERT INTO course VALUES (20, 'CSCI', 6325, 'Algorithms 2', 3, NULL);
+INSERT INTO course VALUES (21, 'CSCI', 6339, 'Embedded Systems', 3, NULL);
+INSERT INTO course VALUES (22, 'CSCI', 6384, 'Cryptography 2', 3, NULL);
+
+INSERT INTO user VALUES(55555555, 'Student', 'password', 'Paul', 'McCartney', 1111, 'paulmccartney@email.com', 12345678, 'Address', NULL);
+INSERT INTO user VALUES(66666666, 'Student', 'password', 'George', 'Harrison', 2222, 'georgeharrison@email.com', 87654321, 'Address', NULL);
+INSERT INTO user VALUES(99999999, 'Student', 'password', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
+INSERT INTO user VALUES(12345678, 'Alumni', 'password', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 222222222, 'Address', NULL);
+INSERT INTO user VALUES(12121212, 'GS', 'password', 'John', 'Snow', 5555, 'johnsnow@email.com', 3333333333, 'Address', NULL);
+INSERT INTO user VALUES(22222222, 'Faculty', 'password', 'Bhagirath', 'Narahari', 6666, 'bnarahari@email.com', 4444444444, 'Address', NULL);
+INSERT INTO user VALUES(33333333, 'Faculty', 'password', 'Gabe', 'Parmer', 7777, 'gparmer@email.com', 5555555555, 'Address', NULL);
+INSERT INTO user VALUES(13131313, 'Admin', 'password', 'Jett', 'Jacobs', 8888, 'jettjacobs@email.com', 6666666666, 'Address', NULL);
+
+INSERT INTO faculty VALUES(22222222, 'CSCI');
+INSERT INTO faculty VALUES(33333333, 'CSCI');
+INSERT INTO student VALUES(55555555, 22222222, 0.0, 'Masters', NULL);
+INSERT INTO student VALUES(66666666, 22222222, 0.0, 'Masters', NULL);
+INSERT INTO student VALUES(99999999, 33333333, 0.0, 'PhD', 'Incomplete');
+INSERT INTO alumni VALUES(12345678, 2024, 'Masters');
+INSERT INTO grad_secretary VALUES(12121212, NULL);
+INSERT INTO admin VALUES(13131313, NULL);
+
+-- First, clear any existing data to avoid conflicts
+DELETE FROM transcript;
+DELETE FROM schedule;
+
+-- Fall 2023 Schedule Entries
+INSERT INTO schedule VALUES (1, 'Fall', 1, 2023, 'M', '15:00-17:30', 22222222);
+INSERT INTO schedule VALUES (2, 'Fall', 1, 2023, 'T', '16:00-18:30', 22222222);
+INSERT INTO schedule VALUES (3, 'Fall', 1, 2023, 'W', '15:00-17:30', 22222222);
+INSERT INTO schedule VALUES (4, 'Fall', 1, 2023, 'R', '18:00-20:30', 22222222);
+INSERT INTO schedule VALUES (5, 'Fall', 1, 2023, 'F', '16:00-18:30', 22222222);
+INSERT INTO schedule VALUES (7, 'Fall', 1, 2023, 'T', '16:00-18:30', 22222222);
+
+-- Spring 2024 Schedule Entries
+INSERT INTO schedule VALUES (6, 'Spring', 1, 2024, 'M', '15:00-17:30', 22222222);
+INSERT INTO schedule VALUES (8, 'Fall', 1, 2024, 'W', '15:00-17:30', 22222222);
+INSERT INTO schedule VALUES (10, 'Fall', 1, 2023, 'R', '18:00-20:30', 22222222);
+INSERT INTO schedule VALUES (12, 'Spring', 1, 2024, 'F', '16:00-18:30', 22222222);
+INSERT INTO schedule VALUES (13, 'Fall', 1, 2024, 'M', '15:00-17:30', 22222222);
+INSERT INTO schedule VALUES (14, 'Spring', 1, 2024, 'T', '16:00-18:30', 22222222);
+INSERT INTO schedule VALUES (15, 'Spring', 1, 2024, 'W', '15:00-17:30', 22222222);
+INSERT INTO schedule VALUES (17, 'Fall', 1, 2024, 'R', '18:00-20:30', 22222222);
+INSERT INTO schedule VALUES (18, 'Fall', 1, 2024, 'F', '16:00-18:30', 22222222);
+
+-- Paul McCartney (UID: 55555555)
+INSERT INTO transcript VALUES (55555555, 1, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 2, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 3, 1, 'Fall', 2023, 'A', TRUE);  
+INSERT INTO transcript VALUES (55555555, 5, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 12, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 6, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 14, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 8, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 17, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 13, 1, 'Fall', 2024, 'B', TRUE);
+
+-- George Harrison (UID: 66666666)
+INSERT INTO transcript VALUES (66666666, 10, 1, 'Fall', 2023, 'C', TRUE);
+INSERT INTO transcript VALUES (66666666, 1, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 2, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 3, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 5, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 12, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 6, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 13, 1, 'Fall', 2024, 'B', TRUE);  
+INSERT INTO transcript VALUES (66666666, 17, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 18, 1, 'Fall', 2024, 'B', TRUE);
+
+-- Ringo Starr (UID: 99999999)
+INSERT INTO transcript VALUES (99999999, 1, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 2, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 3, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 4, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 5, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 6, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 7, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 8, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 12, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 13, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 14, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 15, 1, 'Spring', 2024, 'A', TRUE);

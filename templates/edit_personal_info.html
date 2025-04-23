@@ -1,0 +1,26 @@
+<html>
+    <link href = "/static/styles/edit_personal_info.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Personal Information</h1>
+<div class = sketchy>
+    <form action="{{url_for('edit_personal_info', UID = UID)}}" method="POST">
+        <label for="firstName">First Name:</label>
+        <input type="text" name="firstName" value = "{{userdata['firstName']}}"><br>
+        
+        <label for="lastName">Last Name:</label>
+        <input type="text" name="lastName" value = "{{userdata['lastName']}}"><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" name="email" value = "{{userdata['email']}}"><br>
+
+        <div class = buttonbox>
+
+        <button type = "submit"  class = buttonsketch >Save Changes</button>
+        <a href = "{{url_for('personal_information', UID = UID)}}"><button type = "button" class = buttonsketch> Cancel </button></a>
+          
+    </form>
+
+        </div>
+    </div>
+   
+</html>

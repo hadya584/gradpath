@@ -1,0 +1,46 @@
+<html>
+<head>
+    <link href = "/static/styles/auth.css" rel = "stylesheet" type = "text/css" />
+
+    <title> Sign Up </title>
+
+</head>
+<body>
+    <h1>Student Sign Up</h1>
+    <div class = sketchy>
+
+ <form action="/signup" method="POST">
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" required><br><br>
+    
+    <label for="password">Password:</label>
+    <input type="text" id="password" name="password" required><br><br>
+    
+    <label for="firstname">First Name:</label>
+    <input type="text" id="fname" name="fname" required><br><br>
+
+    <label for="lastname">Last Name:</label>
+    <input type="text" id="lname" name="lname" required><br><br>
+
+    <label for="gradtype">Graduate Type:</label>
+    <select name="gradtype" required>
+        <option disabled selected value="">-- Select Graduate Type --</option>
+        <option value="Masters">Masters</option>
+        <option value="PHD">PHD</option>
+    </select>
+    
+    <br><br>
+
+    <div class = buttonbox>
+
+    <input type="submit" class = buttonsketch value="Sign Up">
+
+
+
+ <a href="{{ url_for('login')}}"  class = buttonsketch>Return to Login</button></a>
+</form>
+</div>
+ </div>
+</body>
+</html>
+   

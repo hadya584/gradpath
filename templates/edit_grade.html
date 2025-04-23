@@ -1,0 +1,29 @@
+<html>
+    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Edit Grade</h1>
+    <div class = sketchy>
+    <p>Course Information: {{coursedata['dname']}} {{coursedata['course_number']}}</p>
+    <p>Course Name: {{coursedata['course_name']}}</p>
+    
+    <form method="POST">
+        <label for="grade">Select New Grade:</label>
+        <select name="grade" required>
+            <option value="">{{coursedata['grade']}}</option>
+            <option value="A">A</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B">B</option>
+            <option value="B-">B-</option>
+            <option value="C+">C+</option>
+            <option value="C">C</option>
+            <option value="F">F</option>
+        </select>
+  </div>
+        <br><br>
+        <button type="submit" class = buttonsketch>Save Changes</button>
+        <a href="{{ url_for('student_information', student_UID=student_UID) }}">
+            <button type="button" class = buttonsketch>Cancel</button>
+        </a>
+    </form>
+</html>

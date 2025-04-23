@@ -1,0 +1,26 @@
+<html>
+
+<head>
+    <link href = "/static/styles/personal_info.css" rel = "stylesheet" type = "text/css" />
+
+    <title>Profile</title>
+
+</head>
+<div class = title>
+    <h1>Account Information</h1>
+</div>
+<div class = sketchy>
+    <p>First Name: {{userdata['firstName']}} </p>
+    <p>Last Name: {{userdata['lastName']}}</p>
+    <p>Email: {{userdata['email']}}</p>
+</div>
+
+<div class = buttonbox>
+    <a href = "{{url_for('edit_personal_info', UID = userdata['UID'])}}" class = buttonsketch >Edit Information</button>
+
+    <br><br>
+    <a href="{{ url_for('home') }}" class = buttonsketch >Return to Home</a>
+
+    </div>
+  
+</html>

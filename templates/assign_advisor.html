@@ -1,0 +1,22 @@
+<html>
+    <link href = "/static/styles/auth.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Assign Advisor to {{studentdata['f_name']}} {{studentdata['l_name']}}</h1>
+    <div class = sketchy>
+    <form method="POST">
+        <label for="advisor">New Advisor:</label>
+        <select name="advisor" required>
+            {% for advisor in faculty_advisors %}
+                <option value="{{advisor['UID']}}">{{advisor['firstName']}} {{advisor['lastName']}}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+    </div>
+    <div class = buttonbox>
+        <button type="submit" class = buttonsketch >Assign</button>
+        <a href="{{ url_for('student_information', student_UID = student_UID) }}">
+            <button type="button"  class = buttonsketch>Cancel</button>
+        </a>
+    </form>
+</div>
+</html>

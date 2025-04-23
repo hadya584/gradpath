@@ -1,0 +1,37 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+.product, .category {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    display: inline-block;
+    text-align: center;
+}
+.product img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+.navbar {
+    margin-bottom: 20px;
+}
+.category-buttons {
+    margin-bottom: 20px;
+}
+.category-buttons button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.error {
+    color: red;
+}
+
+
+
+a.buttonsketch{
+    text-decoration: none;
+  }

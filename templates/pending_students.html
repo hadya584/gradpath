@@ -1,0 +1,17 @@
+<html>
+    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Pending Students</h1>
+    <div class =sketchy>
+    {% if not pending_students %}
+        <p>No pending students</p>
+    {% else %}
+        {% for student in pending_students %}
+            <a href="{{ url_for('assign_advisor', student_UID = student['UID']) }}" class = student> {{student['f_name']}} {{student['l_name']}} </p>
+        {% endfor %}
+    {% endif %}
+</div>
+<div class = buttonbox>
+    <a href="{{ url_for('home') }}"class = buttonsketch>Return to Home</a>
+</div>
+</html>

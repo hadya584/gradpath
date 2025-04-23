@@ -1,0 +1,28 @@
+<html>
+    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Apply For Graduation</h1>
+    <div class = sketchy>
+    {% if already_applied %}
+        <p>Graduation Status: Pending</p>
+    {% elif cleared %}
+        <p>You applied for Graduation!</p>
+    {% else %}
+        {% if error %}
+            <p>Audit failed.</p>
+            {% if error == 'not_matching' %} 
+                <p>Form 1 does not match Transcript</p>
+            {% elif error == 'form1_not_approved' %}
+                <p>Form 1 not approved by Advisor</p>
+            {% elif error == 'thesis_not_approved' %}
+                <p>Thesis not approved by Advisor</p>
+            {% endif %}
+        {% else %}
+            <p>Missing requirements.</p>
+        {% endif %}
+    {% endif %}
+</div>
+<div class = buttonbox>
+    <a href="{{ url_for('home')}}"><button class = buttonsketch>Home</button></a>
+</div>
+</html>

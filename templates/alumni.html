@@ -1,0 +1,12 @@
+<html>
+    <link href = "/static/styles/faculty_alum.css" rel = "stylesheet" type = "text/css" />
+
+    <h1>Alumni</h1>
+    <div class = sketchy>
+    {% for alum in alumni %}
+        <a href="{{ url_for('alumni_transcript', UID = alum['UID']) }}" class = mem> {{alum['firstName']}} {{alum['lastName']}} </p>
+    {% endfor %}
+        </div>
+    <br><br>
+    <a href="{{ url_for('home') }}" class = buttonsketch>Return to Home</a>
+</html>
