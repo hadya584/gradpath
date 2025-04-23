@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block title %}Review Application - {{ row[1] }} {{ row[2] }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 fade-in-content">
+    <h2 class="mb-4 text-center">Review Application: {{ row['firstName'] }} {{ row['lastName'] }} ({{ row['UID'] }})</h2>
+
+    <!-- Applicant Information Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white gradient-custom">
+            <i class="fas fa-user-graduate me-2"></i>Applicant Information
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><i class="fas fa-id-card me-2 text-primary"></i><strong>Name:</strong> {{ row['firstName'] }} {{ row['lastName'] }}</p>
+                    <p><i class="fas fa-hashtag me-2 text-primary"></i><strong>Student Number:</strong> {{ row['UID'] }}</p>
+                    <p><i class="fas fa-calendar-alt me-2 text-primary"></i><strong>Semester and Year of Application:</strong> {{ app.applySemester }}, {{ app.applyYear }}</p>
+                    <p><i class="fas fa-graduation-cap me-2 text-primary"></i><strong>Applying for Degree:</strong> {{ row['degree'] }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><i class="fas fa-lightbulb me-2 text-primary"></i><strong>Areas of Interest:</strong> {{ row.areasOfInterest }}</p>
+                    <p><i class="fas fa-briefcase me-2 text-primary"></i><strong>Experience:</strong> {{ row.priorWorkExp }}</p>
+                    <p><i class="fas fa-file-alt me-2 text-primary"></i><strong>Transcripts:</strong> {{ row.transcripts }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credentials Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white gradient-custom">
+            <i class="fas fa-award me-2"></i>Summary of Credentials
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><i class="fas fa-comment-alt me-2 text-success"></i><strong>GRE Verbal:</strong> {{ row.GRE_Verbal }}</p>
+                    <p><i class="fas fa-calculator me-2 text-success"></i><strong>GRE Quantitative:</strong> {{ row.GRE_Quant }}</p>
+                    <p><i class="fas fa-calendar-check me-2 text-success"></i><strong>Year of Exam:</strong> {{ row.GRE_Year }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><i class="fas fa-chart-line me-2 text-success"></i><strong>GRE Advanced Score:</strong> {{ row.GRE_Advanced }}</p>
+                    <p><i class="fas fa-book me-2 text-success"></i><strong>GRE Advanced Subject:</strong> {{ row.GRE_Subject }}</p>
+                    <p><i class="fas fa-language me-2 text-success"></i><strong>TOEFL Score:</strong> {{ row.TOEFL_Score }}</p>
+                    <p><i class="fas fa-calendar me-2 text-success"></i><strong>Date of Exam:</strong> {{ row.TOEFL_Date }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prior Degrees Card -->
+    {% if condition == 0 %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white gradient-custom">
+            <i class="fas fa-university me-2"></i>Prior Degrees
+        </div>
+        <div class="card-body">
+            {% if priorDegrees %}
+                {% for degree in priorDegrees %}
+                    <div class="mb-3 p-3 border rounded bg-light shadow-sm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><i class="fas fa-graduation-cap me-2 text-primary"></i><strong>Degree Type:</strong> {{ degree.degreeName }}</p>
+                                <p><i class="fas fa-university me-2 text-primary"></i><strong>Institution:</strong> {{ degree.institution }}</p>
+                                <p><i class="fas fa-book-open me-2 text-primary"></i><strong>Major:</strong> {{ degree.major }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><i class="fas fa-chart-bar me-2 text-primary"></i><strong>GPA:</strong> {{ degree.GPA }}</p>
+                                <p><i class="fas fa-calendar-check me-2 text-primary"></i><strong>Year of Graduation:</strong> {{ degree.year }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No prior degrees listed.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- Recommendation Letters and Review Form Section -->
+    {% if role == 0 or role == 2 or role == 3 %}
+        <div class="card mb-4 shadow-sm">
+             <div class="card-header text-white gradient-custom">
+                 <i class="fas fa-clipboard-check me-2"></i>Recommendation Letters & Review
+             </div>
+             <div class="card-body">
+                <h4 class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i>Recommendation Letters</h4>
+                {% if recommendationLetters %}
+                    <div class="recommendation-letters mb-4">
+                        {% for letter in recommendationLetters %}
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-user-tie me-2 text-primary"></i>Recommendation from: {{ letter.writerName }} ({{ letter.writerAffiliation }})</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-envelope me-2"></i>Email: {{ letter.writerEmail }} | <i class="fas fa-calendar-alt me-2"></i>Submitted: {{ letter.submissionDate }}</h6>
+                                    <div class="letter-content border p-2 mb-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                                        <p>{{ letter.letter }}</p>
+                                    </div>
+
+                                    <div class="letter-rating-form row g-3 align-items-center">
+                                        <div class="col-md-4">
+                                            <label for="rating_{{ letter.id }}" class="form-label"><i class="fas fa-star me-2 text-warning"></i><strong>Rating:</strong></label>
+                                            <select name="rating_{{ letter.id }}" id="rating_{{ letter.id }}" class="form-select form-select-sm">
+                                                <option value="">Select Rating</option>
+                                                <option value="1">1 - Poor</option>
+                                                <option value="2">2 - Below Average</option>
+                                                <option value="3">3 - Average</option>
+                                                <option value="4">4 - Good</option>
+                                                <option value="5">5 - Excellent</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="generic_{{ letter.id }}" name="generic_{{ letter.id }}" value="1">
+                                                <label class="form-check-label" for="generic_{{ letter.id }}"><i class="fas fa-copy me-2 text-warning"></i>Generic Letter</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                             <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="credible_{{ letter.id }}" name="credible_{{ letter.id }}" value="1">
+                                                <label class="form-check-label" for="credible_{{ letter.id }}"><i class="fas fa-check-circle me-2 text-success"></i>Credible Source</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters available for this applicant.</p>
+                {% endif %}
+
+                <!-- GAS Review Form -->
+                <hr>
+                <h4 class="mt-4 mb-3"><i class="fas fa-clipboard-list me-2 text-primary"></i>Grad Admissions Committee (GAS) Review</h4>
+                <form action="/newReview/{{ row.UID }}" method="POST">
+                    <div class="mb-3">
+                        <label for="decision" class="form-label"><i class="fas fa-gavel me-2 text-primary"></i><strong>Decision:</strong></label>
+                        <select name="decision" id="decision" class="form-select" required>
+                            <option value="">Select Decision</option>
+                            <option value="Reject">Reject</option>
+                            <option value="Borderline Admit">Borderline Admit</option>
+                            <option value="Admit without Aid">Admit without Aid</option>
+                            <option value="Admit with Aid">Admit with Aid</option>
+                        </select>
+                    </div>
+                     <div id="rejectReasonContainer" style="display: none;">
+                         <div class="mb-3">
+                            <label for="rejectReason" class="form-label"><i class="fas fa-times-circle me-2 text-danger"></i>Reasons for Reject (if applicable):</label>
+                            <select id="rejectReason" name="rejectReason" class="form-select">
+                                <option value="">N/A</option>
+                                <option value="A">A - Incomplete Record</option>
+                                <option value="B">B - Does not meet minimum Requirements</option>
+                                <option value="C">C - Problems with Letters</option>
+                                <option value="D">D - Not competitive</option>
+                                <option value="E">E - Other reasons</option>
+                            </select>
+                         </div>
+                     </div>
+
+                    <div class="mb-3">
+                        <label for="recommendedAdvisor" class="form-label"><i class="fas fa-user-tie me-2 text-primary"></i>Recommended Advisor (if any):</label>
+                        <input type="text" id="recommendedAdvisor" name="recommendedAdvisor" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Deficiency" class="form-label"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Deficiency Courses (if any):</label>
+                        <input type="text" id="Deficiency" name="Deficiency" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="GAS" class="form-label"><i class="fas fa-comment me-2 text-primary"></i>GAS Reviewer Comments:</label>
+                        <textarea id="GAS" name="GAS" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success gradient-custom text-white"><i class="fas fa-check-circle me-2"></i>Submit Review</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <!-- Read-only View for other roles -->
+         <div class="card mb-4 shadow-sm">
+             <div class="card-header text-white gradient-custom">
+                 <i class="fas fa-envelope me-2"></i>Recommendation Letters
+             </div>
+             <div class="card-body">
+                 <h4 class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i>Recommendation Letters</h4>
+                 {% if recommendationLetters %}
+                     <div class="recommendation-letters">
+                         {% for letter in recommendationLetters %}
+                              <div class="card mb-3 shadow-sm">
+                                 <div class="card-body">
+                                     <h5 class="card-title"><i class="fas fa-user-tie me-2 text-primary"></i>Recommendation from: {{ letter.writerName }} ({{ letter.writerAffiliation }})</h5>
+                                     <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-envelope me-2"></i>Email: {{ letter.writerEmail }} | <i class="fas fa-calendar-alt me-2"></i>Submitted: {{ letter.submissionDate }}</h6>
+                                     <div class="letter-content border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
+                                         <p>{{ letter.letter }}</p>
+                                     </div>
+                                 </div>
+                             </div>
+                         {% endfor %}
+                     </div>
+                 {% else %}
+                     <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters available for this applicant.</p>
+                 {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const decisionSelect = document.getElementById('decision');
+        const rejectReasonContainer = document.getElementById('rejectReasonContainer');
+        const rejectReasonSelect = document.getElementById('rejectReason');
+
+        function toggleRejectReasonVisibility() {
+            if (decisionSelect.value === 'Reject') {
+                rejectReasonContainer.style.display = 'block';
+                rejectReasonSelect.required = true;
+            } else {
+                rejectReasonContainer.style.display = 'none';
+                rejectReasonSelect.required = false;
+                rejectReasonSelect.value = "";
+            }
+        }
+
+        toggleRejectReasonVisibility();
+
+        if (decisionSelect) {
+            decisionSelect.addEventListener('change', toggleRejectReasonVisibility);
+        } else {
+            console.error("Decision select element not found.");
+        }
+    });
+</script>
+
+<style>
+    /* Styles for the review form */
+    .card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .letter-content {
+        background-color: #f8f9fa;
+        border-color: #dee2e6 !important;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+        border-color: rgba(106, 17, 203, 0.5);
+    }
+    
+    .form-check-input:checked {
+        background-color: #6a11cb;
+        border-color: #6a11cb;
+    }
+    
+    /* Hover effect for prior degree items */
+    .bg-light.shadow-sm {
+        transition: all 0.3s ease;
+    }
+    
+    .bg-light.shadow-sm:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
+{% endblock %}
