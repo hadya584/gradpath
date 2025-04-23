@@ -726,10 +726,12 @@ def newReview(UID):
     
     # Process and save ratings for each recommendation letter
     for letter in letters:
-      letter_id = letter['id']
+      letter_id = letter[0]
       rating_key = f"rating_{letter_id}"
       generic_key = f"generic_{letter_id}"
       credible_key = f"credible_{letter_id}"
+
+      print(rating_key)
       
       rating = request.form.get(rating_key)
       
@@ -743,7 +745,9 @@ def newReview(UID):
       is_generic = 1 if request.form.get(generic_key) else 0
       is_credible = 1 if request.form.get(credible_key) else 0
       
+      print(rating)
       if rating:  # Only update if rating was provided
+        print(is_generic, is_credible, letter_id)
         cursor.execute("""
           UPDATE recommendationLetter 
           SET rating = ?, isGeneric = ?, isCredible = ?
@@ -789,6 +793,10 @@ def viewReviews(UID):
   cursor.execute("SELECT * FROM reviewForm WHERE UID = ?", (UID,))
   rows = cursor.fetchall()
 
+  print('rows')
+  for row in rows:
+    print(dict(row))
+
   # Get all application information of the applicant
   cursor.execute("SELECT * FROM application WHERE UID = ?", (UID,))
   application = cursor.fetchone()
@@ -796,6 +804,11 @@ def viewReviews(UID):
   # Fetch recommendation letters for this applicant
   cursor.execute("SELECT * FROM recommendationLetter WHERE UID = ?", (UID,))
   recommendation_letters = cursor.fetchall()
+
+  print('reclets')
+  for reclet in recommendation_letters:
+    print(dict(reclet))
+  
   
   connection.commit()
   connection.close()
@@ -893,11 +906,27 @@ def reviewForm(UID):
     cursor = connection.cursor()
     decision = request.form.get('decision')
     if (decision == 'Admit without Aid' or decision == 'Admit with Aid'):
-      cursor.execute("UPDATE application set applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Admitted', decision, UID))
+      cursor.execute("UPDATE application SET applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Admitted', decision, UID))
     elif (decision == 'Reject'):
-      cursor.execute("UPDATE application set applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Rejected', decision, UID))
+      cursor.execute("UPDATE application SET applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Rejected', decision, UID))
+    
+    for reclet in recommendationLetters:
+      letter_id = reclet['id']  # Extract the letter ID
+      rating_key = f"rating_{letter_id}"  # Dynamically generate the key
+      generic_key = f"generic_{letter_id}"
+      credible_key = f"credible_{letter_id}"
+
+        # Retrieve values from the form
+      rating = request.form.get(rating_key)
+      isgeneric = 1 if request.form.get(generic_key) else 0
+      iscredible = 1 if request.form.get(credible_key) else 0
+      
+      cursor.execute("UPDATE recommendationLetter SET rating = ?, isGeneric = ?, isCredible = ? WHERE id = ?", (rating, isgeneric, iscredible, letter_id))
+
+
     connection.commit()
     connection.close()
+    flash("Review submitted successfully", "success")
     return redirect('/facultyHome')
 
   if (session['role'] == 'Faculty'):
