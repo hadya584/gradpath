@@ -10,8 +10,8 @@ app.debug = True
 """ STUDENT ROUTES """
 
 # Defines the home page for applicants/students
-@app.route('/home', methods=['GET', 'POST'])
-def home():
+@app.route('/applicantHome', methods=['GET', 'POST'])
+def applicantHome():
   # Stores role in session
   role = session.get('role')
   if not role:
@@ -277,7 +277,7 @@ def home():
       condition = 1
       
     connection.close()
-    return render_template('home.html', error=error, pastInfo=pastInfo, persInfo=persInfo, UID=UID, condition=condition, priors=priors, app=app, recLets=recLets)
+    return render_template('applicantHome.html', error=error, pastInfo=pastInfo, persInfo=persInfo, UID=UID, condition=condition, priors=priors, app=app, recLets=recLets)
     
   except sqlite3.Error as e:
     if 'connection' in locals():
@@ -306,7 +306,7 @@ def defineRecommenders():
     if not UID:
         flash('User session not found. Please log in again.', 'error')
         connection.close()
-        return redirect(url_for('home'))
+        return redirect(url_for('applicantHome'))
     
     # A list of dictionaries, each dictionary contains the name, email, and affiliation of a recommender
     recommenders = []
@@ -350,7 +350,7 @@ def defineRecommenders():
         connection.commit()
         flash('Recommender information saved. Simulated emails have been sent.', 'success')
         # Redirect to home on success
-        return redirect(url_for('home')) 
+        return redirect(url_for('applicantHome')) 
 
     except sqlite3.Error as e:
         connection.rollback()
@@ -384,7 +384,7 @@ def defineRecommenders():
 def submitRecommendation(token):
     if session.get('role') != 'Student':
       flash('Access denied. Student privileges required.', 'danger')
-      return redirect(url_for('home'))
+      return redirect(url_for('applicantHome'))
     
     connection = sqlite3.connect("myDatabase.db")
     connection.row_factory = sqlite3.Row
@@ -493,7 +493,7 @@ def createPassword():
       elif session['role'] in ['Faculty', 'CAC', 'GS']:
         return redirect(url_for('facultyHome'))
       else:
-        return redirect(url_for('home'))
+        return redirect(url_for('applicantHome'))
         
     # Check if we're in signup flow (should have email but not a fully created account)
     if not session.get('email') and not session.get('new_user') and not request.method == 'POST':
@@ -632,7 +632,7 @@ def login():
 
           # Redirects to home page with username in session
           if role == 'Student':
-            return redirect(url_for('home'))
+            return redirect(url_for('applicantHome'))
           elif role == 'Admin':
             return redirect(url_for('adminDashboard'))
           else:
@@ -822,7 +822,7 @@ def viewReviews(UID):
 def facultyHome():
   if session.get('role') != 'Faculty' and session.get('role') != 'GS' and session.get('role') != 'CAC':
     flash('Access denied. Faculty privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
   
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
@@ -862,7 +862,7 @@ def facultyHome():
 def reviewForm(UID):
   if session.get('role') != 'Faculty' and session.get('role') != 'GS' and session.get('role') != 'CAC':
     flash('Access denied. Faculty privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
   
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
@@ -915,7 +915,7 @@ def reviewForm(UID):
     return render_template('reviewForm.html', row = row, role = 3, numberOfReviews = numberOfReviews, condition = condition, priorDegrees = priorDegrees, app = app, recommendationLetters = recommendationLetters) #For Admin
   else:
     flash("You are not authorized to access this page", 'danger')
-    return redirect('/home') #You should not be here...
+    return redirect('/applicantHome') #You should not be here...
 
 """ ADMIN ROUTES """
 
@@ -933,7 +933,7 @@ def adminDashboard():
   # Check if user is admin
   if session.get('role') != 'Admin':
     flash('Access denied. Admin privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
   
   # Get all applicants, faculties, GS, and CAC
   connection = sqlite3.connect("myDatabase.db")
@@ -958,7 +958,7 @@ def create_user():
   # Check if user is admin
   if session.get('role') != 'Admin':
     flash('Access denied. Admin privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
     
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
@@ -999,7 +999,7 @@ def edit_user(uid):
   # Check if user is admin
   if session.get('role') != 'Admin':
     flash('Access denied. Admin privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
     
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
@@ -1039,7 +1039,7 @@ def delete_user(uid):
   # Check if user is admin
   if session.get('role') != 'Admin':
     flash('Access denied. Admin privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
   
   # Validate UID
   if not uid or not uid.isdigit():
@@ -1111,7 +1111,7 @@ def delete_user(uid):
 def update_transcript(UID):
   if session.get('role') != 'GS':
     flash('Access denied. GS privileges required.', 'danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('applicantHome'))
     
   transcript_status = request.form.get('transcript_status')
   
