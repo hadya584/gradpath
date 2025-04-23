@@ -243,23 +243,6 @@
               </div>
 
               <!-- App Time -->
-              <div class="mb-1">
-                <label for="yearPicker" class="form-label">Select Time of Application:</label>
-                <div class="row">
-                  <div class="col-md-6 mb-1">
-                    <label for="yearPicker" class="form-label">Year</label>
-                    <select class="form-select" id="yearPicker" disabled></select>
-                  </div>
-                  <div class="col-md-6 mb-1">
-                    <label for="semesterPicker" class="form-label">Semester</label>
-                    <select class="form-select" id="semesterPicker" name="semesterPicker" required disabled>
-                      <option value="">--Select a Semester--</option>
-                      <option value="Fall" {% if app.applySemester=="Fall" %}selected{% endif %}>Fall</option>
-                      <option value="Spring" {% if app.applySemester=="Spring" %}selected{% endif %}>Spring</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
 
               <hr class="hr hr-blurry" />
               <h2>Application</h2>
@@ -591,8 +574,8 @@
                     <label for="semesterPicker" class="form-label">Semester</label>
                     <select class="form-select" id="semesterPicker" name="semesterPicker">
                       <option value="">--Select a Semester--</option>
-                      <option value="Fall" {% if app.applySemester=="Fall" %}selected{% endif %}>Fall</option>
-                      <option value="Spring" {% if app.applySemester=="Spring" %}selected{% endif %}>Spring</option>
+                      <option value="Fall" {% if pastInfo.applySemester=="Fall" %}selected{% endif %}>Fall</option>
+                      <option value="Spring" {% if pastInfo.applySemester=="Spring" %}selected{% endif %}>Spring</option>
                     </select>
                   </div>
                 </div>

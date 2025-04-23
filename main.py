@@ -211,11 +211,11 @@ def home():
 
             # If there was already a academicInfo table made
             if pastInfo:
-              cursor.execute('UPDATE academicInformation set degree = ?, GRE_Verbal = ?, GRE_Quant = ?, GRE_Year = ?, GRE_Advanced = ?, GRE_Subject = ?, TOEFL_Score = ?, TOEFL_Date = ?, AreasOfInterest = ?, priorWorkExp = ?  WHERE UID = ?',(degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, Interests, priorWorkExp, UID))
+              cursor.execute('UPDATE academicInformation set degree = ?, GRE_Verbal = ?, GRE_Quant = ?, GRE_Year = ?, GRE_Advanced = ?, GRE_Subject = ?, TOEFL_Score = ?, TOEFL_Date = ?, AreasOfInterest = ?, priorWorkExp = ?, applySemester = ?, applyYear = ? WHERE UID = ?',(degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, Interests, priorWorkExp, AppSem, AppYear, UID))
           
             # If we need to make a new table
             else:
-              cursor.execute('INSERT INTO academicInformation (UID, degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, areasOfInterest, priorWorkExp, transcripts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (UID, degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, Interests, priorWorkExp, 1))
+              cursor.execute('INSERT INTO academicInformation (UID, degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, areasOfInterest, priorWorkExp, transcripts, applySemester, applyYear) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (UID, degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, Interests, priorWorkExp, 1, AppSem, AppYear))
 
             # Updates personal info if no errors
             cursor.execute('UPDATE user set firstName = ?, lastName = ?, ssn = ?, email = ?, phone = ?, address = ?, address2 = ? WHERE UID = ?', (fName, lName, SSN, email, pNumber, addr1, addr2, UID))
@@ -283,11 +283,13 @@ def home():
     if 'connection' in locals():
       connection.rollback()
       connection.close()
+      
     flash(f"Database error: {str(e)}", "error")
     return redirect('/')
   except Exception as e:
     if 'connection' in locals():
       connection.close()
+      
     flash(f"An error occurred: {str(e)}", "error")
     return redirect('/')
   
@@ -790,10 +792,6 @@ def viewReviews(UID):
   cursor.execute("SELECT * FROM reviewForm WHERE UID = ?", (UID,))
   rows = cursor.fetchall()
 
-  print('rows')
-  for row in rows:
-    print(dict(row))
-
   # Get all application information of the applicant
   cursor.execute("SELECT * FROM application WHERE UID = ?", (UID,))
   application = cursor.fetchone()
@@ -801,15 +799,10 @@ def viewReviews(UID):
   # Fetch recommendation letters for this applicant
   cursor.execute("SELECT * FROM recommendationLetter WHERE UID = ?", (UID,))
   recommendation_letters = cursor.fetchall()
-
-  print('reclets')
-  for reclet in recommendation_letters:
-    print(dict(reclet))
-  
   
   connection.commit()
   connection.close()
-  if (rows):
+  if len(rows) < 3:
     isEmpty = 0
   else:
     isEmpty = 1
@@ -854,8 +847,11 @@ def facultyHome():
   }
   codes = [code_map.get(row['applicationStatus']) for row in rows_taken]
 
+  # maps the number of reviews for the uid in row the same way codes is mapped
+  numrevs = [cursor.execute("SELECT COUNT(*) FROM reviewForm WHERE UID = ?", (row['UID'],)).fetchone()[0] for row in rows_taken]
+
   # Build once, make it re‑iterable
-  rows = list(zip(rows_taken, codes))
+  rows = list(zip(rows_taken, codes, numrevs))
 
   connection.commit()
   connection.close()

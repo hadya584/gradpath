@@ -145,6 +145,8 @@ CREATE TABLE academicInformation (
   areasOfInterest           varchar(100),
   priorWorkExp              varchar(200),
   transcripts               varchar(50),
+  applySemester           varchar(10) CHECK (applySemester IN ('Fall', 'Spring')),
+  applyYear               varchar(4),
   FOREIGN KEY (UID) REFERENCES user(UID)
 );
 

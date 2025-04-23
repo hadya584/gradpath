@@ -21,10 +21,11 @@
             {% elif session['role'] == "CAC" %}
               <th>View/Write reviews</th>
             {% endif %}
+            <th>Number of Reviews</th>
           </tr>
         </thead>
         <tbody>
-          {% for row, code in rows %}
+          {% for row, code, numrevs in rows %}
           <tr>
             <td>
               <div class="d-flex align-items-center">
@@ -114,6 +115,9 @@
                 </form>
               </td>
             {% endif %}
+            <td class="text-center">
+              {{numrevs}}
+            </td>
             </tr>
           {% endfor %}
         </tbody>
