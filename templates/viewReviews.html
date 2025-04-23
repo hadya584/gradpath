@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Application Reviews - {{ application.data[1] }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 fade-in-content">
+    <h2 class="mb-4 text-center">Application Reviews for {{ application.data[1] }} ({{ UID }})</h2>
+
+    {% if isEmpty == 0 %}
+        <!-- Review Summary Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header text-white gradient-custom">
+                <i class="fas fa-clipboard-list me-2"></i>Review Summary
+            </div>
+            <div class="card-body">
+                <div class="alert alert-secondary mb-3" role="alert">
+                    <i class="fas fa-info-circle me-2"></i><strong>Decision Legend:</strong> 0=Reject, 1=Borderline Admit, 2=Admit without Aid, 3=Admit with Aid
+                </div>
+                {% for row in rows %}
+                    <div class="review-item mb-3 p-3 border rounded bg-light shadow-sm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><i class="fas fa-user me-2 text-primary"></i><strong>Reviewer:</strong> {{ row.reviewerUID }}</p>
+                                <p><i class="fas fa-calendar-alt me-2 text-primary"></i><strong>Reviewed on:</strong> {{ row.reviewDate }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><i class="fas fa-chart-line me-2 text-primary"></i><strong>Decision:</strong> {{ row.GAS_Rating }}</p>
+                                <p><i class="fas fa-comment me-2 text-primary"></i><strong>GAS Comments:</strong> {{ row.comments }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- Application Details -->
+                <div class="application-details mt-4 border-top pt-3">
+                    <h5><i class="fas fa-file-alt me-2"></i>Additional Application Details</h5>
+                    {% if application.data.recommendedAdvisor %}
+                        <p><i class="fas fa-user-tie me-2 text-muted"></i><strong>Recommended Advisor:</strong> {{ application.data.recommendedAdvisor }}</p>
+                    {% endif %}
+                    
+                    {% if application.data.deficiencyCourses %}
+                        <p><i class="fas fa-book me-2 text-muted"></i><strong>Deficiency Courses:</strong> {{ application.data.deficiencyCourses }}</p>
+                    {% endif %}
+                    
+                    {% if application.data.rejectReason %}
+                        <p><i class="fas fa-times-circle me-2 text-muted"></i><strong>Rejection Reason:</strong> {{ application.data.rejectReason }}</p>
+                    {% endif %}
+                </div>
+                <div class="form-text mt-2">
+                    <i class="fas fa-key me-1"></i>A=Incomplete Record, B=Does not meet minimum Requirements, C=Problems with Letters, D=Not competitive, E=Other reasons
+               </div>
+            </div>
+        </div>
+
+        <!-- Recommendation Letters Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header text-white gradient-custom">
+                <i class="fas fa-envelope me-2"></i>Recommendation Letters Summary
+            </div>
+            <div class="card-body">
+                {% if application.recommendation_letters %}
+                    {% for letter in application.recommendation_letters %}
+                        <div class="letter-item mb-3 p-3 border rounded bg-light shadow-sm">
+                             <h5 class="card-title mb-3"><i class="fas fa-user-graduate me-2 text-primary"></i>Letter from: {{ letter['writerName'] }} ({{ letter['writerAffiliation'] }})</h5>
+                             <div class="row">
+                                <div class="col-md-6">
+                                    <p><i class="fas fa-star me-2 text-warning"></i><strong>Rating:</strong> {% if letter['rating'] %}{{ letter['rating'] }}/5{% else %}Not rated{% endif %}</p>
+                                    <p><i class="fas fa-copy me-2 text-warning"></i><strong>Generic:</strong> {% if letter['isGeneric'] == 1 %}Yes{% else %}No{% endif %}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><i class="fas fa-check-circle me-2 text-success"></i><strong>Credible:</strong> {% if letter['isCredible'] == 1 %}Yes{% else %}No{% endif %}</p>
+                                    <p><i class="fas fa-calendar-check me-2 text-success"></i><strong>Submission Date:</strong> {% if letter['submissionDate'] %}{{ letter['submissionDate'] }}{% else %}Not submitted{% endif %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters submitted or reviewed for this applicant.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Final Decision Form Card (for GS/CAC) -->
+        {% if session['role'] == "GS" or (session['role'] == "CAC" and application.data[4] is none) %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header text-white gradient-custom">
+                    <i class="fas fa-gavel me-2"></i>Make Final Decision
+                </div>
+                <div class="card-body">
+                    <form action="/reviewForm/{{ UID }}" method="POST">
+                        <div class="mb-3">
+                            <label for="decision" class="form-label"><strong>Choose a decision:</strong></label>
+                            <select name="decision" id="decision" class="form-select" required>
+                                <option value="">Select Decision</option>
+                                <option value="Reject">Reject</option>
+                                <option value="Admit without Aid">Admit without Aid</option>
+                                <option value="Admit with Aid">Admit with Aid</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success gradient-custom text-white"><i class="fas fa-check-circle me-2"></i>Submit Final Decision</button>
+                    </form>
+                </div>
+            </div>
+        {% elif session['role'] == "CAC" and application.data[4] is not none %}
+             <div class="alert alert-info shadow-sm" role="alert">
+                 <i class="fas fa-info-circle me-2"></i>Final decision has already been made: <strong>{{ application.data[4] }}</strong>
+             </div>
+        {% endif %}
+
+    {% elif isEmpty == 1 %}
+        <div class="alert alert-warning shadow-sm" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>There are less than 3 reviews for this applicant yet. A final decision cannot be made until at least 3 reviews are submitted.
+        </div>
+    {% endif %}
+
+    <a href="/home" class="btn btn-secondary gradient-custom text-white mt-3"><i class="fas fa-arrow-left me-2"></i>Back to Home</a>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* Styles for the review page */
+    .review-item, .letter-item {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+    
+    .review-item:hover, .letter-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .alert {
+        border-radius: 10px;
+    }
+    
+    /* Override for back button */
+    .btn-secondary.gradient-custom {
+        background: linear-gradient(to right, #6c757d, #495057);
+    }
+    
+    .btn-secondary.gradient-custom:hover {
+        background: linear-gradient(to right, #5a6268, #343a40);
+    }
+</style>
+{% endblock %}

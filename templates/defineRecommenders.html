@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1>Define Recommenders</h1>
+    <form method="POST" action="/define-recommenders" enctype="multipart/form-data">
+        <h5>Please provide contact information for your recommenders. They will be sent instructions on how to submit their letters.</h5>
+        <hr>
+        <h5>Recommender 1</h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="rec1_name">Name</label>
+                <input type="text" class="form-control" id="rec1_name" name="rec1_name" value="{{ rec_Lets[0].writerName if rec_Lets else '' }}" required>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="rec1_email">Email</label>
+                <input type="email" class="form-control" id="rec1_email" name="rec1_email" value="{{ rec_Lets[0].writerEmail if rec_Lets else '' }}" required>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="rec1_affiliation">Affiliation</label>
+                <input type="text" class="form-control" id="rec1_affiliation" name="rec1_affiliation" value="{{ rec_Lets[0].writerAffiliation if rec_Lets else '' }}">
+            </div>
+        </div>
+
+        <h5>Recommender 2</h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="rec2_name">Name</label>
+                <input type="text" class="form-control" id="rec2_name" name="rec2_name" value="{{ rec_Lets[1].writerName if rec_Lets[1] else '' }}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="rec2_email">Email</label>
+                <input type="email" class="form-control" id="rec2_email" name="rec2_email" value="{{ rec_Lets[1].writerEmail if rec_Lets[1] else '' }}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="rec2_affiliation">Affiliation</label>
+                <input type="text" class="form-control" id="rec2_affiliation" name="rec2_affiliation" value="{{ rec_Lets[1].writerAffiliation if rec_Lets[1] else '' }}">
+            </div>
+        </div>
+
+        <h5>Recommender 3</h5>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="rec3_name">Name</label>
+                <input type="text" class="form-control" id="rec3_name" name="rec3_name" value="{{ rec_Lets[2].writerName if rec_Lets[2] else '' }}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="rec3_email">Email</label>
+                <input type="email" class="form-control" id="rec3_email" name="rec3_email" value="{{ rec_Lets[2].writerEmail if rec_Lets[2] else '' }}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="rec3_affiliation">Affiliation</label>
+                <input type="text" class="form-control" id="rec3_affiliation" name="rec3_affiliation" value="{{ rec_Lets[2].writerAffiliation if rec_Lets[2] else '' }}">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Define Recommenders</button>
+    </form>
+</div>
+{% endblock %}

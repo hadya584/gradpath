@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Edit User</h1>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Edit User: {{ user.UID }}</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('edit_user', uid=user.UID ) }}" method="POST">
+                <div class="mb-3">
+                    <label for="uid" class="form-label">UID</label>
+                    <input type="text" class="form-control" id="uid" value="{{ user.UID }}" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="Faculty" {% if user.role == 'Faculty' %}selected{% endif %}>Faculty Reviewer</option>
+                        <option value="GS" {% if user.role == 'GS' %}selected{% endif %}>Graduate Secretary</option>
+                        <option value="CAC" {% if user.role == 'CAC' %}selected{% endif %}>Chair of Admissions Committee</option>
+                        <option value="Admin" {% if user.role == 'Admin' %}selected{% endif %}>Admin</option>
+                        <option value="Student" {% if user.role == 'Student' %}selected{% endif %}>Student</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="text" class="form-control" id="password" name="password" value="{{ user.password }}" required>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{{ url_for('adminDashboard') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

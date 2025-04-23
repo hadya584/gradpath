@@ -45,7 +45,7 @@ CREATE TABLE student (
   program   VARCHAR(50) CHECK (program IN ('Masters', 'PhD')),
   thesis_status   VARCHAR(50),
   FOREIGN KEY (UID) REFERENCES user(UID),
-  FOREIGN KEY (advisor_id) REFERENCES faculty(faculty_id)
+  FOREIGN KEY (advisor_id) REFERENCES faculty(UID)
 );
 
 CREATE TABLE faculty (
@@ -145,6 +145,8 @@ CREATE TABLE academicInformation (
   areasOfInterest           varchar(100),
   priorWorkExp              varchar(200),
   transcripts               varchar(50),
+  applySemester           varchar(10) CHECK (applySemester IN ('Fall', 'Spring')),
+  applyYear               varchar(4),
   FOREIGN KEY (UID) REFERENCES user(UID)
 );
 
@@ -211,3 +213,18 @@ CREATE TABLE form1_course (
   foreign key (form1_id) references form1(form1_id),
   foreign key (course_id) references course(course_id)
 );
+
+INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) 
+VALUES ('66666667', 'Student', 'pass', 'Ringo', 'Starr', '222-11-1111', 'starr@gmail.com', '101-010-1010', 'Address #1', 'Address #2');
+
+INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) 
+VALUES ('00000000', 'Admin', 'pass', 'Ringo', 'Starr', '222-11-1111', 'eh@gmail.com', '101-010-1010', 'Address #1', 'Address #2');
+
+INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) 
+VALUES ('10101010', 'GS', 'pass', 'Ringo', 'Starr', '222-11-1111', 'ueib@gmail.com', '101-010-1010', 'Address #1', 'Address #2');
+
+INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) 
+VALUES ('12345678', 'CAC', 'pass', 'Ringo', 'Starr', '222-11-1111', 'ebr@gmail.com', '101-010-1010', 'Address #1', 'Address #2');
+
+INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) 
+VALUES ('12345679', 'Faculty', 'pass', 'Ringo', 'Starr', '222-11-1111', 'starverr@gmail.com', '101-010-1010', 'Address #1', 'Address #2');
