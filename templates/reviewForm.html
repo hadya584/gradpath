@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Review Application - {{ row[1] }} {{ row[2] }}{% endblock %}
+{% block title %}Review Application - {{ row['firstName'] }} {{ row['lastName'] }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4 fade-in-content">
@@ -77,63 +77,62 @@
         </div>
     </div>
 
-
     <!-- Recommendation Letters and Review Form Section -->
     {% if role == 0 or role == 2 or role == 3 %}
         <div class="card mb-4 shadow-sm">
-             <div class="card-header text-white gradient-custom">
-                 <i class="fas fa-clipboard-check me-2"></i>Recommendation Letters & Review
-             </div>
-             <div class="card-body">
-                <h4 class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i>Recommendation Letters</h4>
-                {% if recommendationLetters %}
-                    <div class="recommendation-letters mb-4">
-                        {% for letter in recommendationLetters %}
-                            <div class="card mb-3 shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title"><i class="fas fa-user-tie me-2 text-primary"></i>Recommendation from: {{ letter.writerName }} ({{ letter.writerAffiliation }})</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-envelope me-2"></i>Email: {{ letter.writerEmail }} | <i class="fas fa-calendar-alt me-2"></i>Submitted: {{ letter.submissionDate }}</h6>
-                                    <div class="letter-content border p-2 mb-3 rounded" style="max-height: 200px; overflow-y: auto;">
-                                        <p>{{ letter.letter }}</p>
-                                    </div>
+            <div class="card-header text-white gradient-custom">
+                <i class="fas fa-clipboard-check me-2"></i>Recommendation Letters & Review
+            </div>
+            <div class="card-body">
+                <form action="/newReview/{{ row.UID }}" method="POST">
+                    <h4 class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i>Recommendation Letters</h4>
+                    {% if recommendationLetters %}
+                        <div class="recommendation-letters mb-4">
+                            {% for letter in recommendationLetters %}
+                                <div class="card mb-3 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-user-tie me-2 text-primary"></i>Recommendation from: {{ letter.writerName }} ({{ letter.writerAffiliation }})</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-envelope me-2"></i>Email: {{ letter.writerEmail }} | <i class="fas fa-calendar-alt me-2"></i>Submitted: {{ letter.submissionDate }}</h6>
+                                        <div class="letter-content border p-2 mb-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                                            <p>{{ letter.letter }}</p>
+                                        </div>
 
-                                    <div class="letter-rating-form row g-3 align-items-center">
-                                        <div class="col-md-4">
-                                            <label for="rating_{{ letter.id }}" class="form-label"><i class="fas fa-star me-2 text-warning"></i><strong>Rating:</strong></label>
-                                            <select name="rating_{{ letter.id }}" id="rating_{{ letter.id }}" class="form-select form-select-sm">
-                                                <option value="">Select Rating</option>
-                                                <option value="1">1 - Poor</option>
-                                                <option value="2">2 - Below Average</option>
-                                                <option value="3">3 - Average</option>
-                                                <option value="4">4 - Good</option>
-                                                <option value="5">5 - Excellent</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="generic_{{ letter.id }}" name="generic_{{ letter.id }}" value="1">
-                                                <label class="form-check-label" for="generic_{{ letter.id }}"><i class="fas fa-copy me-2 text-warning"></i>Generic Letter</label>
+                                        <div class="letter-rating-form row g-3 align-items-center">
+                                            <div class="col-md-4">
+                                                <label for="rating_{{ letter.id }}" class="form-label"><i class="fas fa-star me-2 text-warning"></i><strong>Rating:</strong></label>
+                                                <select name="rating_{{ letter.id }}" id="rating_{{ letter.id }}" class="form-select form-select-sm">
+                                                    <option value="">Select Rating</option>
+                                                    <option value="1">1 - Poor</option>
+                                                    <option value="2">2 - Below Average</option>
+                                                    <option value="3">3 - Average</option>
+                                                    <option value="4">4 - Good</option>
+                                                    <option value="5">5 - Excellent</option>
+                                                </select>
                                             </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                             <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="credible_{{ letter.id }}" name="credible_{{ letter.id }}" value="1">
-                                                <label class="form-check-label" for="credible_{{ letter.id }}"><i class="fas fa-check-circle me-2 text-success"></i>Credible Source</label>
+                                            <div class="col-md-4">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="generic_{{ letter.id }}" name="generic_{{ letter.id }}" value="1">
+                                                    <label class="form-check-label" for="generic_{{ letter.id }}"><i class="fas fa-copy me-2 text-warning"></i>Generic Letter</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="credible_{{ letter.id }}" name="credible_{{ letter.id }}" value="1">
+                                                    <label class="form-check-label" for="credible_{{ letter.id }}"><i class="fas fa-check-circle me-2 text-success"></i>Credible Source</label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters available for this applicant.</p>
-                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters available for this applicant.</p>
+                    {% endif %}
 
-                <!-- GAS Review Form -->
-                <hr>
-                <h4 class="mt-4 mb-3"><i class="fas fa-clipboard-list me-2 text-primary"></i>Grad Admissions Committee (GAS) Review</h4>
-                <form action="/newReview/{{ row.UID }}" method="POST">
+                    <!-- GAS Review Form -->
+                    <hr>
+                    <h4 class="mt-4 mb-3"><i class="fas fa-clipboard-list me-2 text-primary"></i>Grad Admissions Committee (GAS) Review</h4>
                     <div class="mb-3">
                         <label for="decision" class="form-label"><i class="fas fa-gavel me-2 text-primary"></i><strong>Decision:</strong></label>
                         <select name="decision" id="decision" class="form-select" required>
@@ -144,8 +143,8 @@
                             <option value="Admit with Aid">Admit with Aid</option>
                         </select>
                     </div>
-                     <div id="rejectReasonContainer" style="display: none;">
-                         <div class="mb-3">
+                    <div id="rejectReasonContainer" style="display: none;">
+                        <div class="mb-3">
                             <label for="rejectReason" class="form-label"><i class="fas fa-times-circle me-2 text-danger"></i>Reasons for Reject (if applicable):</label>
                             <select id="rejectReason" name="rejectReason" class="form-select">
                                 <option value="">N/A</option>
@@ -155,8 +154,8 @@
                                 <option value="D">D - Not competitive</option>
                                 <option value="E">E - Other reasons</option>
                             </select>
-                         </div>
-                     </div>
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label for="recommendedAdvisor" class="form-label"><i class="fas fa-user-tie me-2 text-primary"></i>Recommended Advisor (if any):</label>
@@ -179,29 +178,29 @@
         </div>
     {% else %}
         <!-- Read-only View for other roles -->
-         <div class="card mb-4 shadow-sm">
-             <div class="card-header text-white gradient-custom">
-                 <i class="fas fa-envelope me-2"></i>Recommendation Letters
-             </div>
-             <div class="card-body">
-                 <h4 class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i>Recommendation Letters</h4>
-                 {% if recommendationLetters %}
-                     <div class="recommendation-letters">
-                         {% for letter in recommendationLetters %}
-                              <div class="card mb-3 shadow-sm">
-                                 <div class="card-body">
-                                     <h5 class="card-title"><i class="fas fa-user-tie me-2 text-primary"></i>Recommendation from: {{ letter.writerName }} ({{ letter.writerAffiliation }})</h5>
-                                     <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-envelope me-2"></i>Email: {{ letter.writerEmail }} | <i class="fas fa-calendar-alt me-2"></i>Submitted: {{ letter.submissionDate }}</h6>
-                                     <div class="letter-content border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
-                                         <p>{{ letter.letter }}</p>
-                                     </div>
-                                 </div>
-                             </div>
-                         {% endfor %}
-                     </div>
-                 {% else %}
-                     <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters available for this applicant.</p>
-                 {% endif %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header text-white gradient-custom">
+                <i class="fas fa-envelope me-2"></i>Recommendation Letters
+            </div>
+            <div class="card-body">
+                <h4 class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i>Recommendation Letters</h4>
+                {% if recommendationLetters %}
+                    <div class="recommendation-letters">
+                        {% for letter in recommendationLetters %}
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-user-tie me-2 text-primary"></i>Recommendation from: {{ letter.writerName }} ({{ letter.writerAffiliation }})</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-envelope me-2"></i>Email: {{ letter.writerEmail }} | <i class="fas fa-calendar-alt me-2"></i>Submitted: {{ letter.submissionDate }}</h6>
+                                    <div class="letter-content border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
+                                        <p>{{ letter.letter }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i>No recommendation letters available for this applicant.</p>
+                {% endif %}
             </div>
         </div>
     {% endif %}

@@ -682,7 +682,7 @@ def newReview(UID):
       flash("Invalid applicant ID provided", "error")
       return redirect('/facultyHome')
       
-    # Get the reviewer's UID, date of review, and decision for the application from the session for documentation purposes
+    # Get the reviewer's UID from the session for documentation purposes
     reviewerID = session.get('UID')
     if not reviewerID:
       flash("You must be logged in to submit a review", "error")
@@ -696,25 +696,25 @@ def newReview(UID):
     
     # Validate decision value
     valid_decisions = ['Reject', 'Borderline Admit', 'Admit without Aid', 'Admit with Aid']
-    if val not in valid_decisions:
+    if not val or val not in valid_decisions:
       flash("Invalid decision value", "error")
       return redirect(f'/reviewForm/{UID}')
 
     # Set the score based on the decision
-    if (val == 'Reject'):
+    if val == 'Reject':
       score = 0
-    elif (val == 'Borderline Admit'):
+    elif val == 'Borderline Admit':
       score = 1
-    elif (val == 'Admit without Aid'):
+    elif val == 'Admit without Aid':
       score = 2
-    elif (val == 'Admit with Aid'):
+    elif val == 'Admit with Aid':
       score = 3
 
     # Get the comments, deficiency courses, reject reason, and recommended advisor from the form
-    comments = request.form.get('GAS')
-    deficiency = request.form.get('Deficiency')
+    comments = request.form.get('GAS', '')
+    deficiency = request.form.get('Deficiency', '')
     rejectReason = request.form.get('rejectReason') if val == 'Reject' else None
-    recommendedAdvisor = request.form.get('recommendedAdvisor')
+    recommendedAdvisor = request.form.get('recommendedAdvisor', '')
 
     connection = sqlite3.connect("myDatabase.db")
     connection.row_factory = sqlite3.Row
@@ -726,14 +726,12 @@ def newReview(UID):
     
     # Process and save ratings for each recommendation letter
     for letter in letters:
-      letter_id = letter[0]
+      letter_id = letter['id']  # Access using dictionary-style with row_factory
       rating_key = f"rating_{letter_id}"
       generic_key = f"generic_{letter_id}"
       credible_key = f"credible_{letter_id}"
-
-      print(rating_key)
       
-      rating = request.form.get(rating_key)
+      rating = request.form.get(rating_key, '')
       
       # Validate rating if provided
       if rating and not rating.isdigit():
@@ -745,9 +743,7 @@ def newReview(UID):
       is_generic = 1 if request.form.get(generic_key) else 0
       is_credible = 1 if request.form.get(credible_key) else 0
       
-      print(rating)
       if rating:  # Only update if rating was provided
-        print(is_generic, is_credible, letter_id)
         cursor.execute("""
           UPDATE recommendationLetter 
           SET rating = ?, isGeneric = ?, isCredible = ?
@@ -755,7 +751,8 @@ def newReview(UID):
         """, (rating, is_generic, is_credible, letter_id))
     
     # Then insert the review form
-    cursor.execute("INSERT INTO reviewForm (id, UID, reviewerUID, reviewDate, GAS_Rating, comments) VALUES (?, ?, ?, ?, ?, ?)", (None, UID, reviewerID, reviewerDate, score, comments))
+    cursor.execute("INSERT INTO reviewForm (id, UID, reviewerUID, reviewDate, GAS_Rating, comments) VALUES (?, ?, ?, ?, ?, ?)", 
+                  (None, UID, reviewerID, reviewerDate, score, comments))
     
     # Update the application with deficiency courses, reject reason, and recommended advisor
     cursor.execute("""
@@ -777,7 +774,7 @@ def newReview(UID):
     flash(f"Database error: {str(e)}", "error")
     return redirect(f'/reviewForm/{UID}')
   except Exception as e:
-    if 'connection' in locals() and 'connection' in locals():
+    if 'connection' in locals():
       connection.close()
     flash(f"An error occurred: {str(e)}", "error")
     return redirect('/facultyHome')
@@ -897,7 +894,6 @@ def reviewForm(UID):
   cursor.execute("SELECT * FROM recommendationLetter WHERE UID = ?", (UID,))
   recommendationLetters = cursor.fetchall()
 
-  connection.commit()
   connection.close()
 
   if request.method == 'POST':
@@ -906,27 +902,11 @@ def reviewForm(UID):
     cursor = connection.cursor()
     decision = request.form.get('decision')
     if (decision == 'Admit without Aid' or decision == 'Admit with Aid'):
-      cursor.execute("UPDATE application SET applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Admitted', decision, UID))
+      cursor.execute("UPDATE application set applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Admitted', decision, UID))
     elif (decision == 'Reject'):
-      cursor.execute("UPDATE application SET applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Rejected', decision, UID))
-    
-    for reclet in recommendationLetters:
-      letter_id = reclet['id']  # Extract the letter ID
-      rating_key = f"rating_{letter_id}"  # Dynamically generate the key
-      generic_key = f"generic_{letter_id}"
-      credible_key = f"credible_{letter_id}"
-
-        # Retrieve values from the form
-      rating = request.form.get(rating_key)
-      isgeneric = 1 if request.form.get(generic_key) else 0
-      iscredible = 1 if request.form.get(credible_key) else 0
-      
-      cursor.execute("UPDATE recommendationLetter SET rating = ?, isGeneric = ?, isCredible = ? WHERE id = ?", (rating, isgeneric, iscredible, letter_id))
-
-
+      cursor.execute("UPDATE application set applicationStatus = ?, decisionType = ? WHERE UID = ?", ('Rejected', decision, UID))
     connection.commit()
     connection.close()
-    flash("Review submitted successfully", "success")
     return redirect('/facultyHome')
 
   if (session['role'] == 'Faculty'):
