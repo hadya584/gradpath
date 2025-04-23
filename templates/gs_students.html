@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+    <title>Student List</title>
+    <style>
+        .search-box {
+            margin-bottom: 1rem;
+        }
+        .search-box input {
+            padding: 6px;
+            width: 300px;
+        }
+    </style>
+    <script>
+        function filterStudents() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll("table tbody tr");
+
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                row.style.display = rowText.includes(query) ? "" : "none";
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>All Graduate Students</h2>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" onkeyup="filterStudents()" placeholder="Search students by name, UID, or program...">
+    </div>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Name</th>
+                <th>Program</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.UID }}</td>
+                <td>{{ student.firstName }} {{ student.lastName }}</td>
+                <td>{{ student.program }}</td>
+                <td>
+                    <form action="{{ url_for('gs_transcripts') }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="student_uid" value="{{ student.UID }}">
+                        <input type="submit" value="View Transcript">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{{ url_for('gs_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+</body>
+</html>

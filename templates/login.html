@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="uid">UID:</label><br>
+            <input type="text" name="uid" required><br>
+            <label for="password">Password:</label><br>
+            <input type="password" name="password" required><br><br>
+            <input type="submit" value="Login">
+        </form>
+
+        <a href="{{ url_for('create_account') }}">Create Account</a>
+    </div>
+</body>
+</html>

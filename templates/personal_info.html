@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Personal Info</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>My Personal Information</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST">
+        <label>UID</label>
+        <input type="text" value="{{ user.UID }}" readonly>
+
+        <label for="firstName">First Name</label>
+        <input type="text" name="firstName" value="{{ user.firstName }}" required>
+
+        <label for="lastName">Last Name</label>
+        <input type="text" name="lastName" value="{{ user.lastName }}" required>
+
+        <label for="email">Email</label>
+        <input type="email" name="email" value="{{ user.email }}" required>
+
+        <label for="phone">Phone</label>
+        <input type="text" name="phone" value="{{ user.phone }}" required>
+
+        <label for="address">Address</label>
+        <input type="text" name="address" value="{{ user.address }}" required>
+
+        <label for="address2">Address 2</label>
+        <input type="text" name="address2" value="{{ user.address2 }}">
+
+        <label for="password">Password</label>
+        <input type="password" name="password" placeholder="New password">
+
+        {% if role == 'student' %}
+            <label for="program">Program</label>
+            <input type="text" name="program" value="{{ user.program }}" readonly>
+
+            <label for="GPA">GPA</label>
+            <input type="text" name="GPA" value="{{ user.GPA }}" readonly>
+
+            <label for="thesis_status">Thesis Status</label>
+            <input type="text" name="thesis_status" value="{{ user.thesis_status }}" readonly>
+        
+        {% elif role == 'Alumni' %}
+            <label for="degree">Degree</label>
+            <input type="text" value="{{ user.degree }}" readonly>
+
+            <label for="grad_year">Graduation Year</label>
+            <input type="text" value="{{ user.grad_year }}" readonly>
+        {% endif %}
+
+        <input type="submit" value="Update Info">
+    </form>
+
+    <br>
+    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('stu_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+  </div>
+</body>
+</html>

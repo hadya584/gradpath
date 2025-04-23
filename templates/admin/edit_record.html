@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Record</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+</head>
+<body>
+<div class="container">
+  <h2>Edit {{ table | replace('_', ' ') | title }} Info</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+          {% for category, message in messages %}
+              <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+  <form method="POST">
+    {% if user_columns %}
+      <h3>User Information</h3>
+      {% for col in user_columns %}
+        <label for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
+        <input type="text" name="{{ col }}" id="{{ col }}" value="{{ record[col] }}" {% if col == 'UID' %}readonly{% endif %}>
+      {% endfor %}
+    {% endif %}
+  
+    {% if role_columns %}
+      <h3>{{ table | replace('_', ' ') | title }} Fields</h3>
+      {% for col in role_columns %}
+        <label for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
+        <input type="text" name="{{ col }}" id="{{ col }}" value="{{ record[col] }}">
+      {% endfor %}
+    {% endif %}
+  
+    {% if columns %}
+      {% for col in columns[1:] %}  {# Skip PK #}
+        <label for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
+        <input type="text" name="{{ col }}" id="{{ col }}" value="{{ record[col] }}">
+      {% endfor %}
+    {% endif %}
+  
+    <button type="submit">Save Changes</button>
+  </form>
+  
+  <a class="cancel-link" href="{{ url_for('view_table', table=table) }}">← Back to Table</a><br>
+  <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Prerequisite</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Add Course Prerequisite</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <label for="course_id">Course:</label>
+      <select name="course_id" id="course_id" required>
+        <option value="" disabled selected>-- Select a Course --</option>
+        {% for course in courses %}
+          <option value="{{ course['course_id'] }}">{{ course['course_num'] }} - {{ course['title'] }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="prereq_id">Prerequisite Course:</label>
+      <select name="prereq_id" id="prereq_id" required>
+        <option value="" disabled selected>-- Select a Prerequisite --</option>
+        {% for course in courses %}
+          <option value="{{ course['course_id'] }}">{{ course['course_num'] }} - {{ course['title'] }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit">Add Prerequisite</button>
+    </form>
+    <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+  </div>
+</body>
+</html>
+

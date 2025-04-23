@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Course</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Add Course</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="course_id">Course ID:</label>
+            <input name="course_id" id="course_id" required>
+
+            <label for="dept">Department:</label>
+            <input name="dept" id="dept" required>
+
+            <label for="course_num">Course Number:</label>
+            <input name="course_num" id="course_num" required>
+
+            <label for="title">Title:</label>
+            <input name="title" id="title" required>
+
+            <label for="credits">Credits:</label>
+            <input name="credits" id="credits" type="number" min="0" required>
+
+            <label for="instructor_id">Instructor ID (optional):</label>
+            <input name="instructor_id" id="instructor_id">
+
+            <button type="submit">Add Course</button>
+        </form>
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+    </div>
+</body>
+</html>
