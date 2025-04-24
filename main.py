@@ -1,23 +1,18 @@
-import sqlite3, random
+import sqlite3, random, uuid
 from flask import Flask, request, render_template, redirect, url_for, session, flash
-
+from flask import Flask, render_template, request, session, redirect, url_for, flash
+from datetime import datetime
 app = Flask('app')
-app.secret_key = "secret"
+app.secret_key = "BLOPRH"
+app.debug = True
 
 def get_db_connection():
     conn = sqlite3.connect('myDatabase.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.route('/')
-def welcome():
-    if 'uid' in session:
-        role = session.get('role')
-        return redirect_to_dashboard(role)
-    return render_template('welcome.html')
-
 def redirect_to_dashboard(role):
-    if role == 'student':
+    if role == 'Student':
         return redirect(url_for('stu_dashboard'))
     elif role == 'Admin':
         return redirect(url_for('admin_dashboard'))
@@ -33,7 +28,7 @@ def redirect_to_dashboard(role):
 
 @app.route('/stu_dashboard')
 def stu_dashboard():
-    if 'uid' not in session:
+    if 'UID' not in session:
         flash('Please login to access the stu_dashboard')
         return redirect(url_for('login'))
     return render_template('stu_dashboard.html', role=session['role'])
@@ -52,25 +47,25 @@ def generate_unique_uid():
 
 @app.route('/grad_secretary_dashboard')
 def grad_secretary_dashboard():
-    if 'uid' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] != 'GS':
         flash("Access denied.")
         return redirect(url_for('login'))
     return render_template('gs_dashboard.html')
 
 @app.route('/alumni_dashboard')
 def alumni_dashboard():
-    if 'uid' not in session or session['role'] != 'Alumni':
+    if 'UID' not in session or session['role'] != 'Alumni':
         flash("Access denied.")
         return redirect(url_for('login'))
     return render_template('alumni_dashboard.html')
 
 @app.route('/transcript')
 def view_transcript():
-    if 'uid' not in session or session['role'] not in ['student', 'Alumni']:
-        flash('Please log in as a student or alumni to view transcripts.', 'error')
+    if 'UID' not in session or session['role'] not in ['Student', 'Alumni']:
+        flash('Please log in as a Student or alumni to view transcripts.', 'error')
         return redirect(url_for('login'))
 
-    student_id = session['uid']
+    student_id = session['UID']
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -158,11 +153,11 @@ def catalog():
 
 @app.route('/register_course', methods=['GET', 'POST'])
 def register_course():
-    if 'uid' not in session or session['role'] != 'student':
-        flash("Only logged-in students can register.")
+    if 'UID' not in session or session['role'] != 'Student':
+        flash("Only logged-in Students can register.")
         return redirect(url_for('login'))
 
-    student_uid = session['uid']
+    student_uid = session['UID']
     conn = sqlite3.connect('myDatabase.db')
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -267,11 +262,11 @@ def register_course():
 
 @app.route('/drop_course', methods=['POST'])
 def drop_course():
-    if 'uid' not in session or session['role'] != 'student':
-        flash("Only students can drop courses.")
+    if 'UID' not in session or session['role'] != 'Student':
+        flash("Only Students can drop courses.")
         return redirect(url_for('login'))
 
-    student_uid = session['uid']
+    student_uid = session['UID']
     course_id = request.form['course_id']
     section = request.form['section']
     semester = request.form['semester']
@@ -300,11 +295,11 @@ def drop_course():
 
 @app.route('/personal_info', methods=['GET', 'POST'])
 def personal_info():
-    if 'uid' not in session or session['role'] not in ['student', 'Alumni']:
-        flash("Login as a student or alumni to view personal info.")
+    if 'UID' not in session or session['role'] not in ['Student', 'Alumni']:
+        flash("Login as a Student or alumni to view personal info.")
         return redirect(url_for('login'))
 
-    uid = session['uid']
+    uid = session['UID']
     role = session['role']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -326,7 +321,7 @@ def personal_info():
         if new_password:
             cursor.execute('UPDATE user SET password = ? WHERE UID = ?', (new_password, uid))
 
-        if role == 'student':
+        if role == 'Student':
             new_program = request.form['program'].strip().title()
             new_gpa = request.form['GPA'].strip()
             new_thesis_status = request.form['thesis_status'].strip()
@@ -340,7 +335,7 @@ def personal_info():
         conn.close()
         return redirect(url_for('personal_info'))
 
-    if role == 'student':
+    if role == 'Student':
         cursor.execute('''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
                    s.program, s.GPA, s.thesis_status
@@ -363,8 +358,8 @@ def personal_info():
 
 @app.route('/course_offerings', methods=['GET'])
 def course_offerings():
-    if 'uid' not in session or session['role'] != 'student':
-        flash("Login as a student to view course offerings.", "error")
+    if 'UID' not in session or session['role'] != 'Student':
+        flash("Login as a Student to view course offerings.", "error")
         return redirect(url_for('login'))
 
     # Clean and normalize input
@@ -429,7 +424,7 @@ def course_offerings():
 
 # Helper function to check if they have admin capabilities
 def is_admin():
-    return 'uid' in session and session.get('role') == 'Admin'
+    return 'UID' in session and session.get('role') == 'Admin'
 
 @app.route('/admin/manage')
 def admin_manage():
@@ -440,7 +435,7 @@ def admin_manage():
 
 @app.route('/gs_dashboard')
 def gs_dashboard():
-    if 'uid' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] != 'GS':
         flash("Login as a Grad Secretary to access this page.")
         return redirect(url_for('login'))
 
@@ -448,7 +443,7 @@ def gs_dashboard():
 
 @app.route('/gs_transcripts', methods=['GET', 'POST'])
 def gs_transcripts():
-    if 'uid' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] != 'GS':
         flash("Login as a Grad Secretary to access this page.")
         return redirect(url_for('login'))
 
@@ -498,7 +493,7 @@ def gs_transcripts():
 
 @app.route('/gs_students')
 def gs_students():
-    if 'uid' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] != 'GS':
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
@@ -518,7 +513,7 @@ def gs_students():
 
 @app.route('/update_grade', methods=['POST'])
 def update_grade():
-    if 'uid' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] != 'GS':
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
@@ -559,7 +554,7 @@ def update_grade():
 
 @app.route('/instructor_dashboard')
 def instructor_dashboard():
-    if 'uid' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] != 'Faculty':
         flash("Login as an instructor to access this page.")
         return redirect(url_for('login'))
 
@@ -567,11 +562,11 @@ def instructor_dashboard():
 
 @app.route('/instructor_schedule')
 def instructor_schedule():
-    if 'uid' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] != 'Faculty':
         flash("Login as an instructor to access this page.")
         return redirect(url_for('login'))
 
-    instructor_id = session['uid']
+    instructor_id = session['UID']
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -589,11 +584,11 @@ def instructor_schedule():
 
 @app.route('/instructor_courses')
 def instructor_courses():
-    if 'uid' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] != 'Faculty':
         flash("Login as an instructor to access this page.")
         return redirect(url_for('login'))
 
-    instructor_id = session['uid']
+    instructor_id = session['UID']
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -612,7 +607,7 @@ def instructor_courses():
 
 @app.route('/instructor_roster', methods=['POST'])
 def instructor_roster():
-    if 'uid' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] != 'Faculty':
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
@@ -647,11 +642,11 @@ def instructor_roster():
 
 @app.route('/instructor_grading', methods=['GET', 'POST'])
 def instructor_grading():
-    if 'uid' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] != 'Faculty':
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
-    instructor_id = session['uid']
+    instructor_id = session['UID']
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -691,7 +686,7 @@ def instructor_grading():
 
 @app.route('/submit_grade', methods=['POST'])
 def submit_grade():
-    if 'uid' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] != 'Faculty':
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
@@ -722,7 +717,7 @@ def submit_grade():
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
-    if 'uid' not in session or session['role'] != 'Admin':
+    if 'UID' not in session or session['role'] != 'Admin':
         flash("Unauthorized access.")
         return redirect(url_for('login'))
     return render_template('admin/dashboard.html')
@@ -760,7 +755,7 @@ def create_user():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (uid, firstName, lastName, email, password, role, ssn, phone, address, address2))
 
-            if role == 'student':
+            if role == 'Student':
                 if program not in ['Masters', 'PhD']:
                     raise ValueError("Program must be 'Masters' or 'PhD'")
                 cur.execute("INSERT INTO student (UID, advisor_id, GPA, program, thesis_status) VALUES (?, ?, ?, ?, ?)",
@@ -1244,16 +1239,6 @@ def calculate_gpa(transcript_rows):
     GPA = total_points / total_credits
     return round(GPA, 2)
 
-app.run(host='0.0.0.0', port=8080, debug=True)
-
-import random
-import sqlite3
-import uuid
-from flask import Flask, render_template, request, session, redirect, url_for, flash
-from datetime import datetime
-app = Flask('app')
-app.secret_key = "BLOPRH"
-app.debug = True
 
 """ Applicant ROUTES """
 
@@ -1881,6 +1866,8 @@ def login():
           # Redirects to home page with username in session
           if role == 'Applicant':
             return redirect(url_for('applicantHome'))
+          elif role == 'Student':
+            return redirect(url_for('stu_dashboard'))
           elif role == 'Admin':
             return redirect(url_for('adminDashboard'))
           elif role in ['CAC', 'GS', 'Faculty']:
@@ -2200,46 +2187,6 @@ def adminDashboard():
   # Render the admin dashboard
   return render_template('adminDashboard.html', applicants=applicants, faculties=faculty, gs=gs, advisors=advisors)
 
-# Defines a route for admins to create a new user
-@app.route('/create-user', methods=['POST'])
-def create_user():
-  # Check if user is admin
-  if session.get('role') != 'Admin':
-    flash('Access denied. Admin privileges required.', 'danger')
-    return redirect(url_for('applicantHome'))
-    
-  connection = sqlite3.connect("myDatabase.db")
-  connection.row_factory = sqlite3.Row
-  cursor = connection.cursor()
-  
-  # Get form data
-  uid = request.form.get('newUID')
-  password = request.form.get('newPassword')
-  role = request.form.get('newRole')
-  
-  # Generate UID if not provided
-  if not uid:
-    # Generate a unique UID using uuid
-    while True:
-      # Generate a random UUID and use the first 8 digits
-      uid = str(uuid.uuid4().int)[:8]
-      cursor.execute("SELECT * FROM user WHERE UID = ?", (uid,))
-      if not cursor.fetchone():
-        break
-  
-  try:
-    # Insert new user
-    cursor.execute("INSERT INTO user (UID, role, password) VALUES (?, ?, ?)", 
-                  (uid, role, password))
-    connection.commit()
-    flash(f"User created successfully with UID: {uid}", "success")
-  except sqlite3.Error as e:
-    connection.rollback()
-    flash(f"Error creating user: {str(e)}", "danger")
-  finally:
-    connection.close()
-  
-  return redirect(url_for('adminDashboard'))
 
 # Defines a route for admins to edit an existing user
 @app.route('/edit-user/<uid>', methods=['GET', 'POST'])
@@ -2397,7 +2344,7 @@ def reset():
 # - Davis, Miles with SSN 222-22-3333 and univ ID 22222222
 # - Monk, Thelonious with SSN 333-22-3333 and univ ID 33333333
 # - Getz, Stan with SSN 444-22-3333 and ID 44444444
-# - Applicants: There must be two applicants entered into the system with the student numbers and other
+# - Applicants: There must be two applicants entered into the system with the Student numbers and other
 # data as specified below:
 # - John Lennon, SSN 111-11-1111, (and univ ID 12312312) and application is complete but no reviews.
 # Provide us with their system login info (so they can check on their status).

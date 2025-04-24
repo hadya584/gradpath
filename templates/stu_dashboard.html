@@ -19,7 +19,7 @@
         <div class="nav-buttons">
             <a href="{{ url_for('catalog') }}" class="nav-button">View Course Catalog</a>
             
-            {% if session['role'] == 'student' %}
+            {% if session['role'] == 'Student' %}
                 <a href="{{ url_for('view_transcript') }}" class="nav-button">View My Transcript</a>
                 <a href="{{ url_for('register_course') }}" class="nav-button">Register Course</a>
                 <a href="{{ url_for('personal_info') }}" class="nav-button">Personal Info</a> 

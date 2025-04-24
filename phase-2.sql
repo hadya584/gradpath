@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS academicInformation;
 DROP TABLE IF EXISTS priorDegree;
 DROP TABLE IF EXISTS recommendationLetter;
 DROP TABLE IF EXISTS reviewForm;
-DROP TABLE IF EXISTS student;
+DROP TABLE IF EXISTS Student;
 DROP TABLE IF EXISTS faculty;
 DROP TABLE IF EXISTS grad_secretary;
 DROP TABLE IF EXISTS admin;
@@ -27,7 +27,7 @@ PRAGMA foreign_keys=ON;
 -- User table with roles now
 CREATE TABLE user (
     UID                     INTEGER not null PRIMARY KEY,
-    role                    varchar(50) not null CHECK (role IN ('Applicant', 'student', 'Faculty', 'GS', 'CAC', 'Admin', 'Alumni')),
+    role                    varchar(50) not null CHECK (role IN ('Applicant', 'Student', 'Faculty', 'GS', 'CAC', 'Admin', 'Alumni')),
     password                varchar(50) not null,
     firstName               varchar(50) not null,
     lastName                varchar(50) not null,
@@ -105,15 +105,15 @@ CREATE TABLE schedule (
 );
 
 CREATE TABLE transcript (
-    student_uid INT,
+    Student_uid INT,
     course_id INT,
     section INT,
     semester VARCHAR(20),
     year INT,
     grade VARCHAR(2) CHECK (grade IN ('A','A-','B+','B','B-','C+','C','F','IP')),
     graded BOOLEAN DEFAULT FALSE,
-    PRIMARY KEY (student_uid, course_id, section, semester),
-    FOREIGN KEY (student_uid) REFERENCES User(UID),
+    PRIMARY KEY (Student_uid, course_id, section, semester),
+    FOREIGN KEY (Student_uid) REFERENCES User(UID),
     FOREIGN KEY (course_id, section, semester, year) REFERENCES schedule(course_id, section, semester, year) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -196,14 +196,14 @@ CREATE TABLE applied_for_grad (
   application_id   INTEGER not null PRIMARY KEY,
   UID              INTEGER not null,
   cleared          VARCHAR(50) not null CHECK (cleared IN ('Cleared', 'Not Cleared')),
-  foreign key (UID) references student(UID)
+  foreign key (UID) references Student(UID)
 );
 
 CREATE TABLE form1 (
   form1_id         INTEGER not null PRIMARY KEY,
   UID              INTEGER not null,
   status           VARCHAR(50) not null CHECK (status IN ('Submitted', 'Approved', 'Rejected')),
-  foreign key (UID) references student(UID)
+  foreign key (UID) references Student(UID)
 );
 
 CREATE TABLE form1_course (
@@ -217,18 +217,18 @@ CREATE TABLE form1_course (
 
 INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, address, address2) VALUES
 (10000001, 'adminuser', 'Admin', 'adminuser@example.com', 'adminpass123', 'Admin', '000-00-0001', '555-0001', 'Admin Blvd', NULL),
-(20000001, 'Taylor', 'Swift', 'taylor.swift@uni.edu', 'pass', 'student', '000-00-0002', '555-0002', '123 Music Ave', NULL),
-(20000002, 'Harry', 'Styles', 'harry.styles@uni.edu', 'pass', 'student', '000-00-0003', '555-0003', '234 Style St', NULL),
-(20000003, 'Zendaya', 'Coleman', 'zendaya@uni.edu', 'pass', 'student', '000-00-0004', '555-0004', '345 Fame Blvd', NULL),
-(20000004, 'Timothee', 'Chalamet', 'timothee@uni.edu', 'pass', 'student', '000-00-0005', '555-0005', '456 Actor Rd', NULL),
-(20000005, 'Emma', 'Watson', 'emma.watson@uni.edu', 'pass', 'student', '000-00-0006', '555-0006', '567 Magic Ln', NULL),
-(20000006, 'Drake', 'Graham', 'drake@uni.edu', 'pass', 'student', '000-00-0007', '555-0007', '678 Rap St', NULL),
-(20000007, 'Ariana', 'Grande', 'ariana@uni.edu', 'pass', 'student', '000-00-0008', '555-0008', '789 Pop Ct', NULL),
-(20000008, 'Billie', 'Eilish', 'billieE@uni.edu', 'pass', 'student', '000-00-0009', '555-0009', '890 Alt Rd', NULL),
-(20000009, 'Dwayne', 'Johnson', 'dwayne@uni.edu', 'pass', 'student', '000-00-0010', '555-0010', '901 Rock Blvd', NULL),
-(20000010, 'Selena', 'Gomez', 'selena@uni.edu', 'pass', 'student', '000-00-0011', '555-0011', '012 Star Way', NULL),
-(88888888, 'Billie', 'Holiday', 'billie@uni.edu', 'billiepass', 'student', '000-00-0012', '555-0012', '100 Jazz St', NULL),
-(99999999, 'Diana', 'Krall', 'diana@uni.edu', 'dianapass', 'student', '000-00-0013', '555-0013', '101 Blues St', NULL),
+(20000001, 'Taylor', 'Swift', 'taylor.swift@uni.edu', 'pass', 'Student', '000-00-0002', '555-0002', '123 Music Ave', NULL),
+(20000002, 'Harry', 'Styles', 'harry.styles@uni.edu', 'pass', 'Student', '000-00-0003', '555-0003', '234 Style St', NULL),
+(20000003, 'Zendaya', 'Coleman', 'zendaya@uni.edu', 'pass', 'Student', '000-00-0004', '555-0004', '345 Fame Blvd', NULL),
+(20000004, 'Timothee', 'Chalamet', 'timothee@uni.edu', 'pass', 'Student', '000-00-0005', '555-0005', '456 Actor Rd', NULL),
+(20000005, 'Emma', 'Watson', 'emma.watson@uni.edu', 'pass', 'Student', '000-00-0006', '555-0006', '567 Magic Ln', NULL),
+(20000006, 'Drake', 'Graham', 'drake@uni.edu', 'pass', 'Student', '000-00-0007', '555-0007', '678 Rap St', NULL),
+(20000007, 'Ariana', 'Grande', 'ariana@uni.edu', 'pass', 'Student', '000-00-0008', '555-0008', '789 Pop Ct', NULL),
+(20000008, 'Billie', 'Eilish', 'billieE@uni.edu', 'pass', 'Student', '000-00-0009', '555-0009', '890 Alt Rd', NULL),
+(20000009, 'Dwayne', 'Johnson', 'dwayne@uni.edu', 'pass', 'Student', '000-00-0010', '555-0010', '901 Rock Blvd', NULL),
+(20000010, 'Selena', 'Gomez', 'selena@uni.edu', 'pass', 'Student', '000-00-0011', '555-0011', '012 Star Way', NULL),
+(88888888, 'Billie', 'Holiday', 'billie@uni.edu', 'billiepass', 'Student', '000-00-0012', '555-0012', '100 Jazz St', NULL),
+(99999999, 'Diana', 'Krall', 'diana@uni.edu', 'dianapass', 'Student', '000-00-0013', '555-0013', '101 Blues St', NULL),
 (30000001, 'Leonardo', 'DiCaprio', 'leo@alumni.edu', 'pass', 'Alumni', '000-00-0014', '555-0014', 'alumni Way', NULL),
 (30000002, 'Natalie', 'Portman', 'natalie@alumni.edu', 'pass', 'Alumni', '000-00-0015', '555-0015', 'alumni Way', NULL),
 (30000003, 'Morgan', 'Freeman', 'morgan@alumni.edu', 'pass', 'Alumni', '000-00-0016', '555-0016', 'alumni Way', NULL),
@@ -255,7 +255,7 @@ INSERT INTO faculty (UID, dept) VALUES
 (33333333, 'CSCI');
 
 -- populate with additional info - about each typeuser, grad year, address, etc
-INSERT INTO student (UID, advisor_id, GPA, program, thesis_status) VALUES
+INSERT INTO Student (UID, advisor_id, GPA, program, thesis_status) VALUES
 (20000001, 50000001, 3.92, 'Masters', 'Incomplete'),
 (20000002, 50000001, 3.88, 'PhD', 'Complete'),
 (20000003, 50000002, 3.76, 'Masters', 'Incomplete'),
@@ -372,8 +372,8 @@ INSERT INTO course_prerequisite (course_id, prereq_id) VALUES
 -- Cryptography 2 prerequisites
 (19, 15); -- CSCI 6384 requires CSCI 6284
 
-INSERT INTO transcript (student_uid, course_id, section, semester, year, grade, graded) VALUES
--- students
+INSERT INTO transcript (Student_uid, course_id, section, semester, year, grade, graded) VALUES
+-- Students
 (20000001, 1, 1, 'Fall', 2024, 'IP', FALSE),
 (20000002, 100, 1, 'Fall', 2024, 'IP', FALSE),
 (20000003, 101, 1, 'Fall', 2024, 'IP', FALSE),
