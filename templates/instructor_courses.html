@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Courses You Teach</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Your Courses</h2>
+
+    {% if courses %}
+    <table>
+        <tr>
+            <th>Course #</th>
+            <th>Title</th>
+            <th>Section</th>
+            <th>Semester</th>
+            <th>Year</th>
+            <th>Actions</th>
+        </tr>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.course_num }}</td>
+            <td>{{ course.title }}</td>
+            <td>{{ course.section }}</td>
+            <td>{{ course.semester }}</td>
+            <td>{{ course.year }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('instructor_roster') }}">
+                    <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                    <input type="hidden" name="section" value="{{ course.section }}">
+                    <input type="hidden" name="semester" value="{{ course.semester }}">
+                    <button type="submit">View Roster</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+      <p>You are not teaching any courses.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('instructor_dashboard') }}" class="nav-button">
+        ← Back to Dashboard</button>
+    </a>
+  </div>
+</body>
+</html>
+

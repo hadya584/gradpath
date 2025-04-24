@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Submit Recommendation{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    {% if recommendation_info %}
+        <h2>Submit Recommendation for Applicant {{ recommendation_info.UID }}</h2>
+        <p>Submitted by: {{ recommendation_info.writerName }} ({{ recommendation_info.writerEmail }})</p>
+        <hr>
+        <form method="POST">
+            <div class="form-group">
+                <label for="letter">Recommendation Letter</label>
+                <textarea class="form-control" id="letter" name="letter" rows="10" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary mt-3">Submit Recommendation</button>
+        </form>
+    {% else %}
+        <div class="alert alert-warning">Invalid or expired submission link.</div>
+    {% endif %}
+</div>
+{% endblock %} 

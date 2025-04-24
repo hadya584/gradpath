@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Alumni Dashboard</h1>
+
+        <div class="nav-buttons">
+            <a href="{{ url_for('view_transcript') }}" class="nav-button">View Transcript</a>
+            <a href="{{ url_for('personal_info') }}" class="nav-button">Personal Info</a> 
+            <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Student Dashboard</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        
+        <div class="nav-buttons">
+            <a href="{{ url_for('catalog') }}" class="nav-button">View Course Catalog</a>
+            
+            {% if session['role'] == 'Student' %}
+                <a href="{{ url_for('view_transcript') }}" class="nav-button">View My Transcript</a>
+                <a href="{{ url_for('register_course') }}" class="nav-button">Register Course</a>
+                <a href="{{ url_for('personal_info') }}" class="nav-button">Personal Info</a> 
+                <a href="{{ url_for('course_offerings') }}" class="nav-button">Course Offerings</a>
+            {% endif %}
+
+            <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

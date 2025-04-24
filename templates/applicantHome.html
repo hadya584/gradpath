@@ -1,0 +1,1576 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-3">
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+  {% if condition %}
+  <form action="/applicantHome" method="POST">
+    <div class="row">
+      <!-- Academic Info Column -->
+      <div class="col-md-6 mb-1">
+        <div class="card bg-dark text-white h-100" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <div class="text-center">
+              <h2 class="fw-bold mb-2 text-uppercase">Academic Info</h2>
+
+              <!-- Desired degree -->
+              <div class="mb-1">
+                <label for="degree" class="form-label">Desired Degree</label>
+                <select class="form-select" id="degree" name="degree" value="{{ pastInfo.degree }}" required disabled>
+                  <option value="" readonly>--Select a degree--</option>
+                  <option value="MS" {% if pastInfo.degree=="MS" %}selected{% endif %} readonly>Master of Science</option>
+                  <option value="PhD" {% if pastInfo.degree=="PhD" %}selected{% endif %} readonly>PhD</option>
+                </select>
+              </div>
+
+              <!-- GRE Scores -->
+              <div class="mb-1">
+                <label for="greScores" class="form-label">GRE Scores:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="greVerbal" class="form-label">Verbal</label>
+                    <input type="text" class="form-control" id="greVerbal" name="greVerbal"
+                      value="{{ pastInfo.GRE_Verbal }}" readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="greQuant" class="form-label">Quantitative</label>
+                    <input type="text" class="form-control" id="greQuant" name="greQuant"
+                      value="{{ pastInfo.GRE_Quant }}" readonly>
+                  </div>
+                </div>
+                <div class="mb-1">
+                  <label for="greYear" class="form-label">Year of Exam</label>
+                  <input type="text" class="form-control" id="greYear" name="greYear" value="{{ pastInfo.GRE_Year }}"
+                    readonly>
+                </div>
+              </div>
+
+              <!-- GRE Advanced Scores -->
+              <div class="mb-1">
+                <label for="greScores" class="form-label">GRE Advanced Score:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="greAdScore" class="form-label">Score</label>
+                    <input type="text" class="form-control" id="greAdScore" name="greAdScore"
+                      value="{{ pastInfo.GRE_Advanced }}" readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="greAdSubject" class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="greAdSubject" name="greAdSubject"
+                      value="{{ pastInfo.GRE_Subject }}" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TOEFL Scores -->
+              <div class="mb-1">
+                <label for="greScores" class="form-label">TOEFL Scores:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="toeflScore" class="form-label">Score</label>
+                    <input type="text" class="form-control" id="toeflScore" name="toeflScore"
+                      value="{{ pastInfo.TOEFL_Score }}" readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="toeflDate" class="form-label">Date of Exam</label>
+                    <input type="text" class="form-control" id="toeflDate" name="toeflDate"
+                      value="{{ pastInfo.TOEFL_Date }}" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Prior Degrees Section -->
+              <div class="mb-4">
+                <h4 class="fw-bold mb-3">Prior Degrees</h4>
+
+                <!-- First Prior Degree -->
+                <div class="card mb-3 p-3 bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.1);">
+                  <div class="mb-2 d-flex align-items-center">
+                    <label class="form-label me-3 mb-0">Degree Type: MS (Optional)</label>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12 mb-2">
+                      <label for="priorUni1" class="form-label">University</label>
+                      <input type="text" class="form-control" id="priorUni1" name="priorUni1"
+                        value="{{ priors[0].institution if priors[0] else None }}" readonly>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <label for="priorMajor1" class="form-label">Major</label>
+                      <input type="text" class="form-control" id="priorMajor1" name="priorMajor1"
+                        value="{{ priors[0].major if priors[0] else None }}" readonly>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorGPA1" class="form-label">GPA</label>
+                      <input type="text" class="form-control" id="priorGPA1" name="priorGPA1"
+                        value="{{ priors[0].GPA if priors[0] else None }}" readonly>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorYear1" class="form-label">Year</label>
+                      <input type="text" class="form-control" id="priorYear1" name="priorYear1"
+                        value="{{ priors[0].year if priors[0] else None }}" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Second Prior Degree (Optional) -->
+                <div class="card p-3 bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.1);">
+                  <div class="mb-2 d-flex align-items-center">
+                    <label class="form-label me-3 mb-0">Degree Type:</label>
+                    <select class="form-select" id="degreeType2" name="degreeType2" disabled>
+                      <option value="">--Select a Degree Type--</option>
+                      <option value="BA" {% if priors[1] and priors[1].degreeName=="BA" %}selected{% endif %}>Bachelor
+                        of Arts (BA)</option>
+                      <option value="BS" {% if priors[1] and priors[1].degreeName=="BS" %}selected{% endif %}>Bachelor
+                        of Science (BS)</option>
+                    </select>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12 mb-2">
+                      <label for="priorUni2" class="form-label">University</label>
+                      <input type="text" class="form-control" id="priorUni2" name="priorUni2"
+                        value="{{ priors[1].institution if priors[1] else None }}" readonly>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <label for="priorMajor2" class="form-label">Major</label>
+                      <input type="text" class="form-control" id="priorMajor2" name="priorMajor2"
+                        value="{{ priors[1].major if priors[1] else None }}" readonly>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorGPA2" class="form-label">GPA</label>
+                      <input type="text" class="form-control" id="priorGPA2" name="priorGPA2"
+                        value="{{ priors[1].GPA if priors[1] else None}}" readonly>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorYear2" class="form-label">Year</label>
+                      <input type="text" class="form-control" id="priorYear2" name="priorYear2"
+                        value="{{ priors[1].year if priors[1] else None }}" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Areas of interest -->
+              <div class="mb-1">
+                <label for="aoi" class="form-label">Areas of Interest</label>
+                <textarea class="form-control" id="aoi" name="aoi" rows="3" value="{{ pastInfo.areasOfInterest }}"
+                  required readonly>{{ pastInfo.areasOfInterest }}</textarea>
+              </div>
+
+              <!-- Prior Work Experience -->
+              <div class="mb-1">
+                <label for="workExp" class="form-label">Prior Work Experience</label>
+                <textarea class="form-control" id="workExp" name="workExp" rows="3" value="{{ pastInfo.priorWorkExp }}"
+                  required readonly>{{ pastInfo.priorWorkExp }}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Info Column -->
+      <div class="col-md-6 mb-1">
+        <div class="card bg-dark text-white h-100" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <div class="text-center">
+              <h2 class="fw-bold mb-1 text-uppercase">Personal Info</h2>
+
+              <!-- Names -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName"
+                      value="{{ persInfo.firstName }}" required readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName"
+                      value="{{ persInfo.lastName }}" required readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- UID & Email -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="UID" class="form-label">UID</label>
+                    <input type="text" class="form-control" id="UID" name="UID" value="{{ UID }}" required readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ persInfo.email }}"
+                      required readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SSN & Phone Number -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="SSN" class="form-label">SSN</label>
+                    <input type="password" class="form-control" id="SSN" name="SSN" value="{{ persInfo.ssn }}" required
+                      readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="pNumber" class="form-label">Phone Number</label>
+                    <input type="pNumber" class="form-control" id="pNumber" name="pNumber" value="{{ persInfo.phone }}"
+                      required readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Addresses -->
+              <div class="mb-1">
+                <label for="addr1" class="form-label">Address 1</label>
+                <input type="text" class="form-control" id="addr1" name="addr1" value="{{ persInfo.address }}" required
+                  readonly>
+              </div>
+              <div class="mb-1">
+                <label for="addr2" class="form-label">Address 2</label>
+                <input type="text" class="form-control" id="addr2" name="addr2" value="{{ persInfo.address2 }}" required
+                  readonly>
+              </div>
+
+              <!-- App Time -->
+
+              <hr class="hr hr-blurry" />
+              <h2>Application</h2>
+
+              <!-- App Time -->
+              <div class="mb-1">
+                <label for="yearPicker" class="form-label">Select Time of Application:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="yearPicker" class="form-label">Year</label>
+                    <input type="text" class="form-control" id="yearPicker" name="yearPicker"
+                      value="{{ app.applyYear }}" required readonly>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="semesterPicker" class="form-label">Semester</label>
+                    <select class="form-select" id="semesterPicker" name="semesterPicker" disabled>
+                      <option value="">--Select a Semester--</option>
+                      <option value="Fall" {% if app.applySemester=="Fall" %}selected{% endif %}>Fall</option>
+                      <option value="Spring" {% if app.applySemester=="Spring" %}selected{% endif %}>Spring</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <br>
+
+              <!-- Application Status -->
+              <div class="mb-4">
+                <div
+                  class="card p-3 {% if app.applicationStatus == 'Admitted' %}border-success{% elif app.applicationStatus == 'Rejected' %}border-danger{% elif app.applicationStatus == 'Incomplete' %}border-warning{% else %}border-primary{% endif %}"
+                  style="border-width: 2px; border-radius: 0.5rem;">
+                  <div class="text-center">
+                    <h3 class="fw-bold text-uppercase">Application Status:</h3>
+                    <div class="mt-3" id="status-container">
+                      {% if app.applicationStatus == 'Incomplete' %}
+                      <h2 class="text-warning mb-0">{{ app.applicationStatus }}</h2>
+                      <p class="text-muted mt-2">Please complete all required fields to submit your application.</p>
+                      {% elif app.applicationStatus == 'Complete and Under Review' %}
+                      <h2 class="text-primary mb-0">{{ app.applicationStatus }}</h2>
+                      <p class="text-muted mt-2">Your application is being reviewed by the admissions committee.</p>
+                      {% elif app.applicationStatus == 'Admitted' %}
+                      <h2 class="text-success mb-0">{{ app.applicationStatus }}</h2>
+                      <p class="text-muted mt-2">Congratulations! Your application has been accepted.</p>
+                      <div id="confetti-container"></div>
+                      {% elif app.applicationStatus == 'Rejected' %}
+                      <h2 class="text-danger mb-0">{{ app.applicationStatus }}</h2>
+                      <p class="text-muted mt-2">We regret to inform you that your application has not been accepted.
+                      </p>
+                      <div class="mt-3" id="rejection-mark">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                          <path d="M20,20 L80,80 M80,20 L20,80" stroke="#dc3545" stroke-width="10"
+                            stroke-linecap="round" />
+                        </svg>
+                      </div>
+                      {% elif app.applicationStatus == 'Reviewed' %}
+                      <h2 class="text-primary mb-0">{{ app.applicationStatus }}</h2>
+                      <p class="text-muted mt-2">Your application has been reviewed and is awaiting a final decision.
+                      </p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <!-- Action buttons -->
+                <div class="mt-3">
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
+                    type="submit" name="action" value="submit">Save Changes</button>
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
+                    type="submit" name="action" value="apply">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% else %}
+  <form action="/applicantHome" method="POST">
+    <div class="row">
+      <!-- Academic Info Column -->
+      <div class="col-md-6 mb-1">
+        <div class="card bg-dark text-white h-100" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <div class="text-center">
+              <h2 class="fw-bold mb-2 text-uppercase">Academic Info</h2>
+
+              <!-- Desired degree -->
+              <div class="mb-1">
+                <label for="degree" class="form-label">Desired Degree</label>
+                <select class="form-select" id="degree" name="degree" value="{{ pastInfo.degree }}" required>
+                  <option value="">--Select a degree--</option>
+                  <option value="MS" {% if pastInfo.degree=="MS" %}selected{% endif %}>Master of Science</option>
+                  <option value="PhD" {% if pastInfo.degree=="PhD" %}selected{% endif %}>PhD</option>
+                </select>
+              </div>
+
+              <!-- GRE Scores -->
+              <div class="mb-1">
+                <label for="greScores" class="form-label">GRE Scores:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="greVerbal" class="form-label">Verbal</label>
+                    <input type="text" class="form-control" id="greVerbal" name="greVerbal"
+                      value="{{ pastInfo.GRE_Verbal }}">
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="greQuant" class="form-label">Quantitative</label>
+                    <input type="text" class="form-control" id="greQuant" name="greQuant"
+                      value="{{ pastInfo.GRE_Quant }}">
+                  </div>
+                </div>
+                <div class="mb-1">
+                  <label for="greYear" class="form-label">Year of Exam</label>
+                  <input type="text" class="form-control" id="greYear" name="greYear" value="{{ pastInfo.GRE_Year }}">
+                </div>
+              </div>
+
+              <!-- GRE Advanced Scores -->
+              <div class="mb-1">
+                <label for="greScores" class="form-label">GRE Advanced Score:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="greAdScore" class="form-label">Score</label>
+                    <input type="text" class="form-control" id="greAdScore" name="greAdScore"
+                      value="{{ pastInfo.GRE_Advanced }}">
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="greAdSubject" class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="greAdSubject" name="greAdSubject"
+                      value="{{ pastInfo.GRE_Subject }}">
+                  </div>
+                </div>
+              </div>
+
+              <!-- TOEFL Scores -->
+              <div class="mb-1">
+                <label for="greScores" class="form-label">TOEFL Scores:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="toeflScore" class="form-label">Score</label>
+                    <input type="text" class="form-control" id="toeflScore" name="toeflScore"
+                      value="{{ pastInfo.TOEFL_Score }}">
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="toeflDate" class="form-label">Date of Exam</label>
+                    <input type="text" class="form-control" id="toeflDate" name="toeflDate"
+                      value="{{ pastInfo.TOEFL_Date }}">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Prior Degrees Section -->
+              <div class="mb-4">
+                <h4 class="fw-bold mb-3">Prior Degrees</h4>
+
+                <!-- First Prior Degree -->
+                <div class="card mb-3 p-3 bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.1);">
+                  <div class="mb-2 d-flex align-items-center">
+                    <label class="form-label me-3 mb-0">Degree Type: MS (Optional)</label>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12 mb-2">
+                      <label for="priorUni1" class="form-label">University</label>
+                      <input type="text" class="form-control" id="priorUni1" name="priorUni1"
+                        value="{{ priors[0].institution if priors[0] else '' }}">
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <label for="priorMajor1" class="form-label">Major</label>
+                      <input type="text" class="form-control" id="priorMajor1" name="priorMajor1"
+                        value="{{ priors[0].major if priors[0] else '' }}">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorGPA1" class="form-label">GPA</label>
+                      <input type="text" class="form-control" id="priorGPA1" name="priorGPA1"
+                        value="{{ priors[0].GPA if priors[0] else '' }}">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorYear1" class="form-label">Year</label>
+                      <input type="text" class="form-control" id="priorYear1" name="priorYear1"
+                        value="{{ priors[0].year if priors[0] else '' }}">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Second Prior Degree (Optional) -->
+                <div class="card p-3 bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.1);">
+                  <div class="mb-2 d-flex align-items-center">
+                    <label class="form-label me-3 mb-0">Degree Type:</label>
+                    <select class="form-select" id="degreeType2" name="degreeType2">
+                      <option value="">--Select a Degree Type--</option>
+                      <option value="BA" {% if priors[1] and priors[1].degreeName=="BA" %}selected{% endif %}>Bachelor
+                        of Arts (BA)</option>
+                      <option value="BS" {% if priors[1] and priors[1].degreeName=="BS" %}selected{% endif %}>Bachelor
+                        of Science (BS)</option>
+                    </select>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12 mb-2">
+                      <label for="priorUni2" class="form-label">University</label>
+                      <input type="text" class="form-control" id="priorUni2" name="priorUni2"
+                        value="{{ priors[1].institution if priors[1] else '' }}">
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <label for="priorMajor2" class="form-label">Major</label>
+                      <input type="text" class="form-control" id="priorMajor2" name="priorMajor2"
+                        value="{{ priors[1].major if priors[1] else '' }}">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorGPA2" class="form-label">GPA</label>
+                      <input type="text" class="form-control" id="priorGPA2" name="priorGPA2"
+                        value="{{ priors[1].GPA if priors[1] else '' }}">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label for="priorYear2" class="form-label">Year</label>
+                      <input type="text" class="form-control" id="priorYear2" name="priorYear2"
+                        value="{{ priors[1].year if priors[1] else '' }}">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Areas of interest -->
+              <div class="mb-1">
+                <label for="aoi" class="form-label">Areas of Interest</label>
+                <textarea class="form-control" id="aoi" name="aoi" rows="3" value="{{ pastInfo.areasOfInterest }}"
+                  required>{{ pastInfo.areasOfInterest }}</textarea>
+              </div>
+
+              <!-- Prior Work Experience -->
+              <div class="mb-1">
+                <label for="workExp" class="form-label">Prior Work Experience</label>
+                <textarea class="form-control" id="workExp" name="workExp" rows="3" value="{{ pastInfo.priorWorkExp }}"
+                  required>{{ pastInfo.priorWorkExp }}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Info Column -->
+      <div class="col-md-6 mb-1">
+        <div class="card bg-dark text-white h-100" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <div class="text-center">
+              <h2 class="fw-bold mb-1 text-uppercase">Personal Info</h2>
+
+              <!-- Names -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName"
+                      value="{{ persInfo.firstName }}" required>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName"
+                      value="{{ persInfo.lastName }}" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- UID & Email -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="UID" class="form-label">UID</label>
+                    <input type="text" class="form-control" id="UID" name="UID" value="{{ UID }}" required>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ persInfo.email }}"
+                      required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SSN & Phone Number -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="SSN" class="form-label">SSN</label>
+                    <input type="password" class="form-control" id="SSN" name="SSN" value="{{ persInfo.ssn }}" required>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="pNumber" class="form-label">Phone Number</label>
+                    <input type="pNumber" class="form-control" id="pNumber" name="pNumber" value="{{ persInfo.phone }}"
+                      required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Addresses -->
+              <div class="mb-1">
+                <label for="addr1" class="form-label">Address 1</label>
+                <input type="text" class="form-control" id="addr1" name="addr1" value="{{ persInfo.address }}" required>
+              </div>
+              <div class="mb-1">
+                <label for="addr2" class="form-label">Address 2</label>
+                <input type="text" class="form-control" id="addr2" name="addr2" value="{{ persInfo.address2 }}">
+              </div>
+
+              <hr class="hr hr-blurry" />
+              <h2>Application</h2>
+
+              <!-- App Time -->
+              <div class="mb-1">
+                <label for="yearPicker" class="form-label">Select Time of Application:</label>
+                <div class="row">
+                  <div class="col-md-6 mb-1">
+                    <label for="yearPicker" class="form-label">Year</label>
+                    <input type="text" class="form-control" id="yearPicker" name="yearPicker"
+                      value="{{ app.applyYear if app else 2025 }}" required>
+                  </div>
+                  <div class="col-md-6 mb-1">
+                    <label for="semesterPicker" class="form-label">Semester</label>
+                    <select class="form-select" id="semesterPicker" name="semesterPicker">
+                      <option value="">--Select a Semester--</option>
+                      <option value="Fall" {% if pastInfo.applySemester=="Fall" %}selected{% endif %}>Fall</option>
+                      <option value="Spring" {% if pastInfo.applySemester=="Spring" %}selected{% endif %}>Spring</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <!-- Sent Transcripts Check -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-4 mb-1">
+                    <div class="form-check">
+                      <label class="form-check-label" for="flexCheckDefault">Sent Transcript</label>
+                    </div>
+                  </div>
+                  <div class="col-md-2 mb-1">
+                    <div>
+                      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <!-- Rec Letters -->
+              {% for rec in recLets %}
+              <!-- Application Status -->
+              <div class="mb-1">
+                <div class="row">
+                  <div class="col-md-4 mb-1">
+                    <h6>Recommendation Letter:</h6>
+                  </div>
+                  <div class="col-md-8 mb-1">
+                    <label for="applicationStatus" class="form-label">{{ rec.writerName }}</label>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+
+
+              <!-- Application Status -->
+              <div class="mb-4">
+                <div
+                  class="card p-3 {% if app.applicationStatus == 'Admitted' %}border-success{% elif app.applicationStatus == 'Rejected' %}border-danger{% elif app.applicationStatus == 'Incomplete' %}border-warning{% else %}border-primary{% endif %}"
+                  style="border-width: 2px; border-radius: 0.5rem;">
+                  <div class="text-center">
+                    <h3 class="fw-bold text-uppercase">Application Status:</h3>
+                    <div class="mt-3" id="status-container">
+                      <h2 class="text-warning mb-0">Incomplete</h2>
+                      <p class="text-muted mt-2">Please complete all required fields to submit your application.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <!-- Action buttons -->
+                <div class="mt-3">
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
+                    type="submit" name="action" value="submit">Save Changes</button>
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
+                    type="submit" name="action" value="apply">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+</div>
+
+<script>
+  document.getElementById('degree').addEventListener('change', function () {
+    const greSection = document.getElementById('greSection');
+
+    if (this.value === 'PhD') {
+      greSection.style.display = 'block';
+    } else {
+      greSection.style.display = 'none';
+    }
+  });
+</script>
+<script>
+  const startYear = 1980;
+  const endYear = new Date().getFullYear();
+  const select = document.getElementById("yearPicker");
+
+  // Replace this with the year passed from Flask
+  const selectedYear = '{{ app.applyYear if app else 2025 }}';
+
+  for (let year = endYear; year >= startYear; year--) {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+
+    // Set the selected attribute if the year matches the selectedYear
+    if (year.toString() === selectedYear) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+  }
+</script>
+
+{% if app.applicationStatus == 'Admitted' %}
+<!-- Confetti JS -->
+<script>
+  // Confetti effect for admitted status
+  document.addEventListener('DOMContentLoaded', function () {
+    // Create celebration overlay
+    const celebrationOverlay = document.createElement('div');
+    celebrationOverlay.className = 'celebration-overlay';
+    document.body.appendChild(celebrationOverlay);
+
+    // CELEBRATION TIME COME ON
+    const celebrationAudio = document.createElement('audio');
+    celebrationAudio.id = 'celebration-audio';
+    celebrationAudio.src = '/static/celebration.mp3';
+    celebrationAudio.loop = true;
+    celebrationAudio.volume = 0.7;
+
+    // Add audio controls
+    const audioControls = document.createElement('div');
+    audioControls.className = 'audio-controls';
+    audioControls.innerHTML = `
+      <button id="toggle-audio" class="audio-btn">
+        <span class="audio-icon">🔊</span> Toggle Music
+      </button>
+    `;
+    document.body.appendChild(audioControls);
+
+    // Try to play audio (may be blocked by browser autoplay policy)
+    celebrationAudio.play().catch(error => {
+      console.log('Autoplay prevented. Click the play button to start music.', error);
+    });
+
+    document.body.appendChild(celebrationAudio);
+
+    // Toggle audio button functionality
+    const toggleAudioBtn = document.getElementById('toggle-audio');
+    toggleAudioBtn.addEventListener('click', function () {
+      if (celebrationAudio.paused) {
+        celebrationAudio.play();
+        toggleAudioBtn.querySelector('.audio-icon').textContent = '🔊';
+      } else {
+        celebrationAudio.pause();
+        toggleAudioBtn.querySelector('.audio-icon').textContent = '🔇';
+      }
+    });
+
+    // Create cat GIFs
+    const leftCatContainer = document.createElement('div');
+    leftCatContainer.className = 'cat-gif left-cat';
+    leftCatContainer.innerHTML = '<img src="/static/cat.gif" alt="Celebration Cat">';
+    document.body.appendChild(leftCatContainer);
+
+    const rightCatContainer = document.createElement('div');
+    rightCatContainer.className = 'cat-gif right-cat';
+    rightCatContainer.innerHTML = '<img src="/static/cat.gif" alt="Celebration Cat">';
+    document.body.appendChild(rightCatContainer);
+
+    // Create congratulations popup
+    const congratsPopup = document.createElement('div');
+    congratsPopup.className = 'congrats-popup';
+    congratsPopup.innerHTML = `
+      <div class="congrats-content">
+        <h1 class="congrats-title">CONGRATULATIONS!</h1>
+        <h2 class="congrats-subtitle">YOU'VE BEEN ACCEPTED!</h2>
+        <p class="congrats-message">We're thrilled to welcome you to our program!</p>
+        <div class="congrats-stars">
+          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+        </div>
+        <button class="congrats-button">AWESOME!!!</button>
+      </div>
+    `;
+    document.body.appendChild(congratsPopup);
+
+    // Close button functionality
+    const closeButton = congratsPopup.querySelector('.congrats-button');
+    closeButton.addEventListener('click', function () {
+      congratsPopup.classList.add('fade-out');
+      // Hide cat GIFs when button is clicked
+      leftCatContainer.classList.add('fade-out');
+      rightCatContainer.classList.add('fade-out');
+      setTimeout(() => {
+        congratsPopup.style.display = 'none';
+        leftCatContainer.style.display = 'none';
+        rightCatContainer.style.display = 'none';
+      }, 1000);
+    });
+
+    // Add confetti explosion
+    const confettiContainer = document.getElementById('confetti-container');
+    if (confettiContainer) {
+      // Initial confetti explosion
+      createConfettiBatch(300);
+
+      // Keep generating confetti continuously
+      setInterval(() => {
+        createConfettiBatch(50); // Add 50 new confetti elements every second
+      }, 1000);
+
+      // Function to create a batch of confetti
+      function createConfettiBatch(amount) {
+        for (let i = 0; i < amount; i++) {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+
+          // Randomize confetti properties for more variety
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.width = Math.random() * 15 + 5 + 'px';
+          confetti.style.height = Math.random() * 15 + 5 + 'px';
+          confetti.style.opacity = Math.random() * 0.5 + 0.5;
+          confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+
+          // Random confetti shapes (square, rectangle, circle)
+          const shapes = ['', 'circle', 'rectangle'];
+          const shape = shapes[Math.floor(Math.random() * shapes.length)];
+          if (shape) confetti.classList.add(shape);
+
+          // Random colors with vibrant options
+          const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4',
+            '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107',
+            '#FF9800', '#FF5722', '#ffff00', '#00ff00', '#ff00ff', '#00ffff'];
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+          confettiContainer.appendChild(confetti);
+
+          // Remove confetti element after animation completes to prevent memory issues
+          setTimeout(() => {
+            confetti.remove();
+          }, 5000);
+        }
+      }
+    }
+
+    // Animate background color
+    let hue = 0;
+    const animateBackground = () => {
+      hue = (hue + 1) % 360;
+      document.body.style.backgroundColor = `hsla(${hue}, 70%, 60%, 0.2)`;
+      requestAnimationFrame(animateBackground);
+    };
+
+    // Start background animation
+    const originalBackground = document.body.style.backgroundColor;
+    animateBackground();
+
+    // Stop the background animation after 10 seconds
+    setTimeout(() => {
+      document.body.style.backgroundColor = originalBackground;
+    }, 10000);
+  });
+</script>
+
+<style>
+  /* Celebration overlay */
+  .celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg,
+        rgba(255, 0, 0, 0.1),
+        rgba(255, 255, 0, 0.1),
+        rgba(0, 255, 0, 0.1),
+        rgba(0, 255, 255, 0.1),
+        rgba(0, 0, 255, 0.1),
+        rgba(255, 0, 255, 0.1));
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Cat GIF styling */
+  .cat-gif {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10000;
+    max-width: 200px;
+    animation: bounce 2s infinite alternate;
+  }
+
+  .cat-gif img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .left-cat {
+    left: calc(50% - 600px);
+  }
+
+  .right-cat {
+    right: calc(50% - 600px);
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: translateY(-50%) rotate(-5deg);
+    }
+
+    100% {
+      transform: translateY(-40%) rotate(5deg);
+    }
+  }
+
+  .cat-gif.fade-out {
+    animation: cat-exit 1s forwards;
+  }
+
+  @keyframes cat-exit {
+    0% {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(-50%) scale(0.8) translateX(var(--exit-direction, 0));
+    }
+  }
+
+  .left-cat.fade-out {
+    --exit-direction: -100px;
+  }
+
+  .right-cat.fade-out {
+    --exit-direction: 100px;
+  }
+
+  /* Congratulations popup */
+  .congrats-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    width: 80%;
+    max-width: 600px;
+    background: linear-gradient(135deg, #28a745, #218838);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 50px rgba(40, 167, 69, 0.5);
+    padding: 30px;
+    text-align: center;
+    color: white;
+    animation: popup-entrance 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popup-entrance {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    80% {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  .congrats-popup.fade-out {
+    animation: popup-exit 1s forwards;
+  }
+
+  @keyframes popup-exit {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+  }
+
+  .congrats-content {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.03);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .congrats-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    animation: text-flicker 3s infinite;
+  }
+
+  .congrats-subtitle {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+
+  .congrats-message {
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+  }
+
+  .congrats-stars {
+    font-size: 2rem;
+    margin: 15px 0;
+    color: #ffdd00;
+    text-shadow: 0 0 10px rgba(255, 221, 0, 0.7);
+    animation: rotate 5s linear infinite;
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .congrats-stars span {
+    animation: star-pulse 1.5s infinite;
+    display: inline-block;
+    margin: 0 5px;
+  }
+
+  .congrats-stars span:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .congrats-stars span:nth-child(2) {
+    animation-delay: 0.3s;
+  }
+
+  .congrats-stars span:nth-child(3) {
+    animation-delay: 0.6s;
+  }
+
+  .congrats-stars span:nth-child(4) {
+    animation-delay: 0.9s;
+  }
+
+  .congrats-stars span:nth-child(5) {
+    animation-delay: 1.2s;
+  }
+
+  @keyframes star-pulse {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.5);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes text-flicker {
+
+    0%,
+    100% {
+      text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #28a745, 0 0 30px #28a745;
+    }
+
+    50% {
+      text-shadow: 0 0 5px #fff, 0 0 15px #fff, 0 0 25px #28a745, 0 0 35px #28a745;
+    }
+  }
+
+  .congrats-button {
+    background-color: #ffdd00;
+    color: #333;
+    font-weight: bold;
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+  }
+
+  .congrats-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
+    background-color: #ffee00;
+  }
+
+  .congrats-button:active {
+    transform: translateY(0);
+  }
+
+  /* Confetti animation */
+  #confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    perspective: 700px;
+  }
+
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f44336;
+    opacity: 0;
+    transform-origin: center center;
+    animation: confetti-fall 5s ease-in-out forwards;
+  }
+
+  .confetti.circle {
+    border-radius: 50%;
+  }
+
+  .confetti.rectangle {
+    width: 8px;
+    height: 16px;
+  }
+
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-100px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+      opacity: 1;
+    }
+
+    25% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(100vh) rotateX(360deg) rotateY(360deg) rotateZ(720deg);
+      opacity: 0;
+    }
+  }
+
+  /* Audio controls */
+  .audio-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10001;
+  }
+
+  .audio-btn {
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .audio-btn:hover {
+    background: rgba(40, 167, 69, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .audio-btn:active {
+    transform: translateY(0);
+  }
+
+  .audio-icon {
+    font-size: 1.3rem;
+    margin-right: 8px;
+  }
+</style>
+{% endif %}
+
+{% if app.applicationStatus == 'Rejected' %}
+<!-- Rejection JS -->
+<script>
+  // Rejection effect 
+  document.addEventListener('DOMContentLoaded', function () {
+    // Slow fade in for the whole page
+    document.body.style.animation = 'slow-fade-in 5s ease-in';
+
+    // Create gray overlay for grayscale effect
+    const rejectionOverlay = document.createElement('div');
+    rejectionOverlay.className = 'rejection-overlay';
+    document.body.appendChild(rejectionOverlay);
+
+    // Add slowed down buzzer sound
+    const buzzerAudio = document.createElement('audio');
+    buzzerAudio.id = 'buzzer-audio';
+    buzzerAudio.src = '/static/buzzer.mp3'; // You'll need to add this file
+    buzzerAudio.playbackRate = 0.1; // Play at half speed
+    buzzerAudio.volume = 0.7;
+
+    // Add audio controls
+    const audioControls = document.createElement('div');
+    audioControls.className = 'audio-controls rejection';
+    audioControls.innerHTML = `
+      <button id="toggle-audio" class="audio-btn rejection">
+        <span class="audio-icon">🔊</span> Toggle Sound
+      </button>
+    `;
+    document.body.appendChild(audioControls);
+
+    // Try to play audio (may be blocked by browser autoplay policy)
+    setTimeout(() => {
+      buzzerAudio.play().catch(error => {
+        console.log('Autoplay prevented. Click the play button to start sound.', error);
+      });
+    }, 1000); // Delay start of sound
+
+    document.body.appendChild(buzzerAudio);
+
+    // Toggle audio button functionality
+    const toggleAudioBtn = document.getElementById('toggle-audio');
+    toggleAudioBtn.addEventListener('click', function () {
+      if (buzzerAudio.paused) {
+        buzzerAudio.play();
+        toggleAudioBtn.querySelector('.audio-icon').textContent = '🔊';
+      } else {
+        buzzerAudio.pause();
+        toggleAudioBtn.querySelector('.audio-icon').textContent = '🔇';
+      }
+    });
+
+    // Create rejection popup
+    const rejectionPopup = document.createElement('div');
+    rejectionPopup.className = 'rejection-popup';
+    rejectionPopup.innerHTML = `
+      <div class="rejection-content">
+        <div class="big-red-x">✕</div>
+        <h1 class="rejection-title">APPLICATION REJECTED</h1>
+        <h2 class="rejection-subtitle">We regret to inform you</h2>
+        <p class="rejection-message">Your application did not meet our requirements at this time.</p>
+        <p class="rejection-message">YOU SUCK!!! 🙁🙁🙁</p>
+        <button class="rejection-button">I Understand</button>
+      </div>
+    `;
+
+    // Slow fade in for the popup
+    setTimeout(() => {
+      document.body.appendChild(rejectionPopup);
+    }, 2000);
+
+    // Close button functionality
+    setTimeout(() => {
+      const closeButton = document.querySelector('.rejection-button');
+      if (closeButton) {
+        closeButton.addEventListener('click', function () {
+          rejectionPopup.classList.add('fade-out');
+          setTimeout(() => {
+            rejectionPopup.style.display = 'none';
+          }, 3000); // Slow fade out
+        });
+      }
+    }, 3000);
+
+    // Add rain effect
+    const rainContainer = document.createElement('div');
+    rainContainer.id = 'rain-container';
+    document.body.appendChild(rainContainer);
+
+    // Create initial rain drops
+    createRaindrops(100);
+
+    // Keep generating rain
+    setInterval(() => {
+      createRaindrops(20);
+    }, 1000);
+
+    // Function to create raindrops
+    function createRaindrops(amount) {
+      for (let i = 0; i < amount; i++) {
+        const raindrop = document.createElement('div');
+        raindrop.className = 'raindrop';
+
+        // Randomize raindrop properties
+        raindrop.style.left = Math.random() * 100 + 'vw';
+        raindrop.style.opacity = Math.random() * 0.4 + 0.1;
+        raindrop.style.width = Math.random() * 2 + 1 + 'px';
+        raindrop.style.height = Math.random() * 10 + 5 + 'px';
+        raindrop.style.animationDuration = Math.random() * 2 + 3 + 's';
+
+        rainContainer.appendChild(raindrop);
+
+        // Remove raindrop element after animation
+        setTimeout(() => {
+          raindrop.remove();
+        }, 6000);
+      }
+    }
+
+    // Apply grayscale to the entire page
+    document.body.classList.add('grayscale');
+
+    // Darken the background
+    document.body.style.backgroundColor = '#252525';
+
+    // Return to original background after some time
+    setTimeout(() => {
+      document.body.classList.remove('grayscale');
+      document.body.style.backgroundColor = '';
+    }, 30000); // 30 seconds of gray effect
+  });
+</script>
+
+<style>
+  /* Slow fade in animation */
+  @keyframes slow-fade-in {
+    0% {
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Grayscale effect */
+  .grayscale {
+    filter: grayscale(100%);
+    transition: filter 5s ease;
+  }
+
+  /* Rejection overlay */
+  .rejection-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(40, 40, 40, 0.3);
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* Rejection popup */
+  .rejection-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    width: 80%;
+    max-width: 600px;
+    background: linear-gradient(135deg, #880000, #aa0000);
+    border: 8px solid #dc3545;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 50px rgba(220, 53, 69, 0.3);
+    padding: 30px;
+    text-align: center;
+    color: white;
+    animation: slow-popup-entrance 4s ease-in forwards;
+    opacity: 0;
+  }
+
+  @keyframes slow-popup-entrance {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.1);
+    }
+
+    50% {
+      opacity: 0.5;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  .rejection-popup.fade-out {
+    animation: slow-popup-exit 3s forwards;
+  }
+
+  @keyframes slow-popup-exit {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.1);
+    }
+  }
+
+  .rejection-content {
+    animation: slow-pulse 6s infinite;
+  }
+
+  @keyframes slow-pulse {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(0.98);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .big-red-x {
+    font-size: 8rem;
+    color: white;
+    margin-bottom: 10px;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    animation: slow-rotate 10s linear infinite;
+  }
+
+  @keyframes slow-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .rejection-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    animation: slow-sad-pulse 5s infinite;
+  }
+
+  @keyframes slow-sad-pulse {
+    0% {
+      text-shadow: 0 0 5px #dc3545;
+    }
+
+    50% {
+      text-shadow: 0 0 20px #dc3545;
+    }
+
+    100% {
+      text-shadow: 0 0 5px #dc3545;
+    }
+  }
+
+  .rejection-subtitle {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  }
+
+  .rejection-message {
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+
+  .rejection-button {
+    background-color: #333;
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transition: all 0.5s;
+  }
+
+  .rejection-button:hover {
+    background-color: #555;
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Rain animation */
+  #rain-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .raindrop {
+    position: absolute;
+    top: -20px;
+    background: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.6));
+    animation: raindrop-fall 4s linear forwards;
+  }
+
+  @keyframes raindrop-fall {
+    0% {
+      transform: translateY(0) scaleY(1);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 0.5;
+    }
+
+    90% {
+      opacity: 0.5;
+    }
+
+    100% {
+      transform: translateY(100vh) scaleY(1.5);
+      opacity: 0;
+    }
+  }
+
+  /* Audio controls for rejection */
+  .audio-controls.rejection {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10001;
+  }
+
+  .audio-btn.rejection {
+    background: rgba(220, 53, 69, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.5s ease;
+  }
+
+  .audio-btn.rejection:hover {
+    background: rgba(220, 53, 69, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+  }
+</style>
+{% endif %}
+{% endblock %}

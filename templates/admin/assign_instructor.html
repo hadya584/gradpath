@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Instructor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Assign Instructor to Course</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="course_id">Course:</label>
+            <select name="course_id" id="course_id" required>
+                <option value="" disabled selected>-- Select Course --</option>
+                {% for course in courses %}
+                    <option value="{{ course['course_id'] }}">{{ course['title'] }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="instructor_id">Instructor:</label>
+            <select name="instructor_id" id="instructor_id" required>
+                <option value="" disabled selected>-- Select Instructor --</option>
+                {% for inst in instructors %}
+                    <option value="{{ inst['UID'] }}">{{ inst['name'] }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Assign</button>
+        </form>
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

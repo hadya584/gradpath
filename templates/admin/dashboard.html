@@ -1,0 +1,22 @@
+<!-- templates/admin/dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Admin Dashboard</h1>
+    <div class="nav-buttons">
+        <a href="{{ url_for('create_user') }}" class="nav-button">Create Users</a>
+        <a href="{{ url_for('assign_instructor') }}" class="nav-button">Assign Instructors to Courses</a>
+        <a href="{{ url_for('add_course') }}" class="nav-button">Add Courses</a>
+        <a href="{{ url_for('add_schedule') }}" class="nav-button">Add Course Offerings (Schedule)</a>
+        <a href="{{ url_for('add_prerequisite') }}" class="nav-button">Add Course Prerequisites</a>
+        <a href="{{ url_for('admin_manage') }}" class="nav-button">View / Edit Information</a>
+        <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
+    </div>
+</div>
+</body>
+</html>
