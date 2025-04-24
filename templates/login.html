@@ -1,31 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Login</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
-        <form method="POST">
-            <label for="uid">UID:</label><br>
-            <input type="text" name="uid" required><br>
-            <label for="password">Password:</label><br>
-            <input type="password" name="password" required><br><br>
-            <input type="submit" value="Login">
-        </form>
+{% extends "base.html" %}
 
-        <a href="{{ url_for('create_account') }}">Create Account</a>
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Log In</h2>
+              <form action="/" method="POST">
+                <input type="hidden" name="action" value="login">
+                  <div data-mdb-input-init class="form-outline form-white mb-4">
+                    <label class="form-label" for="InputUID">UID</label>
+                    <input type="UID" class="form-control form-control-lg" id="InputUID" name="UID" placeholder="Enter UID">
+                  </div>
+                <div data-mdb-input-init class="form-outline form-white mb-4">
+                  <label for="InputPass">Password</label>
+                  <input type="password" class="form-control form-control-lg" id="InputPass" name="pass" placeholder="Enter Password">
+                </div>
+                <div class="form-group">
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+                </div>
+              </form>
+              {% if error %}
+                <div class="alert alert-danger mt-3">{{ error }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <p class="mb-0">Don't have an account?
+                <a href="/signup" class="btn btn-outline-light btn-sm ms-2">Sign Up</a>
+              </p>
+            </div>
+            <div>
+              <p class="mb-0">
+                <a href="/reset" class="btn btn-outline-light btn-sm mt-4 btn-danger">Reset Database</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+{% endblock %}

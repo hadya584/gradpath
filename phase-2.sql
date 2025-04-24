@@ -145,6 +145,8 @@ CREATE TABLE academicInformation (
   areasOfInterest           varchar(100),
   priorWorkExp              varchar(200),
   transcripts               varchar(50),
+  applySemester           varchar(10) CHECK (applySemester IN ('Fall', 'Spring')),
+  applyYear               varchar(4),
   FOREIGN KEY (UID) REFERENCES user(UID)
 );
 
@@ -211,6 +213,7 @@ CREATE TABLE form1_course (
   foreign key (form1_id) references form1(form1_id),
   foreign key (course_id) references course(course_id)
 );
+
 
 INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, address, address2) VALUES
 (10000001, 'adminuser', 'Admin', 'adminuser@example.com', 'adminpass123', 'Admin', '000-00-0001', '555-0001', 'Admin Blvd', NULL),

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" style="overflow-x: hidden;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.3.1/dist/css/themes/bootstrap/bootstrap.min.css" rel="stylesheet" integrity="sha384-leftDVIOA1OKkBjlGo3RtR+u4nHJPna0xV0zW3hSS3Os38Y84NF5bYB8/hOnHbfj" crossorigin="anonymous">
+  <!-- Google Fonts for better font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for better icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .btn {
+      font-weight: 500;
+    }
+    .nav-link {
+      font-weight: 500;
+      margin: 0 5px;
+    }
+    .gradient-navbar {
+      background: linear-gradient(to right, #343a40, #212529);
+    }
+  </style>
+  <title>{% block title %}APPS - Application System{% endblock %}</title>
+</head>
+<body class="d-flex flex-column h-100">
+  <!-- Navigation Bar -->
+  {% block navbar %}
+  <nav class="navbar navbar-expand-lg navbar-dark gradient-navbar">
+    <div class="container-fluid">
+      <a class="navbar-brand"><i class="fas fa-graduation-cap me-2"></i>APPS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% if session.get('role') == 'Admin' %}
+          <li class="nav-item">
+            <a class="nav-link" href="/admin-dashboard"><i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard</a>
+          </li>
+          {% endif %}
+          {% if session.get('role') == 'Faculty' %}
+          <!-- Faculty-specific links -->
+          <li class="nav-item">
+            <a class="nav-link" href="/review-applications"><i class="fas fa-clipboard-check me-1"></i>Review Applications</a>
+          </li>
+          {% endif %}
+          {% if session.get('role') == 'Applicant' %}
+          <!-- Link for submitting documents, visible to all logged-in users -->
+          <li class="nav-item">
+            <a class="nav-link" href="/applicantHome"><i class="fas fa-home me-1"></i>Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/define-recommenders"><i class="fas fa-user-plus me-1"></i>Define Recommenders</a>
+          </li>
+          {% endif %}
+        </ul>
+        <div class="d-flex">
+          {% if session.get('UID') %}
+          {% if session.get('role') == 'Admin' %}
+          <span class="navbar-text me-3">
+            <i class="fas fa-user-shield me-1"></i>Welcome, {{ 'Admin' }}
+          </span>
+          {% else %}
+          <span class="navbar-text me-3">
+            <i class="fas fa-user me-1"></i>Welcome, {{ session.get('firstName', session.get('UID')) }}
+          </span>
+          {% endif %}
+          <a href="/logout" class="btn btn-outline-light"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+          {% else %}
+          <a href="/" class="btn btn-outline-light me-2"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+          <a href="/signup" class="btn btn-light"><i class="fas fa-user-plus me-1"></i>Sign Up</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <!-- Display messages here -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {% if category == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif category == 'danger' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif category == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif category == 'info' %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content -->
+  <main class="flex-shrink-0">
+    <div class="container py-4 fade-in-content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="footer mt-auto py-3 text-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-12 text-center">
+          <span>© 2025 APPS - BleepyBlorp</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html> 

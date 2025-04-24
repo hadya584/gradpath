@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card bg-dark text-white mx-auto" style="max-width: 600px; border-radius: 1rem;">
+    <div class="card-body p-4">
+      <h2 class="fw-bold mb-4 text-uppercase text-center">Sign Up</h2>
+      {% if error %}
+      <div class="alert alert-danger mt-3" role="alert">
+        {{ error }}
+      </div>
+    {% endif %}
+      <form action="/signup" method="POST">
+        <!-- Simple 2-column flexbox layout -->
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+          <!-- Left column -->
+          <div style="flex: 1;">
+            <h4 class="mb-3">Personal Information</h4>
+            
+            <div class="mb-3 min-width: 30px">
+              <label for="firstName" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="firstName" name="firstName" required placeholder="Blorpgo">
+            </div>
+            
+            <div class="mb-3">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="lastName" name="lastName" required placeholder="Sleezlemaff">
+            </div>
+
+            <div class="mb-3">
+              <label for="ssn" class="form-label">SSN</label>
+              <input type="tel" class="form-control" id="ssn" name="ssn" placeholder="123-45-6789" pattern="\d{3}-\d{2}-\d{4}" title="SSN must be in the format XXX-XX-XXXX">
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required placeholder="blorpgosleezlemaff@gmail.com">
+            </div>
+            
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="123-456-7890">
+            </div>
+            <div class="mb-3">
+              <label for="address" class="form-label">Address Line 1</label>
+              <textarea class="form-control" id="address1" name="address" placeholder="1234 Main St Houston, TX 77401"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="address2" class="form-label">Address Line 2</label>
+              <textarea class="form-control" id="address2" name="address2" placeholder="Apt 123"></textarea>
+            </div>
+            <!-- Role --> 
+             <!--
+            <div class="mb-3">
+              <label for="role" class="form-label">Role</label>
+              <select class="form-select" id="role" name="role" required>
+                <option value="">Select a role</option>
+                <option value="Faculty">Faculty</option>
+                <option value="Applicant">Applicant</option>
+              </select>
+            </div>
+            -->
+            <div class="form-group text-center mt-4">
+              <button type="submit" class="btn btn-outline-light btn-lg px-5">Continue to Create Password</button>
+            </div>
+            <div class="text-center mt-4">
+              <p>Already have an account? <a href="/" class="text-white-50 fw-bold">Log In</a></p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
