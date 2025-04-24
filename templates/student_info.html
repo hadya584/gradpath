@@ -97,7 +97,7 @@
             <th>Semester</th>
             <th>Year</th>
             <th>Grade</th>
-            <th>{% if role == 'admin' %}
+            <th>{% if role == 'Admin' %}
               Edit
               {% endif %}
             </th>
@@ -112,7 +112,7 @@
                 <td>{{ course.year }}</td>
                 <td>{{ course.grade }}</td>
                 <td>
-                    {% if role == 'admin' %}
+                    {% if role == 'Admin' %}
                       <a href="{{ url_for('edit_grade', student_UID = student_UID, course_id = course.course_id) }}" class = buttonsketch>Edit</a>
                     {% endif %}
                 </td>
