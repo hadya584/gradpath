@@ -13,8 +13,8 @@
 
 
 
-  {% if 'email' in session %}
-  <h2><span>Name: {{ session['fname'] }} {{ session['lname'] }}</span></h2>
+  {% if 'UID' in session %}
+  <h2><span>Name: {{ session['firstName'] }} {{ session['lastName'] }}</span></h2>
   <h3>Program: {{ program }}</h3>
 
 <div class = sketchy>

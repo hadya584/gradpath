@@ -2435,7 +2435,7 @@ def home():
 @app.route('/form1',methods = ['GET', 'POST'])
 def form1():
   #if user isnt logged in, redirect to login
-  if 'email' not in session:
+  if 'UID' not in session:
     return redirect (url_for('login'))
 
   #connect to db 
@@ -2444,7 +2444,8 @@ def form1():
   cursor = connection.cursor()
 
   # Get student info including advisor_id
-  cursor.execute("SELECT UID, program, advisor_id FROM student WHERE UID = ?", (session['UID'],))
+  UID = session['UID']
+  cursor.execute("SELECT program, advisor_id FROM student WHERE UID = ?", (UID,))
   student = cursor.fetchone()
   program = student['program']
   advisor_id = student['advisor_id']
@@ -2500,7 +2501,7 @@ def form1():
 
   connection.commit()
   connection.close
-  return render_template("form1.html",  fname = session['fname'], courses = rows, program = program)
+  return render_template("form1.html", courses = rows, program = program)
 
 @app.route('/personal_information/<UID>', methods = ['GET', 'POST'])
 def personal_information(UID):
