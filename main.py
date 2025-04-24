@@ -7,9 +7,9 @@ app = Flask('app')
 app.secret_key = "BLOPRH"
 app.debug = True
 
-""" STUDENT ROUTES """
+""" Applicant ROUTES """
 
-# Defines the home page for applicants/students
+# Defines the home page for applicants
 @app.route('/applicantHome', methods=['GET', 'POST'])
 def applicantHome():
   # Stores role in session
@@ -382,8 +382,8 @@ def defineRecommenders():
 # faculties never are actually able to get this thru email (it's simulated)
 @app.route('/submit-recommendation/<token>', methods=['GET', 'POST'])
 def submitRecommendation(token):
-    if session.get('role') != 'Student':
-      flash('Access denied. Student privileges required.', 'danger')
+    if session.get('role') != 'Applicant':
+      flash('Access denied. Applicant privileges required.', 'danger')
       return redirect(url_for('applicantHome'))
     
     connection = sqlite3.connect("myDatabase.db")
@@ -448,7 +448,7 @@ def signup():
       address = request.form.get('address')
       address2 = request.form.get('address2', '')  # Optional field
       session['email'] = email
-      session['role'] = 'Student'
+      session['role'] = 'Applicant'
       
       # Check if email already exists
       cursor.execute("SELECT * FROM user WHERE email = ?", (email,))
@@ -631,11 +631,11 @@ def login():
           session['role'] = role
 
           # Redirects to home page with username in session
-          if role == 'Student':
+          if role == 'Applicant':
             return redirect(url_for('applicantHome'))
           elif role == 'Admin':
             return redirect(url_for('adminDashboard'))
-          else:
+          elif role in ['CAC', 'GS', 'Faculty']:
             return redirect(url_for('facultyHome'))
           
         # If there is no user with that pass & username, sends error
@@ -939,7 +939,7 @@ def adminDashboard():
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
-  cursor.execute("SELECT * FROM user WHERE role = 'Student'")
+  cursor.execute("SELECT * FROM user WHERE role = 'Applicant'")
   applicants = cursor.fetchall()
   cursor.execute("SELECT * FROM user WHERE role = 'Faculty'")
   faculty = cursor.fetchall()
@@ -1170,14 +1170,14 @@ def reset():
   cursor.execute("DELETE FROM reviewForm")
   cursor.execute("DELETE FROM sqlite_sequence")
   cursor.execute("DELETE FROM user")
-  cursor.execute("INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ('12312312', 'Student', 'pass', 'John', 'Lennon', '111-11-1111', 'lennon@gmail.com', '111-867-5309', 'Address #1', 'Address #2')) #John Lennon
+  cursor.execute("INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ('12312312', 'Applicant', 'pass', 'John', 'Lennon', '111-11-1111', 'lennon@gmail.com', '111-867-5309', 'Address #1', 'Address #2')) #John Lennon
   cursor.execute("INSERT INTO academicInformation (UID, degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, areasOfInterest, priorWorkExp, transcripts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ('12312312', 'MS', '140', '150', '1969', None, None, '115', '1969-04-12', 'some cool interest', 'He worked here', 'transcripts'))
   cursor.execute("INSERT INTO application (UID, applicationStatus, applySemester, applyYear, decisionType, recommendedAdvisor, deficiencyCourses, rejectReason, finalDecisionDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", ('12312312', 'Complete and Under Review', 'Spring', '2024', None, None, None, None, None))
   cursor.execute("INSERT INTO priorDegree (id, UID, degreeName, institution, major, GPA, year) VALUES (?, ?, ?, ?, ?, ?, ?)", (None, '12312312', 'BS', 'University A', 'Math', 3.8, '1968'))
   cursor.execute("INSERT INTO recommendationLetter (id, UID, writerName, writerEmail, writerAffiliation, letter, submissionDate, token, status, rating, isGeneric, isCredible) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, '12312312', 'Professor Bleepy', 'Bleepy@gwu.edu', 'BLEEP', 'HERE IS A LETTER', '1968-10-15','token1', 'Pending', 1, 1, 1))
   
   #Ringo Starr's incomplete application
-  cursor.execute("INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ('66666666', 'Student', 'pass', 'Ringo', 'Starr', '222-11-1111', 'starr@gmail.com', '101-010-1010', 'Address #1', 'Address #2')) 
+  cursor.execute("INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ('66666666', 'Applicant', 'pass', 'Ringo', 'Starr', '222-11-1111', 'starr@gmail.com', '101-010-1010', 'Address #1', 'Address #2')) 
 
   #Admin account
   cursor.execute("INSERT INTO user (UID, role, password, firstName, lastName, ssn, email, phone, address, address2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ('00000000', 'Admin', 'pass', 'Ringo', 'Starr', '222-11-1111', 'starr@gmail.com', '101-010-1010', 'Address #1', 'Address #2'))
