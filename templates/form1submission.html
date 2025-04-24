@@ -1,0 +1,23 @@
+
+<html>
+    <head>
+        <link href = "/static/styles/form1submission.css" rel = "stylesheet" type = "text/css" />
+
+    </head>
+
+    {% if is_form1courses %}
+       <h1>Form 1 Submission</h1>
+       {% for course in form1courses %}
+       <li> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }}</li>
+       {% endfor %}
+       <ul>
+        {%else%}
+        <p> No forms submitted</p>
+       </ul>
+       {% endif %}
+
+        <a href="{{ url_for('student_information', student_UID=userdata['UID']) }}">
+            <button type="button">Back</button>
+        </a>
+
+</html>

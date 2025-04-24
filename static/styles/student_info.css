@@ -1,0 +1,152 @@
+/* label {
+    font-family: sans-serif;
+    font-size: 1rem;
+    padding-right: 10px;
+  } */
+  
+  select {
+    font-size: 0.9rem;
+    padding: 2px 5px;
+  }
+
+/*   
+  .course{
+    border-style: dotted;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 20 px;
+  }   */
+
+
+  @font-face {
+    font-family: 'Lordina';
+    src: url('./fonts/lordina/Londrina_Sketch/LondrinaSketch-Regular.ttf');
+  }
+  
+
+  @font-face {
+    font-family: 'Cabin';
+    src: url('./fonts/Cabin_Sketch/CabinSketch-Regular.ttf');
+  }
+  
+
+  .student{
+    display: inline-block;
+    margin: 0 8px; 
+    padding: 4px 10px;
+    background:transparent;
+    text-align: center ;
+  }
+  
+  
+  h1 {
+    font-family: 'Lordina';
+    color: #be4f69;
+    margin-left: 20px;
+    text-align: center;
+  }
+
+
+
+  body {
+    font-family: 'Cabin';
+    color: #000000;
+    margin-left: 20px;
+    text-align: center;
+  }
+
+/* 
+  .title{
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+  } */
+
+
+  /* https://getcssscan.com/css-buttons-examples */
+  /* https://www.w3schools.com/css/css3_buttons.asp */
+
+
+.buttonsketch {
+  background-color: #E75A7C;
+  background-size: 4px 3px;
+  padding: 3px 3px;
+  border-radius:15px 225px 255px 15px 15px 255px 225px 15px;
+  border-style: solid;
+  box-shadow: rgba(0, 0, 0, .2) 15px 28px 25px -18px;
+  color: #41403e;
+  cursor: pointer;
+  border-bottom-left-radius: 20px 255px;
+  border-bottom-right-radius: 225px 15px;
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  margin: 0 5px; 
+}
+
+
+
+.buttonbox { 
+margin-top: 55px;
+display: flex ;
+justify-content: center;
+}
+
+
+/* https://freefrontend.com/css-border-examples/ */
+.sketchy {
+    justify-content: center;
+    align-items: center;
+    padding: 40px 46px;
+    display: inline-block;
+    border: 3px solid #333333;
+    font-size: 24.5px;
+    border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+    background: #ffffff;
+    position: relative;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+} 
+    
+    .sketchy::before {
+        content: '';
+        border: 2px solid #353535;
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        pointer-events: none;
+        z-index: -1 ;
+        transform: translate3d(-50%, -50%, 0) scale(1.015) rotate(0.5deg);
+        border-radius: 1% 1% 2% 4% / 2% 6% 5% 4%;
+    }
+
+    th, td {
+      padding: 8px 12px;
+      font-family: 'Cabin';
+      border-bottom: 1px solid #c95c5c;
+    }
+
+    th {
+      border-bottom: 2px dashed #df6262;
+    }
+
+    table{
+      border-spacing: 20px 15px;
+      font-size: 18px;
+      margin: 0 auto;
+    }
+
+
+    a.buttonsketch{
+      text-decoration: none;
+    }
+
+.suspended{
+  color: red;
+}

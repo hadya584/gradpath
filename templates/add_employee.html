@@ -1,0 +1,56 @@
+<html>
+<head>
+    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+
+    <title> Add Student </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add New Employee</h1>
+<div class = sketchy>
+ <form action="/admin_add_employee" method="POST">
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" required><br><br>
+    
+    <label for="password">Password:</label>
+    <input type="text" id="password" name="password" required><br><br>
+    
+    <label for="fname">First Name:</label>
+    <input type="text" id="fname" name="fname" required><br><br>
+
+    <label for="lname">Last Name:</label>
+    <input type="text" id="lname" name="lname" required><br><br>
+
+    <label for="dept">Department Name:</label>
+    <select name="dept">
+        <option value="">Department</option>
+        <option value="CSCI">Computer Science</option>
+        <option value="ECE">Electrical Engineering</option>
+        <option value="MATH">Mathematics</option>
+    </select>
+    <br><br>
+    <label for="type_employee">Type of Employee:</label>
+        <select name="type_employee" required>
+            <option value="">Type of Employee</option>
+            <option value="faculty">Faculty Advisor</option>
+            <option value="gs">Graduate Secretary</option>
+        </select>
+    <br><br>
+
+</div>
+<div class = buttonbox>
+    <input type="submit" value="Add Employee" class = buttonsketch>
+ </form>
+ <a href="{{ url_for('display_faculty')}}"><button class = buttonsketch>Return to Employees</button></a>
+</div>
+</body>
+</html>
+   

@@ -1,0 +1,61 @@
+<html>
+<head>
+    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+
+    <title> Add Student </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add New Student</h1>
+<div class = sketchy>
+ <form action="/admin_add_student" method="POST">
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" required><br><br>
+    
+    <label for="password">Password:</label>
+    <input type="text" id="password" name="password" required><br><br>
+    
+    <label for="fname">First Name:</label>
+    <input type="text" id="fname" name="fname" required><br><br>
+
+    <label for="lname">Last Name:</label>
+    <input type="text" id="lname" name="lname" required><br><br>
+
+    <label for="ssn">SSN:</label>
+    <input type="text" id="ssn" name="ssn" required><br><br>
+
+    <label for="phone">Phone Number:</label>
+    <input type="phone" id="phone" name="phone" required><br><br>
+
+    <label for="address">Address:</label>
+    <input type="address" id="address" name="address" required><br><br>
+
+    <label for="address2">Address 2:</label>
+    <input type="address2" id="address2" name="address2" required><br><br>
+
+
+    <label for="gradtype">Graduate Type:</label>
+    <select name="gradtype" required>
+        <option disabled selected value="">-- Select Graduate Type --</option>
+        <option value="Masters">Masters</option>
+        <option value="PHD">PHD</option>
+    </select>
+
+</div>
+
+<div class = buttonbox>
+    <input type="submit" value="Add Student" button class = buttonsketch>
+ </form>
+ <a href="{{ url_for('display_students')}}"><button class = buttonsketch>Return to Students</button></a>
+</div>
+</body>
+</html>
+   

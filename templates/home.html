@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href = "/static/styles/home.css" rel = "stylesheet" type = "text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Graduate Student Advising Portal</title>
+</head>
+<body>
+    <h1 class = "main-title">Graduate Student Advising Portal</h1>
+
+    <div class="navbar"> 
+        <div class  = buttonbox>
+        {% if 'email' in session %}
+        <div class="title-box">
+            <span class="title">Welcome, {{ session['fname'] }} {{ session['lname'] }}!</span>
+            <a href="{{ url_for('logout') }}" class= logoutbutton>Logout</a>
+        </div>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+    </div>
+
+
+        <div class =buttonbox>
+            <div class = buttonsketch>
+        {% if role == "Student" %}
+            <strong class = "sub-title">Student Information</strong>
+            <a href="{{ url_for('form1')  }}">Form 1 </a> 
+            <a href = "{{url_for('apply_graduation')}}">Apply For Graduation </a> 
+            <a href = "{{url_for('student_information', student_UID = id)}}"> Personal Information </a> 
+        {% elif role == 'GS' %}
+            <strong class = "sub-title">Grad Secretary Informtion</strong> 
+            <a href = "{{url_for('display_students')}}">Students </a> 
+            <a href = "{{url_for('pending_students')}}"> Pending Students</a>   
+            <a href = "{{url_for('personal_information', UID = id)}}"> Personal Information </a> 
+        {% elif role == 'Faculty' %}
+            <strong class = "sub-title">Faculty Advisor Information</strong>
+            <a href = "{{url_for('display_students')}}">Students </a> 
+            <a href = "{{url_for('personal_information', UID = id)}}"> Personal Information </a> 
+        {% elif role == 'Admin' %}
+            <strong class = "sub-title">Admin Information: </strong>
+            <a href = "{{url_for('display_students')}}">View All Students </a>    
+            <a href = "{{url_for('display_faculty')}}">View All Faculty </a>
+            <a href = "{{url_for('display_alumni')}}">View All Alumni </a>
+            <a href = "{{url_for('personal_information', UID = id)}}"> My Personal Information </a> 
+        {% elif role == 'Alumni' %}
+            <strong class = "sub-title">Alumni Information</strong>
+            <a href = "{{url_for('alumni_transcript', UID = id)}}"> Personal Information </a> 
+        {% endif %}
+    </div>
+    </div>
+
+
+    <!-- <form action="{{ url_for('home')}}" method="POST">
+        <input type="text" id="searchterm" name="searchterm">
+        <input type="submit" value="Search">
+    </form> -->
+
+
+
+</body>
+</html>

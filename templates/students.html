@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <link href = "/static/styles/students.css" rel = "stylesheet" type = "text/css" />
+
+    </head>
+    <h1>Students</h1>
+    {% if role == 'Admin' %}
+        <a href="{{ url_for('admin_add_student') }}" class = buttonsketch>Add New Student</a>
+    {% endif %}
+    <br><br>
+    <div class = sketchy>
+    {% if students %}
+        {% for student in students %}
+            <a href="{{ url_for('student_information', student_UID = student['UID']) }}" class = student> {{student['firstName']}} {{student['lastName']}} </p>
+        {% endfor %}
+    {% else %}
+        <p>No students.</p>
+    {% endif %}
+</div>
+    <br><br>
+    <a href="{{ url_for('home') }}" class =buttonsketch>Return to Home</a>
+</html>

@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <link href = "/static/styles/student_info.css" rel = "stylesheet" type = "text/css" />
+        <title> Alumni Information</title>
+    </head>
+    <body>
+    <h1>Alumni Information</h1>
+   
+    <div class = sketchy>
+    <p>Name: {{alumniData['firstName']}} {{alumniData['lastName']}}</p>
+    <p>Email: {{alumniData['email']}}</p>
+    <br>
+    <a href = "{{url_for('edit_personal_info', UID = alumniData['UID'])}}" class = buttonsketch >Edit Information</a>
+
+</div>
+    <br><br>
+    <h1>Transcript</h1>
+    <div class = sketchy>
+    {% if transcriptcourses %}
+    <table>
+        <tr>
+            <th>Department</th>
+            <th>Course Number</th>
+            <th>Course Name</th>
+            <th>Credits</th>
+            <th>Semester</th>
+            <th>Year</th>
+            <th>Grade</th>
+            <th>{% if role == 'Admin' %}
+              Edit
+              {% endif %}
+            </th>
+        </tr>
+        {% for course in transcriptcourses %}
+            <tr>
+                <td>{{ course.deptname }}</td>
+                <td>{{ course.coursenum }}</td>
+                <td>{{ course.coursename }}</td>
+                <td>{{ course.credits }}</td>
+                <td>{{ course.semester }}</td>
+                <td>{{ course.year }}</td>
+                <td>{{ course.grade }}</td>
+                <td>
+                    {% if type_user == 'admin' %}
+                      <a href="{{ url_for('edit_grade', student_UID = student_UID, course_id = course.course_id) }}" class = buttonsketch>Edit</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No courses available.</p>
+    {% endif %}
+</div>
+    <br><br>
+    <a href="{{ url_for('home') }}" class = buttonsketch>Return</a>
+
+
+</body>
+</html>
