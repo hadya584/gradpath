@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Roster</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Roster for {{ course.course_num }} - {{ course.title }}</h2>
+    <p>Section {{ section }}, {{ semester }} {{ course.year }}</p>
+
+    {% if students %}
+    <table>
+        <tr>
+            <th>Student UID</th>
+            <th>Name</th>
+            <th>Grade</th>
+            <th>Status</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.student_uid }}</td>
+            <td>{{ student.firstName }} {{ student.lastName }}</td>
+            <td>{{ student.grade }}</td>
+            <td>{{ 'Finalized' if student.graded else 'In Progress' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+      <p>No students are enrolled in this course.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('instructor_courses') }}" class="nav-button">
+        ← Back to My Courses</button>
+    </a>
+  </div>
+</body>
+</html>

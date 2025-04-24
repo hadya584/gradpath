@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Final Grades</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Enter Final Grades</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST">
+        <label>Select Course:</label>
+        <select name="course_info" id="course_info">
+            {% for c in courses %}
+            <option value="{{ c.course_id }}|{{ c.section }}|{{ c.semester }}">
+                {{ c.course_num }} - {{ c.title }} (Sec {{ c.section }}, {{ c.semester }} {{ c.year }})
+            </option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Load Students">
+    </form>
+    
+
+    {% if students %}
+    <h2>Students in Selected Course</h2>
+    <table>
+        <tr>
+            <th>UID</th>
+            <th>Name</th>
+            <th>Grade</th>
+            <th>Status</th>
+            <th>Submit</th>
+        </tr>
+        {% for s in students %}
+        <tr>
+            <form method="POST" action="{{ url_for('submit_grade') }}">
+                <td>{{ s.student_uid }}</td>
+                <td>{{ s.firstName }} {{ s.lastName }}</td>
+                <td>
+                    {% if not s.graded %}
+                    <input type="text" name="grade" placeholder="A, B, F..." required>
+                    {% else %}
+                    {{ s.grade }}
+                    {% endif %}
+                </td>
+                <td>{{ 'Finalized' if s.graded else 'In Progress' }}</td>
+                <td>
+                    {% if not s.graded %}
+                    <input type="hidden" name="student_uid" value="{{ s.student_uid }}">
+                    <input type="hidden" name="course_id" value="{{ selected_course.course_id }}">
+                    <input type="hidden" name="section" value="{{ selected_course.section }}">
+                    <input type="hidden" name="semester" value="{{ selected_course.semester }}">
+                    <input type="submit" value="Submit">
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('instructor_dashboard') }}" class="nav-button">
+        ← Back to Dashboard</button>
+    </a>
+  </div>
+</body>
+</html>

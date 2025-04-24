@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Teaching Schedule</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Courses You Are Teaching</h2>
+
+    {% if courses %}
+    <table>
+        <tr>
+            <th>Course #</th>
+            <th>Title</th>
+            <th>Semester</th>
+            <th>Year</th>
+            <th>Day</th>
+            <th>Time</th>
+        </tr>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.course_num }}</td>
+            <td>{{ course.title }}</td>
+            <td>{{ course.semester }}</td>
+            <td>{{ course.year }}</td>
+            <td>{{ course.day }}</td>
+            <td>{{ course.time_slot }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+      <p>No teaching assignments found.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('instructor_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+  </div>
+</body>
+</html>

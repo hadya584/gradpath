@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create User</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+  <style>
+    .role-specific { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Create User</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <label>First Name</label>
+      <input type="text" name="firstName" required>
+
+      <label>Last Name</label>
+      <input type="text" name="lastName" required>
+
+      <label>SSN</label>
+      <input type="text" name="ssn" required>
+
+      <label>Email</label>
+      <input type="email" name="email" required>
+
+      <label>Password</label>
+      <input type="password" name="password" required>
+
+      <label>Phone</label>
+      <input type="text" name="phone" required>
+
+      <label>Address</label>
+      <input type="text" name="address" required>
+
+      <label>Address 2</label>
+      <input type="text" name="address2">
+
+      <label>Role</label>
+      <select name="role" id="roleSelect" required onchange="showRoleFields(this.value)">
+        <option value="">--Select--</option>
+        <option value="student">Student</option>
+        <option value="Faculty">Faculty</option>
+        <option value="GS">Grad Secretary</option>
+        <option value="Alumni">Alumni</option>
+      </select>
+
+      <!-- Student-specific fields -->
+      <div id="studentFields" class="role-specific">
+        <label>Program (Masters or PhD)</label>
+        <input type="text" name="program">
+
+        <label>GPA</label>
+        <input type="text" name="GPA">
+
+        <label>Thesis Status</label>
+        <input type="text" name="thesis_status">
+      </div>
+
+      <!-- Faculty-specific fields -->
+      <div id="facultyFields" class="role-specific">
+        <label>Department</label>
+        <input type="text" name="dept">
+      </div>
+
+      <!-- Grad Secretary-specific fields -->
+      <div id="gsFields" class="role-specific">
+        <label>Office</label>
+        <input type="text" name="office">
+      </div>
+
+      <!-- Alumni-specific fields -->
+      <div id="alumniFields" class="role-specific">
+        <label>Graduation Year</label>
+        <input type="text" name="grad_year">
+
+        <label>Degree</label>
+        <input type="text" name="degree" placeholder="Masters or PhD">
+      </div>
+
+      <input type="submit" value="Create User">
+    </form>
+
+    <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    function showRoleFields(role) {
+      const allRoles = ['student', 'Faculty', 'GS', 'Alumni'];
+      allRoles.forEach(r => {
+        document.getElementById(r.toLowerCase() + 'Fields').style.display = 'none';
+      });
+
+      if (role && allRoles.includes(role)) {
+        document.getElementById(role.toLowerCase() + 'Fields').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

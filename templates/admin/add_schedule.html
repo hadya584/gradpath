@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Schedule</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Add Course Offering (Schedule)</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="course_id">Course ID:</label>
+            <input name="course_id" id="course_id" required>
+
+            <label for="semester">Semester:</label>
+            <input name="semester" id="semester" required>
+
+            <label for="section">Section:</label>
+            <input name="section" id="section" required>
+
+            <label for="year">Year:</label>
+            <input name="year" id="year" type="number" min="2000" required>
+
+            <label for="day">Day:</label>
+            <select name="day" id="day" required>
+                <option value="" disabled selected>-- Select Day --</option>
+                <option value="M">Monday</option>
+                <option value="T">Tuesday</option>
+                <option value="W">Wednesday</option>
+                <option value="R">Thursday</option>
+                <option value="F">Friday</option>
+            </select>
+
+            <label for="time_slot">Time Slot:</label>
+            <select name="time_slot" id="time_slot" required>
+                <option value="" disabled selected>-- Select Time Slot --</option>
+                <option value="15:00-17:30">15:00–17:30</option>
+                <option value="16:00-18:30">16:00–18:30</option>
+                <option value="18:00-20:30">18:00–20:30</option>
+            </select>
+
+            <label for="instructor_id">Instructor ID:</label>
+            <input name="instructor_id" id="instructor_id" required>
+
+            <button type="submit">Add Schedule</button>
+        </form>
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

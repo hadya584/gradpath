@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Course Catalog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
+    <style>
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+      
+        th, td {
+          padding: 8px;
+          text-align: left;
+          border: 1px solid #ccc;
+        }
+      </style>
+</head>
+<script>
+    function filterTable() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const sections = document.querySelectorAll(".catalog-section");
+    
+        sections.forEach(section => {
+            const rows = section.querySelectorAll("table tr:not(:first-child)");
+            let matchFound = false;
+    
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                const isMatch = rowText.includes(query);
+                row.style.display = isMatch ? "" : "none";
+                if (isMatch) matchFound = true;
+            });
+    
+            section.style.display = matchFound ? "" : "none";
+        });
+    }
+</script>
+    
+<body>
+    <h1>Course Catalog</h1>
+    <form method="POST" action="{{ url_for('catalog') }}">
+        <div class="filter-bar">
+          <select name="department">
+            <option value="">All Departments</option>
+            {% for dept in departments %}
+              <option value="{{ dept['dept'] }}" {% if selected_dept == dept['dept'] %}selected{% endif %}>
+                {{ dept['dept'] }}
+              </option>
+            {% endfor %}
+          </select>
+      
+          <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search Courses..." value="{{ search_term or '' }}">
+      
+          <button type="submit">Filter</button>
+        </div>
+      </form>
+    
+    {% if catalog %}
+        {% for dept, courses in catalog.items() %}
+        <div class="catalog-section">
+            <h3>{{ dept }}</h3>
+            <table>
+                <tr>
+                    <th>Course Number</th>
+                    <th>Title</th>
+                    <th>Credits</th>
+                    <th>Prerequisite 1</th>
+                    <th>Prerequisite 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                    <tr>
+                        <td>{{ course.number }}</td>
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.credits }}</td>
+                        <td>{{ course.prereq1 }}</td>
+                        <td>{{ course.prereq2 }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No courses found.</p>
+    {% endif %}
+    <a href="{{ url_for('stu_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+</body>
+</html>
