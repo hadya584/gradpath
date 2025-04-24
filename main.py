@@ -1872,6 +1872,8 @@ def login():
             return redirect(url_for('adminDashboard'))
           elif role in ['CAC', 'GS', 'Faculty']:
             return redirect(url_for('facultyHome'))
+          elif role == 'Alumni':
+            return redirect(url_for('alumni_dashboard'))
           
         # If there is no user with that pass & username, sends error
         else:
