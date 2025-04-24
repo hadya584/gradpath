@@ -1870,7 +1870,9 @@ def login():
             return redirect(url_for('stu_dashboard'))
           elif role == 'Admin':
             return redirect(url_for('adminDashboard'))
-          elif role in ['CAC', 'GS', 'Faculty']:
+          elif role == 'GS':
+            return redirect(url_for('gs_dashboard'))
+          elif role in ['CAC', 'Faculty']:
             return redirect(url_for('facultyHome'))
           elif role == 'Alumni':
             return redirect(url_for('alumni_dashboard'))
@@ -3160,5 +3162,4 @@ def count_low_grades(UID):
   connection.close()
   return result['low_grade_count']
 
-if __name__ == "__main__":
-  app.run(debug=True)
+app.run(host='0.0.0.0', port=5050, debug=True)
