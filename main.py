@@ -2459,12 +2459,6 @@ def form1():
   cursor.execute("SELECT * FROM course")
   rows = cursor.fetchall()
 
-  #get current student UID from their email - will be used for form1 submission 
-  cursor.execute("SELECT student.UID, student.program FROM student JOIN user on student.UID = user.UID WHERE user.email = ?", (session['email'],))
-  student = cursor.fetchone()
-  UID = student['UID']
-  program = student['program']
-
   #when form is submitted 
   if request.method == 'POST':
     # Check if the student already has a submitted form1
@@ -2799,7 +2793,7 @@ def apply_graduation():
   cursor = connection.cursor()
 
 
-  cursor.execute("SELECT student.UID, student.program, student.GPA, student.thesis_status FROM student JOIN user ON student.UID = user.UID WHERE user.email = ?", (session['email'],))
+  cursor.execute("SELECT student.UID, student.program, student.GPA, student.thesis_status FROM student JOIN user ON student.UID = user.UID WHERE user.UID = ?", (session['UID'],))
   userdata = cursor.fetchone()
   UID = userdata['UID']
   grad_type = userdata['program']
