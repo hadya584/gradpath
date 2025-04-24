@@ -118,6 +118,10 @@
                 </td>
             </tr>
         {% endfor %}
+        <form action="{{ url_for('gs_transcripts') }}" method="POST" style="display:inline;">
+            <input type="hidden" name="student_uid" value="{{ student_UID }}">
+            <input type="submit" value="Edit Transcript">
+        </form>
     </table>
     {% else %}
         <p>No courses available.</p>
