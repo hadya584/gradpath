@@ -49,72 +49,6 @@ def generate_unique_uid():
         if uid not in existing_uids:
             return uid
 
-#create account function
-@app.route('/create_account', methods=['GET', 'POST'])
-def create_account():
-    if 'uid' in session:
-        flash('You are already logged in')
-        return redirect(url_for('stu_dashboard'))
-
-    if request.method == 'POST':
-        uid = generate_unique_uid()
-        firstName = request.form['firstName']
-        lastName = request.form['lastName']
-        email = request.form['email']
-        password = request.form['password']
-        role = request.form['role']
-        address = request.form.get('address')
-        program = request.form.get('program')
-
-        conn = get_db_connection()
-        try:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO user (UID, firstName, lastName, email, password, role)
-                VALUES (?, ?, ?, ?, ?, ?)""",
-                (uid, firstName, lastName, email, password, role)
-            )
-            if role == 'student':
-                cursor.execute("""
-                    INSERT INTO student (UID, address, program)
-                    VALUES (?, ?, ?)""", (uid, address, program))
-            conn.commit()
-            flash(f'Account created successfully. Your UID is {uid}. Please log in', "success")
-            return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
-            flash('UID or email already exists', "error")
-            return render_template('create_account.html')
-        finally:
-            conn.close()
-
-    return render_template('create_account.html')
-
-# Login function
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    # If already logged in, redirect to appropriate dashboard
-    if 'uid' in session:
-        role = session.get('role')
-        return redirect_to_dashboard(role)
-
-    if request.method == 'POST':
-        uid = int(request.form['uid'])
-        password = request.form['password'].strip()
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM user WHERE UID = ? AND password = ?", (uid, password))
-        user = cursor.fetchone()
-        conn.close()
-
-        if user:
-            session['uid'] = user['UID']
-            session['role'] = user['role']
-            return redirect_to_dashboard(user['role'])
-        else:
-            flash("Login failed. UID or password is incorrect.", "error")
-
-    return render_template('login.html')
 
 @app.route('/grad_secretary_dashboard')
 def grad_secretary_dashboard():
@@ -129,14 +63,6 @@ def alumni_dashboard():
         flash("Access denied.")
         return redirect(url_for('login'))
     return render_template('alumni_dashboard.html')
-
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('You have been logged out.')
-    return redirect(url_for('welcome'))
-
 
 @app.route('/transcript')
 def view_transcript():
@@ -660,6 +586,7 @@ def instructor_schedule():
     conn.close()
 
     return render_template('instructor_schedule.html', courses=courses)
+
 @app.route('/instructor_courses')
 def instructor_courses():
     if 'uid' not in session or session['role'] != 'Faculty':
@@ -1316,12 +1243,5 @@ def calculate_gpa(transcript_rows):
 
     GPA = total_points / total_credits
     return round(GPA, 2)
-
-
-
-
-# if __name__ == '__main__':
-#     init_db()
-#     app.run(debug=True)
 
 app.run(host='0.0.0.0', port=8080, debug=True)
