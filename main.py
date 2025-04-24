@@ -295,8 +295,8 @@ def drop_course():
 
 @app.route('/personal_info', methods=['GET', 'POST'])
 def personal_info():
-    if 'UID' not in session or session['role'] not in ['Student', 'Alumni']:
-        flash("Login as a Student or alumni to view personal info.")
+    if 'UID' not in session or session['role'] not in ['Student', 'Alumni', 'GS', 'Faculty', 'Admin']:
+        flash("Login to view personal info.")
         return redirect(url_for('login'))
 
     uid = session['UID']
@@ -312,7 +312,6 @@ def personal_info():
         new_phone = request.form['phone'].strip()
         new_address = request.form['address'].strip()
         new_address2 = request.form.get('address2', '').strip()
-        new_password = request.form['password'].strip()
 
         cursor.execute('''
             UPDATE user SET firstName = ?, lastName = ?, email = ?, phone = ?, address = ?, address2 = ? WHERE UID = ?
@@ -330,11 +329,37 @@ def personal_info():
                 SET program = ?, GPA = ?, thesis_status = ?
                 WHERE UID = ?
             ''', (new_program, new_gpa, new_thesis_status, uid))
+
+        elif role == 'GS':
+            new_office = request.form['office'].strip()
+            cursor.execute('''
+                UPDATE grad_secretary
+                SET office = ?
+                WHERE UID = ?
+            ''', (new_office, uid))
+
+        elif role == 'Faculty':
+            new_dept = request.form['dept'].strip()
+            cursor.execute('''
+                UPDATE faculty
+                SET dept = ?
+                WHERE UID = ?
+            ''', (new_dept, uid))
+
+        elif role == 'Admin':
+            new_access = request.form['access_level'].strip()
+            cursor.execute('''
+                UPDATE admin
+                SET access_level = ?
+                WHERE UID = ?
+            ''', (new_access, uid))
+
         conn.commit()
         flash("Profile updated successfully.", "success")
         conn.close()
         return redirect(url_for('personal_info'))
 
+    # GET: Fetch user info for pre-filling form
     if role == 'Student':
         cursor.execute('''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
@@ -343,7 +368,7 @@ def personal_info():
             JOIN student s ON u.UID = s.UID
             WHERE u.UID = ?
         ''', (uid,))
-    else:  # alumni
+    elif role == 'Alumni':
         cursor.execute('''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
                    a.grad_year, a.degree
@@ -351,9 +376,35 @@ def personal_info():
             JOIN alumni a ON u.UID = a.UID
             WHERE u.UID = ?
         ''', (uid,))
+    elif role == 'GS':
+        cursor.execute('''
+            SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
+                   g.office
+            FROM user u
+            JOIN grad_secretary g ON u.UID = g.UID
+            WHERE u.UID = ?
+        ''', (uid,))
+    elif role == 'Faculty':
+        cursor.execute('''
+            SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
+                   f.dept
+            FROM user u
+            JOIN faculty f ON u.UID = f.UID
+            WHERE u.UID = ?
+        ''', (uid,))
+    elif role == 'Admin':
+        cursor.execute('''
+            SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
+                   a.access_level
+            FROM user u
+            JOIN admin a ON u.UID = a.UID
+            WHERE u.UID = ?
+        ''', (uid,))
+        
     user = cursor.fetchone()
     conn.close()
     return render_template('personal_info.html', user=user, role=role)
+
 
 
 @app.route('/course_offerings', methods=['GET'])

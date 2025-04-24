@@ -39,7 +39,7 @@
         <label for="password">Password</label>
         <input type="password" name="password" placeholder="New password">
 
-        {% if role == 'student' %}
+        {% if role == 'Student' %}
             <label for="program">Program</label>
             <input type="text" name="program" value="{{ user.program }}" readonly>
 
@@ -48,20 +48,32 @@
 
             <label for="thesis_status">Thesis Status</label>
             <input type="text" name="thesis_status" value="{{ user.thesis_status }}" readonly>
-        
+
         {% elif role == 'Alumni' %}
             <label for="degree">Degree</label>
             <input type="text" value="{{ user.degree }}" readonly>
 
             <label for="grad_year">Graduation Year</label>
             <input type="text" value="{{ user.grad_year }}" readonly>
+
+        {% elif role == 'GS' %}
+            <label for="office">Office</label>
+            <input type="text" name="office" value="{{ user.office }}" readonly>
+
+        {% elif role == 'Faculty' %}
+            <label for="dept">Department</label>
+            <input type="text" name="dept" value="{{ user.dept }}" readonly>
+
+        {% elif role == 'Admin' %}
+            <label for="access_level">Access Level</label>
+            <input type="text" name="access_level" value="{{ user.access_level }}" readonly>
         {% endif %}
 
         <input type="submit" value="Update Info">
     </form>
 
     <br>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('stu_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('stu_dashboard') if session['role'] == 'Student' else url_for('grad_secretary_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('admin_dashboard') if session['role'] == 'Admin' else url_for('login') }}" class="nav-button">← Back to Dashboard</a>
   </div>
 </body>
 </html>
