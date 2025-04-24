@@ -86,7 +86,7 @@ def view_transcript():
     '''
 
     transcript = cursor.execute(query, (student_id,)).fetchall()
-    GPA = calculate_gpa(transcript)
+    GPA = calculategpa(transcript)
     conn.close()
 
     return render_template('transcript.html', transcript=transcript, GPA=GPA, student_id=student_id)
@@ -486,7 +486,7 @@ def gs_transcripts():
     query += " ORDER BY t.student_uid, s.year, s.semester"
 
     results = cursor.execute(query, params).fetchall()
-    GPA = calculate_gpa(results)
+    GPA = calculategpa(results)
     conn.close()
 
     return render_template("gs_transcripts.html", results=results, filters=filters, GPA=GPA)
@@ -1210,7 +1210,7 @@ def edit_record(table, id):
 
 # Re-defining the GPA calculation function after code state reset.
 
-def calculate_gpa(transcript_rows):
+def calculategpa(transcript_rows):
     # Grade point mapping
     grade_points = {
         'A': 4.0,
@@ -2392,15 +2392,16 @@ def reset():
 
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-  if 'email' not in session:
+  if 'UID' not in session:
     return redirect('/')
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
-  if session['role'] == 'student':
-    cursor.execute("SELECT UID FROM student JOIN user ON student.UID = user.UID WHERE user.email = ?", (session['email'],))
-    student_UID = cursor.fetchone()
-    id = student_UID[0]
+  if session['role'] == 'Student':
+    #cursor.execute("SELECT UID FROM student JOIN user ON student.UID = user.UID WHERE user.email = ?", (session['email'],))
+    #student_UID = cursor.fetchone()
+    
+    id = session['UID']
     GPA = calculate_gpa(id)
     cursor.execute("UPDATE student SET GPA = ? WHERE UID = ?",(GPA, id))
     low_grade_count = count_low_grades(id)
@@ -2410,10 +2411,14 @@ def home():
       return render_template("login.html", error = False, is_suspended = True)
   else:
     id = session['UID']
+
+  cursor.execute("SELECT * FROM user WHERE UID = ?", (id,))
+  user = cursor.fetchone()
+
   connection.commit()
   connection.close()
 
-  return render_template('home.html', role = session['role'], fname = session['fname'], lname = session['lname'], id = id)
+  return render_template('home.html', role = session['role'], fname = user['firstName'], lname = user['lastName'], id = id)
 
 #Form 1 
 # student must enter at most 12 courses 
