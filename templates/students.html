@@ -33,5 +33,5 @@
     {% endif %}
 </div>
     <br><br>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
+    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
 </html>
