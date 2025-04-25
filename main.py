@@ -2609,7 +2609,7 @@ def edit_personal_info(UID):
 
 @app.route('/edit_student_info/<student_UID>', methods = ['GET', 'POST'])
 def edit_student_info(student_UID):
-  if 'email' not in session:
+  if 'UID' not in session:
     return redirect (url_for('login'))
 
   connection = sqlite3.connect("myDatabase.db")
