@@ -1923,7 +1923,9 @@ def login():
             return redirect(url_for('adminDashboard'))
           elif role == 'GS':
             return redirect(url_for('gs_dashboard'))
-          elif role in ['CAC', 'Faculty']:
+          elif role == 'Faculty':
+            return redirect(url_for('instructor_dashboard'))
+          elif role == 'CAC':
             return redirect(url_for('facultyHome'))
           elif role == 'Alumni':
             return redirect(url_for('alumni_dashboard'))
