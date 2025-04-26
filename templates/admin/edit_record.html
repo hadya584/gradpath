@@ -1,49 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Edit Record</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
-</head>
-<body>
-<div class="container">
-  <h2>Edit {{ table | replace('_', ' ') | title }} Info</h2>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-          {% for category, message in messages %}
-              <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-          {% endfor %}
-      {% endif %}
-  {% endwith %}
-  <form method="POST">
-    {% if user_columns %}
-      <h3>User Information</h3>
-      {% for col in user_columns %}
-        <label for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
-        <input type="text" name="{{ col }}" id="{{ col }}" value="{{ record[col] }}" {% if col == 'UID' %}readonly{% endif %}>
-      {% endfor %}
-    {% endif %}
-  
-    {% if role_columns %}
-      <h3>{{ table | replace('_', ' ') | title }} Fields</h3>
-      {% for col in role_columns %}
-        <label for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
-        <input type="text" name="{{ col }}" id="{{ col }}" value="{{ record[col] }}">
-      {% endfor %}
-    {% endif %}
-  
-    {% if columns %}
-      {% for col in columns[1:] %}  {# Skip PK #}
-        <label for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
-        <input type="text" name="{{ col }}" id="{{ col }}" value="{{ record[col] }}">
-      {% endfor %}
-    {% endif %}
-  
-    <button type="submit">Save Changes</button>
-  </form>
-  
-  <a class="cancel-link" href="{{ url_for('view_table', table=table) }}">← Back to Table</a><br>
-  <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
-</div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Edit Record{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+
+            <h2 class="fw-bold mb-4 text-uppercase">Edit {{ table | replace('_', ' ') | title }}</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+
+              {% if user_columns %}
+                <h4 class="mb-3 mt-4 text-uppercase">User Information</h4>
+                {% for col in user_columns %}
+                  <div class="form-outline form-white mb-3 text-start">
+                    <label class="form-label" for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
+                    <input type="text" name="{{ col }}" id="{{ col }}" class="form-control form-control-lg" value="{{ record[col] }}" {% if col == 'UID' %}readonly{% endif %}>
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              {% if role_columns %}
+                <h4 class="mb-3 mt-4 text-uppercase">{{ table | replace('_', ' ') | title }} Fields</h4>
+                {% for col in role_columns %}
+                  <div class="form-outline form-white mb-3 text-start">
+                    <label class="form-label" for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
+                    <input type="text" name="{{ col }}" id="{{ col }}" class="form-control form-control-lg" value="{{ record[col] }}">
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              {% if columns %}
+                {% for col in columns[1:] %}
+                  <div class="form-outline form-white mb-3 text-start">
+                    <label class="form-label" for="{{ col }}">{{ col | replace('_', ' ') | title }}</label>
+                    <input type="text" name="{{ col }}" id="{{ col }}" class="form-control form-control-lg" value="{{ record[col] }}">
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <button type="submit" class="btn btn-outline-light btn-lg px-5 mt-3">Save Changes</button>
+            </form>
+
+            <div class="mt-4">
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-sm mt-3">← Back to Dashboard</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

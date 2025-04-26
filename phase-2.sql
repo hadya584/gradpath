@@ -69,7 +69,7 @@ CREATE TABLE admin (
 CREATE TABLE alumni (
   UID          INTEGER not null PRIMARY KEY,
   grad_year    INTEGER,
-  degree       VARCHAR(50) CHECK (degree IN ('Masters', 'PhD')),
+  degree       VARCHAR(50),
   foreign key (UID) references user(UID)
 );
 

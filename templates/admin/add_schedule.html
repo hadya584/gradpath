@@ -1,60 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Schedule</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Add Course Offering (Schedule)</h1>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Add Schedule{% endblock %}
 
-        <form method="POST">
-            <label for="course_id">Course ID:</label>
-            <input name="course_id" id="course_id" required>
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-3">
+              <h2 class="fw-bold mb-4 text-uppercase">Add Course Offering (Schedule)</h2>
 
-            <label for="semester">Semester:</label>
-            <input name="semester" id="semester" required>
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
 
-            <label for="section">Section:</label>
-            <input name="section" id="section" required>
+              <form method="POST">
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="course_id" class="form-label">Course ID:</label>
+                  <input name="course_id" id="course_id" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="year">Year:</label>
-            <input name="year" id="year" type="number" min="2000" required>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="semester" class="form-label">Semester:</label>
+                  <input name="semester" id="semester" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="day">Day:</label>
-            <select name="day" id="day" required>
-                <option value="" disabled selected>-- Select Day --</option>
-                <option value="M">Monday</option>
-                <option value="T">Tuesday</option>
-                <option value="W">Wednesday</option>
-                <option value="R">Thursday</option>
-                <option value="F">Friday</option>
-            </select>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="section" class="form-label">Section:</label>
+                  <input name="section" id="section" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="time_slot">Time Slot:</label>
-            <select name="time_slot" id="time_slot" required>
-                <option value="" disabled selected>-- Select Time Slot --</option>
-                <option value="15:00-17:30">15:00–17:30</option>
-                <option value="16:00-18:30">16:00–18:30</option>
-                <option value="18:00-20:30">18:00–20:30</option>
-            </select>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="year" class="form-label">Year:</label>
+                  <input name="year" id="year" type="number" min="2000" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="instructor_id">Instructor ID:</label>
-            <input name="instructor_id" id="instructor_id" required>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="day" class="form-label">Day:</label>
+                  <select name="day" id="day" class="form-select form-select-lg mb-3" required>
+                    <option value="" disabled selected>-- Select Day --</option>
+                    <option value="M">Monday</option>
+                    <option value="T">Tuesday</option>
+                    <option value="W">Wednesday</option>
+                    <option value="R">Thursday</option>
+                    <option value="F">Friday</option>
+                  </select>
+                </div>
 
-            <button type="submit">Add Schedule</button>
-        </form>
-        <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="time_slot" class="form-label">Time Slot:</label>
+                  <select name="time_slot" id="time_slot" class="form-select form-select-lg mb-3" required>
+                    <option value="" disabled selected>-- Select Time Slot --</option>
+                    <option value="15:00-17:30">15:00–17:30</option>
+                    <option value="16:00-18:30">16:00–18:30</option>
+                    <option value="18:00-20:30">18:00–20:30</option>
+                  </select>
+                </div>
+
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="instructor_id" class="form-label">Instructor ID:</label>
+                  <input name="instructor_id" id="instructor_id" class="form-control form-control-lg" required>
+                </div>
+
+                <button type="submit" class="btn btn-outline-light btn-lg px-5">Add Schedule</button>
+              </form>
+
+              <div class="mt-4">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-sm mt-3">← Back to Dashboard</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

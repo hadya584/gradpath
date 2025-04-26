@@ -1,43 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assign Instructor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Assign Instructor to Course</h1>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Assign Instructor{% endblock %}
 
-        <form method="POST">
-            <label for="course_id">Course:</label>
-            <select name="course_id" id="course_id" required>
-                <option value="" disabled selected>-- Select Course --</option>
-                {% for course in courses %}
-                    <option value="{{ course['course_id'] }}">{{ course['title'] }}</option>
-                {% endfor %}
-            </select>
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-3">
+              <h2 class="fw-bold mb-4 text-uppercase">Assign Instructor to Course</h2>
 
-            <label for="instructor_id">Instructor:</label>
-            <select name="instructor_id" id="instructor_id" required>
-                <option value="" disabled selected>-- Select Instructor --</option>
-                {% for inst in instructors %}
-                    <option value="{{ inst['UID'] }}">{{ inst['name'] }}</option>
-                {% endfor %}
-            </select>
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
 
-            <button type="submit">Assign</button>
-        </form>
-        <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+              <form method="POST">
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="course_id" class="form-label">Course:</label>
+                  <select name="course_id" id="course_id" class="form-select form-select-lg" required>
+                    <option value="" disabled selected>-- Select Course --</option>
+                    {% for course in courses %}
+                      <option value="{{ course['course_id'] }}">{{ course['title'] }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="form-outline form-white mb-4 text-start">
+                  <label for="instructor_id" class="form-label">Instructor:</label>
+                  <select name="instructor_id" id="instructor_id" class="form-select form-select-lg" required>
+                    <option value="" disabled selected>-- Select Instructor --</option>
+                    {% for inst in instructors %}
+                      <option value="{{ inst['UID'] }}">{{ inst['name'] }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-outline-light btn-lg px-5">Assign</button>
+              </form>
+
+              <div class="mt-4">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-sm mt-3">← Back to Dashboard</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

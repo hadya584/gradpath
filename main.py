@@ -494,7 +494,7 @@ def gs_dashboard():
 
 @app.route('/gs_transcripts', methods=['GET', 'POST'])
 def gs_transcripts():
-    if 'UID' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] not in ['GS', 'Admin']:
         flash("Login as a Grad Secretary to access this page.")
         return redirect(url_for('login'))
 
@@ -785,7 +785,22 @@ def create_user():
         lastName = request.form['lastName'].strip().title()
         email = request.form['email'].strip().lower()
         password = request.form['password']
-        role = request.form['role'].strip()
+        raw_role = request.form['role'].strip()
+        role_map = {
+            'admin': 'Admin',
+            'student': 'Student',
+            'faculty': 'Faculty',
+            'gs': 'GS',
+            'grad secretary': 'GS',
+            'alumni': 'Alumni',
+            'applicant': 'Applicant',
+            'cac': 'CAC'
+        }
+
+        role = role_map.get(raw_role.lower())
+        if role is None:
+            raise ValueError(f"Unsupported role selected: {raw_role}")
+
         ssn = request.form.get('ssn', '').strip()
         phone = request.form.get('phone', '').strip()
         address = request.form.get('address', '').strip()
@@ -816,22 +831,29 @@ def create_user():
                 cur.execute("INSERT INTO Faculty (UID, dept) VALUES (?, ?)", (uid, dept))
 
             elif role == 'Admin':
-                cur.execute("INSERT INTO admin (UID, access_level) VALUES (?, ?)", (uid, 'full'))
+                pass
 
             elif role == 'GS':
                 cur.execute("INSERT INTO grad_secretary (UID, office) VALUES (?, ?)", (uid, office))
 
             elif role == 'Alumni':
+                degree = request.form.get('degree', '').strip().upper()
+                grad_year = request.form.get('grad_year', '').strip()
                 if not grad_year.isdigit():
                     raise ValueError("Graduation year must be numeric")
                 cur.execute("INSERT INTO alumni (UID, grad_year, degree) VALUES (?, ?, ?)",
                             (uid, grad_year, degree))
-
+            elif role == 'Applicant':
+                pass
+            elif role == 'CAC':
+                pass
+            else:
+                raise ValueError("Unsupported role selected.")
             conn.commit()
             flash(f"User created successfully. Assigned UID: {uid}", "success")
 
         except (sqlite3.Error, ValueError) as e:
-            flash(f"Error: {str(e)}", "error")
+            flash(f"Error: {str(e)} Role trying to insert: {role}", "error")
             conn.rollback()
 
         finally:
@@ -1097,60 +1119,59 @@ def view_table(table):
         flash("Unauthorized.")
         return redirect(url_for('login'))
     conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     try:
-        user_tables = ['student', 'faculty', 'alumni', 'admin', 'grad_secretary']
-        if table in user_tables:
+        if table in ['student', 'faculty', 'admin', 'grad_secretary', 'alumni']:
             query = f'''
                 SELECT r.*, u.firstName || ' ' || u.lastName AS full_name, u.email, u.role
                 FROM {table} r
                 JOIN user u ON r.UID = u.UID
             '''
-            cursor.execute(query)
-
         elif table == 'course':
             query = '''
                 SELECT c.*, u.firstName || ' ' || u.lastName AS instructor_name
                 FROM course c
-                LEFT JOIN faculty i ON c.instructor_id = i.UID
-                LEFT JOIN user u ON i.UID = u.UID
+                LEFT JOIN faculty f ON c.instructor_id = f.UID
+                LEFT JOIN user u ON f.UID = u.UID
             '''
-            cursor.execute(query)
         elif table == 'schedule':
             query = '''
                 SELECT s.*, c.title AS course_title, u.firstName || ' ' || u.lastName AS instructor_name
                 FROM schedule s
                 LEFT JOIN course c ON s.course_id = c.course_id
-                LEFT JOIN faculty i ON s.instructor_id = i.UID
-                LEFT JOIN user u ON i.UID = u.UID
+                LEFT JOIN faculty f ON s.instructor_id = f.UID
+                LEFT JOIN user u ON f.UID = u.UID
             '''
-            cursor.execute(query)
         elif table == 'transcript':
             query = '''
-                SELECT t.*, c.title AS course_title,
-                u.firstName || ' ' || u.lastName AS student_name
+                SELECT t.*, c.title AS course_title, u.firstName || ' ' || u.lastName AS student_name
                 FROM transcript t
                 LEFT JOIN course c ON t.course_id = c.course_id
                 LEFT JOIN student s ON t.student_uid = s.UID
                 LEFT JOIN user u ON s.UID = u.UID
             '''
-            cursor.execute(query)
         else:
-            cursor.execute(f"SELECT * FROM {table}")
+            query = f"SELECT * FROM {table}"
 
+        cursor.execute(query)
         data = cursor.fetchall()
         columns = [description[0] for description in cursor.description]
+
         if 'full_name' in columns:
             columns.insert(0, columns.pop(columns.index('full_name')))
-
     except sqlite3.Error as e:
         flash(f"Error: {str(e)}", "error")
         return redirect(url_for('admin_dashboard'))
     finally:
         conn.close()
 
-    pk_column = columns[0]  # Assuming first column is primary key
-    return render_template('admin/view_table.html', table=table, columns=columns, data=data, pk_column=pk_column)
+    print(f"Columns: {columns}")
+    print(f"First row: {data[0] if data else 'No rows'}")
+
+    return render_template('admin/view_table.html', table=table, columns=columns, data=data)
+
+
 
 def get_role_specific_columns(table):
     conn = get_db_connection()
@@ -1162,8 +1183,8 @@ def get_role_specific_columns(table):
     return columns
 
 # Edits records
-@app.route('/admin/edit/<table>/<id>', methods=['GET', 'POST'])
-def edit_record(table, id):
+@app.route('/admin/edit/<table>/<path:ids>', methods=['GET', 'POST'])
+def edit_record(table, ids):
     if not is_admin():
         flash("Unauthorized.")
         return redirect(url_for('login'))
@@ -1172,47 +1193,53 @@ def edit_record(table, id):
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
+    id_list = ids.split(',')
+
     user_related_tables = ['student', 'faculty', 'admin', 'grad_secretary', 'alumni']
 
     if table in user_related_tables:
+        # Handle user + role-specific table
         role_cols = get_role_specific_columns(table)
-        role_select = ", ".join([f"r.{col}" for col in role_cols])
+        role_select = ", ".join([f"r.{col}" for col in role_cols if col != 'UID'])  # no duplicate UID
         cur.execute(f'''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.password, u.role, {role_select}
             FROM user u
             JOIN {table} r ON u.UID = r.UID
             WHERE u.UID = ?
-        ''', (int(id),))
+        ''', (int(id_list[0]),))
         record = cur.fetchone()
 
         if not record:
-            flash("Record is not found.", "error")
+            flash("Record not found.", "error")
             return redirect(url_for('view_table', table=table))
 
-        user_columns = ['UID', 'firstName', 'lastName', 'email', 'password', 'role']
-        role_columns = [col for col in role_cols if col != 'UID']
-
         if request.method == 'POST':
-            # Update u
-            cur.execute('''
-                UPDATE user SET firstName = ?, lastName = ?, email = ?, password = ?, role = ?
-                WHERE UID = ?
-            ''', (
+            # Update USER table first
+            user_update_fields = ['firstName', 'lastName', 'email', 'password', 'role']
+            user_update_values = [
                 request.form['firstName'].strip().title(),
                 request.form['lastName'].strip().title(),
                 request.form['email'].strip().lower(),
                 request.form['password'],
-                request.form['role'],
-                id
-            ))
+                request.form['role']
+            ]
+            user_update_values.append(id_list[0])
 
-            # Update Role
+            cur.execute(f'''
+                UPDATE user
+                SET firstName = ?, lastName = ?, email = ?, password = ?, role = ?
+                WHERE UID = ?
+            ''', user_update_values)
+
+            # Update ROLE-SPECIFIC table now
             updates = []
             values = []
-            for col in role_columns:
-                updates.append(f"{col} = ?")
-                values.append(request.form.get(col))
-            values.append(id)
+            for col in role_cols:
+                if col != 'UID':  # UID should not be editable
+                    updates.append(f"{col} = ?")
+                    values.append(request.form.get(col))  # from form input
+
+            values.append(id_list[0])
 
             cur.execute(f'''
                 UPDATE {table}
@@ -1227,37 +1254,105 @@ def edit_record(table, id):
         return render_template('admin/edit_record.html',
                                table=table,
                                record=record,
-                               user_columns=user_columns,
-                               role_columns=role_columns)
+                               columns=record.keys())
+    elif table == 'course':
+      cur.execute('SELECT * FROM course WHERE course_id = ?', (int(id_list[0]),))
+      record = cur.fetchone()
 
-    else:
-        cur.execute(f"PRAGMA table_info({table})")
-        columns_info = cur.fetchall()
-        pk_column = columns_info[0]['name']
+      if not record:
+          flash("Course not found.", "error")
+          return redirect(url_for('view_table', table='course'))
 
-        cur.execute(f"SELECT * FROM {table} WHERE {pk_column} = ?", (id,))
+      if request.method == 'POST':
+          updates = []
+          values = []
+          for col in record.keys():
+              if col != 'course_id':  # don't allow editing primary key
+                  updates.append(f"{col} = ?")
+                  values.append(request.form.get(col))
+          values.append(id_list[0])
+
+          cur.execute(f'''
+              UPDATE course
+              SET {', '.join(updates)}
+              WHERE course_id = ?
+          ''', values)
+
+          conn.commit()
+          flash("Course updated successfully.", "success")
+          return redirect(url_for('view_table', table='course'))
+
+      return render_template('admin/edit_record.html', table=table, record=record, columns=record.keys())
+
+    elif table == 'schedule':
+        # Composite key
+        cur.execute('''
+            SELECT * FROM schedule
+            WHERE course_id = ? AND section = ? AND semester = ? AND year = ?
+        ''', tuple(id_list))
         record = cur.fetchone()
 
         if not record:
             flash("Record not found.", "error")
             return redirect(url_for('view_table', table=table))
 
-        columns = record.keys()
-
         if request.method == 'POST':
-            updates = []
-            values = []
-            for col in columns[1:]:  
-                updates.append(f"{col} = ?")
-                values.append(request.form[col])
-            values.append(id)
+            updates = ['day = ?', 'time_slot = ?', 'instructor_id = ?']
+            values = [
+                request.form['day'],
+                request.form['time_slot'],
+                request.form['instructor_id']
+            ]
+            values.extend(id_list)
 
-            cur.execute(f"UPDATE {table} SET {', '.join(updates)} WHERE {pk_column} = ?", values)
+            cur.execute(f'''
+                UPDATE schedule
+                SET {', '.join(updates)}
+                WHERE course_id = ? AND section = ? AND semester = ? AND year = ?
+            ''', values)
+
             conn.commit()
-            flash("Record updated successfully.", "success")
+            flash("Schedule updated successfully.", "success")
+            return redirect(url_for('view_table', table='schedule'))
+
+        return render_template('admin/edit_record.html', table=table, record=record, columns=record.keys())
+
+    elif table == 'transcript':
+        cur.execute('''
+            SELECT * FROM transcript
+            WHERE student_uid = ? AND course_id = ? AND section = ? AND semester = ? AND year = ?
+        ''', tuple(id_list))
+        record = cur.fetchone()
+
+        if not record:
+            flash("Record not found.", "error")
             return redirect(url_for('view_table', table=table))
 
-        return render_template('admin/edit_record.html', table=table, columns=columns, record=record)
+        if request.method == 'POST':
+            updates = ['grade = ?', 'graded = ?']
+            values = [
+                request.form['grade'],
+                request.form['graded']
+            ]
+            values.extend(id_list)
+
+            cur.execute(f'''
+                UPDATE transcript
+                SET {', '.join(updates)}
+                WHERE student_uid = ? AND course_id = ? AND section = ? AND semester = ? AND year = ?
+            ''', values)
+
+            conn.commit()
+            flash("Transcript updated successfully.", "success")
+            return redirect(url_for('view_table', table='transcript'))
+
+        return render_template('admin/edit_record.html', table=table, record=record, columns=record.keys())
+
+    else:
+        flash("Unsupported table.", "error")
+        return redirect(url_for('admin_dashboard'))
+
+
 
 # Re-defining the GPA calculation function after code state reset.
 
@@ -1920,7 +2015,7 @@ def login():
           elif role == 'Student':
             return redirect(url_for('stu_dashboard'))
           elif role == 'Admin':
-            return redirect(url_for('adminDashboard'))
+            return redirect(url_for('admin_dashboard'))
           elif role == 'GS':
             return redirect(url_for('gs_dashboard'))
           elif role == 'Faculty':
