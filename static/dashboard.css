@@ -9,7 +9,7 @@ body {
     align-items: start;
 }
 
-.dashboard_container {
+.container {
     background: white;
     padding: 2.5rem 3rem;
     margin-top: 4rem;
@@ -33,7 +33,7 @@ h1 {
     color: #334155;
 }
 
-.dashboard_nav-buttons {
+.nav-buttons {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -41,7 +41,7 @@ h1 {
     align-items: center; 
 }
 
-.dashboard_nav-button {
+.nav-button {
     display: inline-block;
     text-align: center;
     width: 250px;              
@@ -55,7 +55,7 @@ h1 {
     transition: background-color 0.3s, transform 0.2s;
 }
 
-.dashboard_nav-button:hover {
+.nav-button:hover {
     background-color: #1d4ed8;
     transform: translateY(-2px);
 }
