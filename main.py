@@ -22,14 +22,16 @@ def redirect_to_dashboard(role):
         return redirect(url_for('grad_secretary_dashboard'))
     elif role == 'Alumni':
         return redirect(url_for('alumni_dashboard'))
+    elif role == 'Applicant':
+        return redirect(url_for('applicantHome'))
     else:
-        flash("Unknown role type.")
+        flash("Unknown role type.", 'error')
         return redirect(url_for('logout'))
 
 @app.route('/stu_dashboard')
 def stu_dashboard():
     if 'UID' not in session:
-        flash('Please login to access the stu_dashboard')
+        flash('Please login to access the stu_dashboard', 'error')
         return redirect(url_for('login'))
     return render_template('stu_dashboard.html', role=session['role'])
 
@@ -48,14 +50,14 @@ def generate_unique_uid():
 @app.route('/grad_secretary_dashboard')
 def grad_secretary_dashboard():
     if 'UID' not in session or session['role'] != 'GS':
-        flash("Access denied.")
+        flash("Access denied.", 'error')
         return redirect(url_for('login'))
     return render_template('gs_dashboard.html')
 
 @app.route('/alumni_dashboard')
 def alumni_dashboard():
     if 'UID' not in session or session['role'] != 'Alumni':
-        flash("Access denied.")
+        flash("Access denied.", 'error')
         return redirect(url_for('login'))
     return render_template('alumni_dashboard.html')
 
@@ -487,7 +489,7 @@ def admin_manage():
 @app.route('/gs_dashboard')
 def gs_dashboard():
     if 'UID' not in session or session['role'] != 'GS':
-        flash("Login as a Grad Secretary to access this page.")
+        flash("Login as a Grad Secretary to access this page.", 'error')
         return redirect(url_for('login'))
 
     return render_template('gs_dashboard.html')
@@ -606,7 +608,7 @@ def update_grade():
 @app.route('/instructor_dashboard')
 def instructor_dashboard():
     if 'UID' not in session or session['role'] != 'Faculty':
-        flash("Login as an instructor to access this page.")
+        flash("Login as an instructor to access this page.", 'error')
         return redirect(url_for('login'))
 
     return render_template('instructor_dashboard.html')
@@ -769,7 +771,7 @@ def submit_grade():
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if 'UID' not in session or session['role'] != 'Admin':
-        flash("Unauthorized access.")
+        flash("Unauthorized access.", 'error')
         return redirect(url_for('login'))
     return render_template('admin/dashboard.html')
 
@@ -1303,10 +1305,8 @@ def applicantHome():
     return redirect('/')
   
   # Redirects to appropriate home page based on role if not applicant
-  if role == 'Admin':
-    return redirect(url_for('adminDashboard'))
-  elif role == 'Faculty' or role == 'CAC' or role == 'GS':
-    return redirect(url_for('facultyHome'))
+  if role != 'Applicant':
+    return redirect_to_dashboard(role)
 
   # session stuff and action and error 
   UID = session.get('UID')
@@ -1776,8 +1776,10 @@ def createPassword():
         return redirect(url_for('adminDashboard'))
       elif session['role'] in ['Faculty', 'CAC', 'GS']:
         return redirect(url_for('facultyHome'))
-      else:
+      elif session['role'] == 'Applicant':
         return redirect(url_for('applicantHome'))
+      else: 
+         return redirect(url_for('stu_dashboard'))
         
     # Check if we're in signup flow (should have email but not a fully created account)
     if not session.get('email') and not session.get('new_user') and not request.method == 'POST':
@@ -2944,9 +2946,7 @@ def display_students():
   if role == 'GS':
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
   if role == 'Faculty':
-    cursor.execute("SELECT faculty.UID FROM faculty JOIN user ON faculty.UID = user.UID WHERE faculty.UID = ?",(session['UID'],))
-    facultyData = cursor.fetchone()
-    UID = facultyData['UID']
+    UID = session['UID']
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?",(UID,))
   if role == 'Admin':
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
