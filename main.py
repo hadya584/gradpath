@@ -295,8 +295,8 @@ def drop_course():
 
 @app.route('/personal_info', methods=['GET', 'POST'])
 def personal_info():
-    if 'UID' not in session or session['role'] not in ['Student', 'Alumni']:
-        flash("Login as a Student or alumni to view personal info.")
+    if 'UID' not in session or session['role'] not in ['Student', 'Alumni', 'GS', 'Faculty', 'Admin']:
+        flash("Login to view personal info.")
         return redirect(url_for('login'))
 
     uid = session['UID']
@@ -312,7 +312,6 @@ def personal_info():
         new_phone = request.form['phone'].strip()
         new_address = request.form['address'].strip()
         new_address2 = request.form.get('address2', '').strip()
-        new_password = request.form['password'].strip()
 
         cursor.execute('''
             UPDATE user SET firstName = ?, lastName = ?, email = ?, phone = ?, address = ?, address2 = ? WHERE UID = ?
@@ -330,11 +329,37 @@ def personal_info():
                 SET program = ?, GPA = ?, thesis_status = ?
                 WHERE UID = ?
             ''', (new_program, new_gpa, new_thesis_status, uid))
+
+        elif role == 'GS':
+            new_office = request.form['office'].strip()
+            cursor.execute('''
+                UPDATE grad_secretary
+                SET office = ?
+                WHERE UID = ?
+            ''', (new_office, uid))
+
+        elif role == 'Faculty':
+            new_dept = request.form['dept'].strip()
+            cursor.execute('''
+                UPDATE faculty
+                SET dept = ?
+                WHERE UID = ?
+            ''', (new_dept, uid))
+
+        elif role == 'Admin':
+            new_access = request.form['access_level'].strip()
+            cursor.execute('''
+                UPDATE admin
+                SET access_level = ?
+                WHERE UID = ?
+            ''', (new_access, uid))
+
         conn.commit()
         flash("Profile updated successfully.", "success")
         conn.close()
         return redirect(url_for('personal_info'))
 
+    # GET: Fetch user info for pre-filling form
     if role == 'Student':
         cursor.execute('''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
@@ -343,7 +368,7 @@ def personal_info():
             JOIN student s ON u.UID = s.UID
             WHERE u.UID = ?
         ''', (uid,))
-    else:  # alumni
+    elif role == 'Alumni':
         cursor.execute('''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
                    a.grad_year, a.degree
@@ -351,9 +376,35 @@ def personal_info():
             JOIN alumni a ON u.UID = a.UID
             WHERE u.UID = ?
         ''', (uid,))
+    elif role == 'GS':
+        cursor.execute('''
+            SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
+                   g.office
+            FROM user u
+            JOIN grad_secretary g ON u.UID = g.UID
+            WHERE u.UID = ?
+        ''', (uid,))
+    elif role == 'Faculty':
+        cursor.execute('''
+            SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
+                   f.dept
+            FROM user u
+            JOIN faculty f ON u.UID = f.UID
+            WHERE u.UID = ?
+        ''', (uid,))
+    elif role == 'Admin':
+        cursor.execute('''
+            SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
+                   a.access_level
+            FROM user u
+            JOIN admin a ON u.UID = a.UID
+            WHERE u.UID = ?
+        ''', (uid,))
+        
     user = cursor.fetchone()
     conn.close()
     return render_template('personal_info.html', user=user, role=role)
+
 
 
 @app.route('/course_offerings', methods=['GET'])
@@ -1870,8 +1921,14 @@ def login():
             return redirect(url_for('stu_dashboard'))
           elif role == 'Admin':
             return redirect(url_for('adminDashboard'))
-          elif role in ['CAC', 'GS', 'Faculty']:
+          elif role == 'GS':
+            return redirect(url_for('gs_dashboard'))
+          elif role == 'Faculty':
+            return redirect(url_for('instructor_dashboard'))
+          elif role == 'CAC':
             return redirect(url_for('facultyHome'))
+          elif role == 'Alumni':
+            return redirect(url_for('alumni_dashboard'))
           
         # If there is no user with that pass & username, sends error
         else:
@@ -2435,7 +2492,7 @@ def home():
 @app.route('/form1',methods = ['GET', 'POST'])
 def form1():
   #if user isnt logged in, redirect to login
-  if 'email' not in session:
+  if 'UID' not in session:
     return redirect (url_for('login'))
 
   #connect to db 
@@ -2444,7 +2501,8 @@ def form1():
   cursor = connection.cursor()
 
   # Get student info including advisor_id
-  cursor.execute("SELECT UID, program, advisor_id FROM student WHERE UID = ?", (session['UID'],))
+  UID = session['UID']
+  cursor.execute("SELECT program, advisor_id FROM student WHERE UID = ?", (UID,))
   student = cursor.fetchone()
   program = student['program']
   advisor_id = student['advisor_id']
@@ -2458,12 +2516,6 @@ def form1():
   #to display all courses 
   cursor.execute("SELECT * FROM course")
   rows = cursor.fetchall()
-
-  #get current student UID from their email - will be used for form1 submission 
-  cursor.execute("SELECT student.UID, student.program FROM student JOIN user on student.UID = user.UID WHERE user.email = ?", (session['email'],))
-  student = cursor.fetchone()
-  UID = student['UID']
-  program = student['program']
 
   #when form is submitted 
   if request.method == 'POST':
@@ -2506,7 +2558,7 @@ def form1():
 
   connection.commit()
   connection.close
-  return render_template("form1.html",  fname = session['fname'], courses = rows, program = program)
+  return render_template("form1.html", courses = rows, program = program)
 
 @app.route('/personal_information/<UID>', methods = ['GET', 'POST'])
 def personal_information(UID):
@@ -2559,7 +2611,7 @@ def edit_personal_info(UID):
 
 @app.route('/edit_student_info/<student_UID>', methods = ['GET', 'POST'])
 def edit_student_info(student_UID):
-  if 'email' not in session:
+  if 'UID' not in session:
     return redirect (url_for('login'))
 
   connection = sqlite3.connect("myDatabase.db")
@@ -2799,7 +2851,7 @@ def apply_graduation():
   cursor = connection.cursor()
 
 
-  cursor.execute("SELECT student.UID, student.program, student.GPA, student.thesis_status FROM student JOIN user ON student.UID = user.UID WHERE user.email = ?", (session['email'],))
+  cursor.execute("SELECT student.UID, student.program, student.GPA, student.thesis_status FROM student JOIN user ON student.UID = user.UID WHERE user.UID = ?", (session['UID'],))
   userdata = cursor.fetchone()
   UID = userdata['UID']
   grad_type = userdata['program']
@@ -3163,5 +3215,4 @@ def count_low_grades(UID):
   connection.close()
   return result['low_grade_count']
 
-if __name__ == "__main__":
-  app.run(debug=True)
+app.run(host='0.0.0.0', port=5050, debug=True)

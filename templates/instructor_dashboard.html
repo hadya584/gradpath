@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Instructor Dashboard</title>
+    <title>Faculty Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
 <body>
     <div class="container">
         
-        <h1>Instructor Dashboard</h1>
+        <h1>Faculty Dashboard</h1>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for message in messages %}
@@ -18,9 +18,12 @@
         
         <div class="nav-buttons">
             {% if session['role'] == 'Faculty' %}
+                <a href="{{ url_for('facultyHome') }}" class="nav-button">Applicants</a>
+                <a href="{{url_for('display_students')}}" class="nav-button">View Advisees</a> 
                 <a href="{{ url_for('instructor_schedule') }}" class="nav-button">View My Courses</a>
                 <a href="{{ url_for('instructor_courses') }}" class="nav-button">View Enrolled Students</a>
                 <a href="{{ url_for('instructor_grading') }}" class="nav-button">Enter Final Grades</a> 
+                <a href="{{url_for('personal_info')}}" class="nav-button"> Personal Information </a>
                 <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
             {% endif %}
         </div>

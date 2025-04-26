@@ -1,9 +1,24 @@
+<script>
+    function filterStudents() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const students = document.querySelectorAll("a.student");
+
+        students.forEach(student => {
+            const studentText = student.innerText.toLowerCase();
+            student.style.display = studentText.includes(query) ? "" : "none";
+        });
+    }
+</script>
+
 <html>
     <head>
         <link href = "/static/styles/students.css" rel = "stylesheet" type = "text/css" />
 
     </head>
     <h1>Students</h1>
+    <div class="search-box">
+        <input type="text" id="searchInput" onkeyup="filterStudents()" placeholder="Search students">
+    </div>
     {% if role == 'Admin' %}
         <a href="{{ url_for('admin_add_student') }}" class = buttonsketch>Add New Student</a>
     {% endif %}
@@ -18,5 +33,5 @@
     {% endif %}
 </div>
     <br><br>
-    <a href="{{ url_for('home') }}" class =buttonsketch>Return to Home</a>
+    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
 </html>
