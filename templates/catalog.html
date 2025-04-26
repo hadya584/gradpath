@@ -22,14 +22,20 @@
         const sections = document.querySelectorAll(".catalog-section");
     
         sections.forEach(section => {
-            const rows = section.querySelectorAll("table tr:not(:first-child)");
+            const rows = section.querySelectorAll("tbody tr");
             let matchFound = false;
     
             rows.forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                const isMatch = rowText.includes(query);
-                row.style.display = isMatch ? "" : "none";
-                if (isMatch) matchFound = true;
+              const rowText = row.innerText.toLowerCase();
+              if (query === "") {
+                  // If search box is empty, reset everything
+                  row.style.display = "";
+                  matchFound = true;
+              } else {
+                  const isMatch = rowText.includes(query);
+                  row.style.display = isMatch ? "" : "none";
+                  if (isMatch) matchFound = true;
+              }
             });
     
             section.style.display = matchFound ? "" : "none";
@@ -61,24 +67,26 @@
         <div class="catalog-section">
             <h3>{{ dept }}</h3>
             <table>
-                <tr>
-                    <th>Course Number</th>
-                    <th>Title</th>
-                    <th>Credits</th>
-                    <th>Prerequisite 1</th>
-                    <th>Prerequisite 2</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for course in courses %}
-                    <tr>
-                        <td>{{ course.number }}</td>
-                        <td>{{ course.title }}</td>
-                        <td>{{ course.credits }}</td>
-                        <td>{{ course.prereq1 }}</td>
-                        <td>{{ course.prereq2 }}</td>
-                    </tr>
-                {% endfor %}
+              <thead>
+                  <tr>
+                      <th>Course Number</th>
+                      <th>Title</th>
+                      <th>Credits</th>
+                      <th>Prerequisite 1</th>
+                      <th>Prerequisite 2</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for course in courses %}
+                      <tr>
+                          <td>{{ course.number }}</td>
+                          <td>{{ course.title }}</td>
+                          <td>{{ course.credits }}</td>
+                          <td>{{ course.prereq1 }}</td>
+                          <td>{{ course.prereq2 }}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
             </table>
         </div>
         {% endfor %}
