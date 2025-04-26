@@ -75,7 +75,7 @@
 
     {% if role == 'Admin' or role == 'GS' %}
      <div  class = buttonbox>
-        <a href = "{{url_for('edit_student_info', student_UID = student_UID)}}" class = buttonsketch >Edit Information</a>
+        <a href = "{{url_for('edit_record', table='student', ids=student_UID)}}" class = buttonsketch >Edit Information</a>
      </div >
     {% elif role == 'Student' %}
         <a href = "{{url_for('edit_personal_info', UID = student_UID)}}" class = buttonsketch >Edit Information</a>

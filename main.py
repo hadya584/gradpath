@@ -785,7 +785,22 @@ def create_user():
         lastName = request.form['lastName'].strip().title()
         email = request.form['email'].strip().lower()
         password = request.form['password']
-        role = request.form['role'].strip()
+        raw_role = request.form['role'].strip()
+        role_map = {
+            'admin': 'Admin',
+            'student': 'Student',
+            'faculty': 'Faculty',
+            'gs': 'GS',
+            'grad secretary': 'GS',
+            'alumni': 'Alumni',
+            'applicant': 'Applicant',
+            'cac': 'CAC'
+        }
+
+        role = role_map.get(raw_role.lower())
+        if role is None:
+            raise ValueError(f"Unsupported role selected: {raw_role}")
+
         ssn = request.form.get('ssn', '').strip()
         phone = request.form.get('phone', '').strip()
         address = request.form.get('address', '').strip()
@@ -816,22 +831,29 @@ def create_user():
                 cur.execute("INSERT INTO Faculty (UID, dept) VALUES (?, ?)", (uid, dept))
 
             elif role == 'Admin':
-                cur.execute("INSERT INTO admin (UID, access_level) VALUES (?, ?)", (uid, 'full'))
+                pass
 
             elif role == 'GS':
                 cur.execute("INSERT INTO grad_secretary (UID, office) VALUES (?, ?)", (uid, office))
 
             elif role == 'Alumni':
+                degree = request.form.get('degree', '').strip().upper()
+                grad_year = request.form.get('grad_year', '').strip()
                 if not grad_year.isdigit():
                     raise ValueError("Graduation year must be numeric")
                 cur.execute("INSERT INTO alumni (UID, grad_year, degree) VALUES (?, ?, ?)",
                             (uid, grad_year, degree))
-
+            elif role == 'Applicant':
+                pass
+            elif role == 'CAC':
+                pass
+            else:
+                raise ValueError("Unsupported role selected.")
             conn.commit()
             flash(f"User created successfully. Assigned UID: {uid}", "success")
 
         except (sqlite3.Error, ValueError) as e:
-            flash(f"Error: {str(e)}", "error")
+            flash(f"Error: {str(e)} Role trying to insert: {role}", "error")
             conn.rollback()
 
         finally:
