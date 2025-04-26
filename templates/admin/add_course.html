@@ -1,45 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Course</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Add Course</h1>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Add Course{% endblock %}
 
-        <form method="POST">
-            <label for="course_id">Course ID:</label>
-            <input name="course_id" id="course_id" required>
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-8">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Add Course</h2>
 
-            <label for="dept">Department:</label>
-            <input name="dept" id="dept" required>
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    <div class="{{ 'alert alert-danger' if category == 'error' else 'alert alert-success' }} mt-3">{{ message }}</div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
 
-            <label for="course_num">Course Number:</label>
-            <input name="course_num" id="course_num" required>
+              <form method="POST">
+                <div class="form-outline form-white mb-4">
+                  <label class="form-label" for="course_id">Course ID</label>
+                  <input type="text" id="course_id" name="course_id" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="title">Title:</label>
-            <input name="title" id="title" required>
+                <div class="form-outline form-white mb-4">
+                  <label class="form-label" for="dept">Department</label>
+                  <input type="text" id="dept" name="dept" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="credits">Credits:</label>
-            <input name="credits" id="credits" type="number" min="0" required>
+                <div class="form-outline form-white mb-4">
+                  <label class="form-label" for="course_num">Course Number</label>
+                  <input type="text" id="course_num" name="course_num" class="form-control form-control-lg" required>
+                </div>
 
-            <label for="instructor_id">Instructor ID (optional):</label>
-            <input name="instructor_id" id="instructor_id">
+                <div class="form-outline form-white mb-4">
+                  <label class="form-label" for="title">Title</label>
+                  <input type="text" id="title" name="title" class="form-control form-control-lg" required>
+                </div>
 
-            <button type="submit">Add Course</button>
-        </form>
-        <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+                <div class="form-outline form-white mb-4">
+                  <label class="form-label" for="credits">Credits</label>
+                  <input type="number" id="credits" name="credits" min="0" class="form-control form-control-lg" required>
+                </div>
+
+                <div class="form-outline form-white mb-4">
+                  <label class="form-label" for="instructor_id">Instructor ID (optional)</label>
+                  <input type="text" id="instructor_id" name="instructor_id" class="form-control form-control-lg">
+                </div>
+
+                <div class="form-group">
+                  <button class="btn btn-outline-light btn-lg px-5" type="submit">Add Course</button>
+                </div>
+              </form>
+
+              <div class="mt-4">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-sm mt-3">← Back to Dashboard</a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}
