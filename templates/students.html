@@ -19,9 +19,6 @@
     <div class="search-box">
         <input type="text" id="searchInput" onkeyup="filterStudents()" placeholder="Search students">
     </div>
-    {% if role == 'Admin' %}
-        <a href="{{ url_for('admin_add_student') }}" class = buttonsketch>Add New Student</a>
-    {% endif %}
     <br><br>
     <div class = sketchy>
     {% if students %}
