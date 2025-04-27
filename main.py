@@ -2488,7 +2488,6 @@ def home():
 #submit -> insert into db 
 #once logged in add a sesssion for like type of user
 
-
 @app.route('/form1',methods = ['GET', 'POST'])
 def form1():
   #if user isnt logged in, redirect to login
@@ -2510,17 +2509,23 @@ def form1():
   # Check if advisor_id is NULL (i.e., no advisor assigned)
   if advisor_id is None:
     connection.close()
-    flash("You must have an advisor assigned before submitting Form 1.", "warning")
-    return redirect(url_for('home'))  # Change 'homepage' to your actual homepage/dashboard route
+    flash("You must have an advisor assigned before submitting a Form.", "warning")
+    return redirect(url_for('stu_dashboard')) 
   
   #to display all courses 
   cursor.execute("SELECT * FROM course")
   rows = cursor.fetchall()
 
+  # get their completed courses
+  cursor.execute("SELECT t.course_id FROM transcript t WHERE t.student_uid = ?", (UID,))
+  completed_courses = [row['course_id'] for row in cursor.fetchall()]
+  
   #when form is submitted 
   if request.method == 'POST':
-    # Check if the student already has a submitted form1
-    cursor.execute("SELECT form1_id FROM form1 WHERE UID = ? AND status = 'Submitted'", (UID,))
+    form_type = request.form.get('form_type')  # Get the form type (Form 1 or Advising)
+
+    # Check if the student already has a submitted form (based on form_type)
+    cursor.execute("SELECT form1_id FROM form1 WHERE UID = ? AND form_type = ? AND status = 'Submitted'", (UID, form_type))
     existing_form1 = cursor.fetchone()
 
     if existing_form1:
@@ -2530,11 +2535,10 @@ def form1():
       #clear existing courses before inserting new ones
       cursor.execute("DELETE FROM form1_course WHERE form1_id = ?", (form1_id,))
     else:
-      #if no exisiting form new form1 for student withh their uid, and status changed to submitted
-      cursor.execute("INSERT INTO form1 (UID, status) VALUES (?, ?)", (UID, "Submitted"))
-      form1_id = cursor.lastrowid  
+      # If it's a new form, insert a new entry
+      cursor.execute("INSERT INTO form1 (UID, form_type, status) VALUES (?, ?, ?)", (UID, form_type, "Submitted"))
+      form1_id = cursor.lastrowid 
     
-
     #list for all dropdown items (Course Fields) for form1 
     course_fields = [ "course_1", "course_2", "course_3", "course_4", "course_5", "course_6", 
                      "course_7","course_8", "course_9" ,"course_10" ,"course_11", "course_12"]
@@ -2548,17 +2552,19 @@ def form1():
       if course_id:
         if course_id in selected: #if course id was already in selected
           connection.close()
-          return render_template("form1error.html") #direct to error page which will bring them back to form1 
+          flash("You selected the same course twice. Please fix it!", "danger")
+          return redirect(url_for('form1'))
         selected.append(course_id) #if it hasnt been selected already, add it to the list for db 
         cursor.execute("INSERT INTO form1_course (form1_id, course_id) VALUES (?, ?)", (form1_id, course_id))
 
     connection.commit()
     connection.close()
-    return render_template("submitted.html") 
+    flash("Form 1 submitted successfully!", "success")
+    return redirect(url_for('stu_dashboard'))
 
   connection.commit()
   connection.close
-  return render_template("form1.html", courses = rows, program = program)
+  return render_template("form1.html", courses = rows, program = program, completed_courses = completed_courses)
 
 @app.route('/personal_information/<UID>', methods = ['GET', 'POST'])
 def personal_information(UID):
@@ -2685,7 +2691,7 @@ def student_information(student_UID):
   if cleared == None:
     is_cleared = False
 
-  cursor.execute("SELECT status FROM form1 WHERE UID = ?", (student_UID,))
+  cursor.execute("SELECT status FROM form1 WHERE UID = ? AND form_type = 'Form1'", (student_UID,))
   form1 = cursor.fetchone()
 
   if form1 is not None:
@@ -2694,6 +2700,14 @@ def student_information(student_UID):
   else:
     form1_submitted = False
     form1_status = 'not submitted'
+
+  cursor.execute("SELECT status FROM form1 WHERE UID = ? AND form_type = 'Advising'", (student_UID,))
+  advising = cursor.fetchone()
+
+  if advising is not None:
+    advising_submitted = True
+  else:
+    advising_submitted = False
 
   GPA = calculate_gpa(student_UID)
   cursor.execute("UPDATE student SET GPA = ? WHERE UID = ?", (GPA, student_UID))
@@ -2730,12 +2744,12 @@ def student_information(student_UID):
   if low_grade_count >= 3:
     connection.commit()
     connection.close()
-    return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = True)
+    return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = True, advising_submitted = advising_submitted)
       
   connection.commit()
   connection.close()
 
-  return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = False)
+  return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = False, advising_submitted = advising_submitted)
 
 @app.route('/edit_grade/<student_UID>/<course_id>', methods = ['GET', 'POST'])
 def edit_grade(student_UID, course_id):
@@ -2843,96 +2857,132 @@ def admin_add_employee():
   connection.close()
   return render_template('add_employee.html')
 
-@app.route('/apply_graduation', methods = ['GET', 'POST'])
+@app.route('/apply_graduation', methods=['GET', 'POST'])
 def apply_graduation():
-  # make sure student is applying
-  connection = sqlite3.connect('myDatabase.db')
-  connection.row_factory = sqlite3.Row
-  cursor = connection.cursor()
+    # Connect to the database
+    connection = sqlite3.connect('myDatabase.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
 
+    # Retrieve student info
+    cursor.execute("SELECT student.UID, student.program, student.GPA, student.thesis_status FROM student JOIN user ON student.UID = user.UID WHERE user.UID = ?", (session['UID'],))
+    userdata = cursor.fetchone()
+    UID = userdata['UID']
+    grad_type = userdata['program']
+    GPA = userdata['GPA']
+    thesis_status = userdata['thesis_status']
 
-  cursor.execute("SELECT student.UID, student.program, student.GPA, student.thesis_status FROM student JOIN user ON student.UID = user.UID WHERE user.UID = ?", (session['UID'],))
-  userdata = cursor.fetchone()
-  UID = userdata['UID']
-  grad_type = userdata['program']
-  GPA = userdata['GPA']
-  thesis_status = userdata['thesis_status']
+    # Check if student has already applied
+    cursor.execute("SELECT * FROM applied_for_grad WHERE UID = ? AND cleared = 'Cleared'", (UID,))
+    applied = cursor.fetchone()
+    if applied is not None:
+        return render_template("applied.html", cleared=False, error=None, already_applied=True)
 
-  #check if student already applied
-  cursor.execute("SELECT * FROM applied_for_grad WHERE UID = ? AND cleared = 'Cleared'",(UID,))
-  applied = cursor.fetchone()
-  #if already applied
-  if applied is not None:
-    return render_template("applied.html", cleared = False, error = None, already_applied = True)
+    # Check if Master's requirements are fulfilled
+    if grad_type == 'Masters':
+        # Initialize requirement statuses
+        requirements_status = {
+          'core_courses': False,
+          'credits': False,
+          'grades': False,
+          'GPA': False,
+          'advisor_approval': False,
+          'form_match': False
+        }
+        if GPA >= 3.0:
+          requirements_status['GPA'] = True
+        # Check core courses
+        cursor.execute("SELECT COUNT(*) AS core_courses FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND c.dept = 'CSCI' AND c.course_num IN (6212, 6221, 6461)", (UID,))
+        core_courses = cursor.fetchone()['core_courses']
+        requirements_status['core_courses'] = core_courses == 3
 
-  #check if form courses match transcript
-  # get form 1 course IDs
-  cursor.execute("SELECT course_id FROM form1_course JOIN form1 ON form1_course.form1_id = form1.form1_id WHERE form1.UID = ?", (UID,))
-  form1_course_rows = cursor.fetchall()
-  form1_courses = []
-  for row in form1_course_rows:
-    form1_courses.append(row['course_id'])
+        # Check total credits
+        cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
+        total_credits = cursor.fetchone()['total_credits']
+        requirements_status['credits'] = total_credits >= 30
 
-  # get transcript course IDs
-  cursor.execute("SELECT course_id FROM transcript WHERE student_uid = ?", (UID,))
-  transcript_course_rows = cursor.fetchall()
-  transcript_courses = []
-  for row in transcript_course_rows:
-    transcript_courses.append(row['course_id'])
+        # Check grades
+        cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'D+', 'D-', 'F')", (UID,))
+        grades_count = cursor.fetchone()['grades_count']
+        requirements_status['grades'] = grades_count <= 2
 
-  #compare courses
-  if len(form1_courses) != len(transcript_courses):
-    audit_passed = False
-    return render_template("applied.html", cleared=audit_passed, error = 'not_matching', already_applied = False)
-  else:
-    for course in form1_courses:
-      if course not in transcript_courses:
-        audit_passed = False
-        return render_template("applied.html", cleared=audit_passed, error = 'not_matching', already_applied = False) # form 1 doesnt match transcript
+    # Check if PhD requirements are fulfilled
+    elif grad_type == 'PhD':
+      # Initialize requirement statuses
+      requirements_status = {
+        'core_courses': False,
+        'credits': False,
+        'grades': False,
+        'thesis': False,
+        'GPA': False,
+        'advisor_approval': False,
+        'form_match': False
+      }
+      if GPA >= 3.5:
+        requirements_status['GPA'] = True
+      # Check total credits
+      cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
+      total_credits = cursor.fetchone()['total_credits']
+      requirements_status['credits'] = total_credits >= 36
 
-  #check if advisor approved
-  cursor.execute("SELECT status FROM form1 WHERE UID = ?", (UID,))
-  form1 = cursor.fetchone()
-  if form1:
-    form1_submit = form1['status']
-  else:
-    form1_submit = None
+      # Check CS credits
+      cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND c.dept LIKE 'CSCI%'", (UID,))
+      cs_credits = cursor.fetchone()['total_credits']
+      requirements_status['cs_credits'] = cs_credits >= 30
 
-  if form1_submit != 'Approved':
-    return render_template("applied.html", cleared = False, error = 'form1_not_approved', already_applied = False) # advisor did not approve form 1
+      # Check grades
+      cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'F')", (UID,))
+      grades_count = cursor.fetchone()['grades_count']
+      requirements_status['grades'] = grades_count <= 1
 
-  audit_passed = True
-  # check requirements
-  if grad_type == 'Masters':
-    req_status = ms_requirements(UID)
-    if GPA < 3.00:
-      audit_passed = False
-    if req_status == False:
-      audit_passed = False  
+      # Check thesis status
+      requirements_status['thesis'] = thesis_status == 'Approved'
+
+    # Check if the advising form is approved
+    cursor.execute("SELECT status, form1_id FROM form1 WHERE UID = ? AND form_type = 'Form1'", (UID,))
+    form = cursor.fetchone()
+    if form:
+        requirements_status['advisor_approval'] = form['status'] == 'Approved'
+        
+        # Check if the advising form matches the transcript
+        cursor.execute("SELECT course_id FROM form1_course WHERE form1_id = ?", (form['form1_id'],))
+        form_courses = cursor.fetchall()
+        cursor.execute("SELECT course_id FROM transcript WHERE student_uid = ?", (UID,))
+        transcript_courses = cursor.fetchall()
+
+        form_courses_set = set([course['course_id'] for course in form_courses])
+        transcript_courses_set = set([course['course_id'] for course in transcript_courses])
+        requirements_status['form_match'] = form_courses_set == transcript_courses_set
+    else:
+      requirements_status['advisor_approval'] = False
+      requirements_status['form_match'] = False
+
+    # Check if all conditions are met
+    audit_passed = all(requirements_status.values())
+
+    # Pass the requirements status to the template
+    return render_template("applied.html", cleared=audit_passed, error=None, already_applied=False, requirements_status=requirements_status, audit_passed = audit_passed, UID = UID)
+
+@app.route('/apply/<audit_passed>/<UID>', methods=['GET', 'POST'])
+def apply(audit_passed, UID):
+    # Connect to the database
+    connection = sqlite3.connect('myDatabase.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # If the audit passes, insert into applied_for_grad
+    if audit_passed:
+        cursor.execute("INSERT INTO applied_for_grad (UID, cleared) VALUES (?, ?)", (UID, 'Cleared'))
+        flash('You have successfully applied for graduation! Your application is cleared.', 'success')
+    else:
+        cursor.execute("INSERT INTO applied_for_grad (UID, cleared) VALUES (?, ?)", (UID, 'Not Cleared'))
+        flash('Your graduation application was submitted but you did not meet all requirements.', 'danger')
+
+    connection.commit()
+    connection.close()
     
-  elif grad_type == 'PhD':
-    req_status = phd_requirements(UID)
-    if GPA < 3.50:
-      audit_passed = False
-    if req_status == False:
-      audit_passed = False
-    if thesis_status == 'Incomplete':
-      return render_template("applied.html", cleared = False, error = 'thesis_not_approved', already_applied = False) # advisor did not approve thesis
-
-  if form1_submit != 'Approved':
-    audit_passed = False
-
-  if audit_passed:
-    #add to cleared student and applied student
-    cursor.execute("INSERT INTO applied_for_grad (UID, cleared) VALUES (?,?)", (UID, 'Cleared'))
-  else:
-    #add to applied student
-    cursor.execute("INSERT INTO applied_for_grad (UID, cleared) VALUES (?,?)", (UID, 'Not Cleared'))
-   
-  connection.commit()
-  connection.close()
-  
-  return render_template("applied.html", cleared = audit_passed, error = None, already_applied = False)
+    # Redirect to the dashboard (or wherever you want the user to go after applying)
+    return redirect(url_for('stu_dashboard'))
 
 @app.route('/display_students', methods = ['GET', 'POST'])
 def display_students():
@@ -3121,8 +3171,8 @@ def phd_requirements(UID):
   return True
 
 
-@app.route('/form1submission/<student_UID>', methods = ['GET', 'POST'])
-def form1submission(student_UID):
+@app.route('/form1submission/<student_UID>/<form_type>', methods = ['GET', 'POST'])
+def form1submission(student_UID, form_type):
   if 'UID' not in session:
     return redirect (url_for('login'))
 
@@ -3130,7 +3180,7 @@ def form1submission(student_UID):
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
 
-  cursor.execute("SELECT course.course_id, course.title, course.dept, course.course_num FROM form1 JOIN form1_course ON form1.form1_id = form1_course.form1_id JOIN course on form1_course.course_id = course.course_id WHERE form1.UID = ?", (student_UID,))
+  cursor.execute("SELECT course.course_id, course.title, course.dept, course.course_num FROM form1 JOIN form1_course ON form1.form1_id = form1_course.form1_id JOIN course on form1_course.course_id = course.course_id WHERE form1.UID = ? AND form1.form_type = ?", (student_UID, form_type))
   form1courses = cursor.fetchall()
 
   is_form1courses = True
@@ -3143,7 +3193,7 @@ def form1submission(student_UID):
   connection.commit()
   connection.close()
 
-  return render_template("form1submission.html", form1courses = form1courses, is_form1courses = is_form1courses, userdata = userdata, role = session['role'])
+  return render_template("form1submission.html", form1courses = form1courses, is_form1courses = is_form1courses, userdata = userdata, role = session['role'], form_type = form_type)
 
 
 @app.route('/approve_thesis/<student_UID>', methods = ['GET', 'POST'])

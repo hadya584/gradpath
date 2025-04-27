@@ -22,7 +22,7 @@
     <p>GPA: {{userdata['GPA']}}</p>
 
     {% if form1_submitted %}
-        Form 1 Status: {{ form1_status }}</p>
+        <p>Form 1 Status: {{ form1_status }}</p>
 
         {% if role == 'Faculty' or role == 'Admin' %}
             <form action="{{ url_for('handle_form1_decision', student_UID=userdata['UID']) }}" method="POST">
@@ -35,28 +35,62 @@
             </form>
         {% endif %}
         <div class = buttonbox>
-        <a href="{{ url_for('form1submission', student_UID=userdata['UID']) }}" class = student>View Form 1 Submission</a>
+        <a href="{{ url_for('form1submission', student_UID=userdata['UID'], form_type = 'Form1') }}" class = student>View Form 1 Submission</a>
     </div>
     <br><br>
     {% else %}
         <p>Form 1: Not Submitted</p>
     {% endif %}
 
-    {% if role == 'GS' or role == 'Admin' %}
-        {% if is_cleared %}
+    {% if advising_submitted %}
+        <p>Advising Form Submitted</p>
 
-            <p>Graduation Status : Cleared </p> 
-            <div class = buttonbox>
-            <a href="{{ url_for('clear_grad', student_UID = userdata['UID']) }}" class = student>Graduate</a>
-        </div>
-        {% else %}
-            <p>Graduate Status: Not Clear</p>
-
+        {% if role == 'Faculty' or role == 'Admin' %}
+            <form action="{{ url_for('handle_form1_decision', student_UID=userdata['UID']) }}" method="POST">
+                <label for="form1_decision">Change Status:</label>
+                <select name="form1_decision" id="form1_decision">
+                    <option value="Approved">Approve</option>
+                    <option value="Rejected">Reject</option>
+                </select>
+                <button type="submit">Submit</button>
+            </form>
         {% endif %}
-        <div  class = buttonbox>
-        <a href="{{ url_for('assign_advisor', student_UID = userdata['UID']) }}" class = student> Change Advisor </a>
-        </div>
+        <div class = buttonbox>
+        <a href="{{ url_for('form1submission', student_UID=userdata['UID'], form_type = 'Advising') }}" class = student>View Advising Form</a>
+    </div>
+    <br><br>
     {% endif %}
+
+
+    {% if role == 'GS' or role == 'Admin' %}
+    {% if is_cleared %}
+        <p>Graduation Status: Cleared</p>
+        {% if form1_submitted and advising_submitted %}
+            {% if userdata['program'] == 'PhD' and thesis_approved %}
+                <!-- All conditions are met for graduation -->
+                <div class="buttonbox">
+                    <form action="{{ url_for('graduate_student', student_UID=userdata['UID']) }}" method="POST">
+                        <button type="submit" class="btn btn-success">Graduate</button>
+                    </form>
+                </div>
+            {% elif userdata['program'] != 'PhD' %}
+                <!-- For non-PhD students, they don't need thesis approval -->
+                <div class="buttonbox">
+                    <form action="{{ url_for('graduate_student', student_UID=userdata['UID']) }}" method="POST">
+                        <button type="submit" class="btn btn-success">Graduate</button>
+                    </form>
+                </div>
+            {% else %}
+                <p>Thesis: Not Approved (PhD Students)</p>
+            {% endif %}
+        {% else %}
+            <p>Form 1 or Advising Form not submitted or cleared.</p>
+        {% endif %}
+    {% else %}
+        <p>Graduation Status: Not Cleared</p>
+    {% endif %}
+{% endif %}
+
 
   
     {% if (role == 'Faculty' or role == 'Admin') and userdata['program'] == 'PhD' %}
