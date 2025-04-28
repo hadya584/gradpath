@@ -44,6 +44,7 @@ CREATE TABLE student (
   GPA             DECIMAL,
   program   VARCHAR(50) CHECK (program IN ('Masters', 'PhD')),
   thesis_status   VARCHAR(50),
+  advising_hold   BOOLEAN DEFAULT TRUE,
   FOREIGN KEY (UID) REFERENCES user(UID),
   FOREIGN KEY (advisor_id) REFERENCES faculty(UID)
 );
@@ -228,7 +229,7 @@ INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, a
 (20000009, 'Dwayne', 'Johnson', 'dwayne@uni.edu', 'pass', 'Student', '000-00-0010', '555-0010', '901 Rock Blvd', NULL),
 (20000010, 'Selena', 'Gomez', 'selena@uni.edu', 'pass', 'Student', '000-00-0011', '555-0011', '012 Star Way', NULL),
 (88888888, 'Billie', 'Holiday', 'billie@uni.edu', 'billiepass', 'Student', '000-00-0012', '555-0012', '100 Jazz St', NULL),
-(99999999, 'Diana', 'Krall', 'diana@uni.edu', 'dianapass', 'Student', '000-00-0013', '555-0013', '101 Blues St', NULL),
+(99999991, 'Diana', 'Krall', 'diana@uni.edu', 'dianapass', 'Student', '000-00-0013', '555-0013', '101 Blues St', NULL),
 (30000001, 'Leonardo', 'DiCaprio', 'leo@alumni.edu', 'pass', 'Alumni', '000-00-0014', '555-0014', 'alumni Way', NULL),
 (30000002, 'Natalie', 'Portman', 'natalie@alumni.edu', 'pass', 'Alumni', '000-00-0015', '555-0015', 'alumni Way', NULL),
 (30000003, 'Morgan', 'Freeman', 'morgan@alumni.edu', 'pass', 'Alumni', '000-00-0016', '555-0016', 'alumni Way', NULL),
@@ -255,18 +256,18 @@ INSERT INTO faculty (UID, dept) VALUES
 (33333333, 'CSCI');
 
 -- populate with additional info - about each typeuser, grad year, address, etc
-INSERT INTO Student (UID, advisor_id, GPA, program, thesis_status) VALUES
-(20000001, 50000001, 3.92, 'Masters', 'Incomplete'),
-(20000002, 50000001, 3.88, 'PhD', 'Complete'),
-(20000003, 50000002, 3.76, 'Masters', 'Incomplete'),
-(20000004, 50000002, 3.91, 'PhD', 'Incomplete'),
-(20000005, 50000001, 3.85, 'Masters', 'Complete'),
-(20000006, 50000001, 3.67, 'Masters', 'Complete'),
-(20000007, 50000002, 3.89, 'PhD', 'Incomplete'),
-(20000008, 50000001, 3.95, 'Masters', 'Complete'),
-(20000009, 50000001, 3.79, 'PhD', 'Incomplete'),
-(20000010, 50000002, 3.87, 'Masters', 'Complete'),
-(88888888, 50000002, 3.93, 'Masters', 'Complete');
+INSERT INTO Student (UID, advisor_id, GPA, program, thesis_status, advising_hold) VALUES
+(20000001, 50000001, 3.92, 'Masters', 'Incomplete', FALSE),
+(20000002, 50000001, 3.88, 'PhD', 'Complete', FALSE),
+(20000003, 50000002, 3.76, 'Masters', 'Incomplete', FALSE),
+(20000004, 50000002, 3.91, 'PhD', 'Incomplete', FALSE),
+(20000005, 50000001, 3.85, 'Masters', 'Complete', FALSE),
+(20000006, 50000001, 3.67, 'Masters', 'Complete', FALSE),
+(20000007, 50000002, 3.89, 'PhD', 'Incomplete', FALSE),
+(20000008, 50000001, 3.95, 'Masters', 'Complete', FALSE),
+(20000009, 50000001, 3.79, 'PhD', 'Incomplete', FALSE),
+(20000010, 50000002, 3.87, 'Masters', 'Complete', FALSE),
+(88888888, 50000002, 3.93, 'Masters', 'Complete', FALSE);
 
 INSERT INTO alumni (UID, grad_year, degree) VALUES
 (30000001, 2020, 'Masters'),
@@ -393,3 +394,94 @@ INSERT INTO transcript (Student_uid, course_id, section, semester, year, grade, 
 (30000002, 4, 1, 'Spring', 2020, 'A', TRUE),
 (30000003, 5, 1, 'Fall', 2023, 'A-', TRUE),
 (30000003, 6, 1, 'Spring', 2022, 'B', TRUE);
+
+-- ads
+INSERT INTO user VALUES(55555555, 'Student', 'password', 'Paul', 'McCartney', 1111, 'paulmccartney@email.com', 12345678, 'Address', NULL);
+INSERT INTO user VALUES(66666666, 'Student', 'password', 'George', 'Harrison', 2222, 'georgeharrison@email.com', 87654321, 'Address', NULL);
+INSERT INTO user VALUES(99999999, 'Student', 'password', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
+INSERT INTO user VALUES(12345678, 'Alumni', 'password', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 222222222, 'Address', NULL);
+INSERT INTO user VALUES(12121212, 'GS', 'password', 'John', 'Snow', 5555, 'johnsnow@email.com', 3333333333, 'Address', NULL);
+INSERT INTO user VALUES(22222221, 'Faculty', 'password', 'Bhagirath', 'Narahari', 6666, 'bnarahari@email.com', 4444444444, 'Address', NULL);
+INSERT INTO user VALUES(33333331, 'Faculty', 'password', 'Gabe', 'Parmer', 7777, 'gparmer@email.com', 5555555555, 'Address', NULL);
+INSERT INTO user VALUES(13131313, 'Admin', 'password', 'Jett', 'Jacobs', 8888, 'jettjacobs@email.com', 6666666666, 'Address', NULL);
+
+INSERT INTO faculty VALUES(22222221, 'CSCI');
+INSERT INTO faculty VALUES(33333331, 'CSCI');
+INSERT INTO student VALUES(55555555, 22222221, 0.0, 'Masters', 'Incomplete', FALSE);
+INSERT INTO student VALUES(66666666, 22222221, 0.0, 'Masters', 'Incomplete', FALSE);
+INSERT INTO student VALUES(99999999, 33333331, 0.0, 'PhD', 'Incomplete', FALSE);
+INSERT INTO alumni VALUES(12345678, 2024, 'Masters');
+INSERT INTO grad_secretary VALUES(12121212, NULL);
+INSERT INTO admin VALUES(13131313, NULL);
+
+-- Clear first
+DELETE FROM transcript;
+DELETE FROM schedule;
+
+-- Now insert matching schedule
+INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instructor_id) VALUES
+(1, 'Fall', 1, 2023, 'M', '15:00-17:30', 50000001),      -- SW Paradigms
+(100, 'Fall', 1, 2023, 'T', '16:00-18:30', 22222222),    -- Computer Architecture
+(101, 'Fall', 1, 2023, 'W', '15:00-17:30', 33333333),    -- Algorithms
+(4, 'Fall', 1, 2023, 'R', '18:00-20:30', 50000001),      -- Machine Learning
+(5, 'Fall', 1, 2023, 'F', '16:00-18:30', 50000002),      -- Networks 1
+
+(6, 'Spring', 1, 2024, 'M', '15:00-17:30', 50000003),    -- Networks 2
+(7, 'Fall', 1, 2024, 'T', '15:00-17:30', 50000004),      -- Database 1
+(8, 'Fall', 1, 2024, 'W', '15:00-17:30', 50000004),      -- Database 2
+(9, 'Fall', 1, 2024, 'R', '16:00-18:30', 50000005),      -- Compilers
+(10, 'Fall', 1, 2024, 'F', '18:00-20:30', 50000005),     -- Multimedia
+
+(11, 'Fall', 1, 2024, 'M', '15:00-17:30', 22222222),     -- Cloud Computing
+(12, 'Spring', 1, 2024, 'T', '16:00-18:30', 50000002),   -- SW Engineering
+(13, 'Fall', 1, 2024, 'W', '18:00-20:30', 50000003),     -- Graphics 1
+(14, 'Fall', 1, 2024, 'R', '15:00-17:30', 50000004),     -- Security 1
+(15, 'Fall', 1, 2024, 'F', '16:00-18:30', 50000005),     -- Cryptography
+
+(16, 'Fall', 1, 2024, 'M', '18:00-20:30', 50000001),     -- Network Security
+(17, 'Fall', 1, 2024, 'T', '15:00-17:30', 50000002),     -- Algorithms 2
+(18, 'Fall', 1, 2024, 'W', '15:00-17:30', 50000003),     -- Embedded Systems
+(19, 'Fall', 1, 2024, 'R', '16:00-18:30', 33333333);     -- Cryptography 2
+
+
+-- Paul McCartney (UID: 55555555)
+INSERT INTO transcript VALUES (55555555, 1, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 100, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 101, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 5, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 12, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (55555555, 6, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 14, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 8, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 17, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (55555555, 13, 1, 'Fall', 2024, 'B', TRUE);
+
+-- George Harrison (UID: 66666666)
+INSERT INTO transcript VALUES (66666666, 4, 1, 'Fall', 2023, 'C', TRUE);
+INSERT INTO transcript VALUES (66666666, 1, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 100, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 101, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 5, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 12, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 6, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 13, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 17, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 18, 1, 'Fall', 2024, 'B', TRUE);
+
+
+-- Ringo Starr (UID: 99999999)
+INSERT INTO transcript VALUES (99999999, 1, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 100, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 101, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 4, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 5, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 6, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 7, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 8, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 12, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 13, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 14, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999999, 15, 1, 'Fall', 2024, 'A', TRUE);
+
+INSERT INTO user VALUES(00000001, 'Student', 'password', 'Chloe', 'Anderson', 8888, 'chloeanderson@email.com', 6666666667, 'Address', NULL);
+INSERT INTO student VALUES(00000001, 33333331, 0.0, 'Masters', 'Incomplete', TRUE);

@@ -1,28 +1,133 @@
-<html>
-    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+{% extends "base.html" %}
 
-    <h1>Apply For Graduation</h1>
-    <div class = sketchy>
-    {% if already_applied %}
-        <p>Graduation Status: Pending</p>
-    {% elif cleared %}
-        <p>You applied for Graduation!</p>
-    {% else %}
-        {% if error %}
-            <p>Audit failed.</p>
-            {% if error == 'not_matching' %} 
-                <p>Form 1 does not match Transcript</p>
-            {% elif error == 'form1_not_approved' %}
-                <p>Form 1 not approved by Advisor</p>
-            {% elif error == 'thesis_not_approved' %}
-                <p>Thesis not approved by Advisor</p>
+{% block title %}Apply for Graduation{% endblock %}
+
+{% block content %}
+<section class="vh-75">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <h1 class="fw-bold mb-4 text-uppercase text-center">Apply for Graduation</h1>
+
+            {% if not already_applied %}
+            <div class="requirements">
+              <h2 class="text-center mb-4">Graduation Requirements</h2>
+
+              <div class="requirements-list">
+                <p>Audit Passed: {{ audit_passed }}</p>
+
+                <!-- Core Courses Requirement -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.core_courses else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>Core Courses</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.core_courses else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.core_courses else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Total Credits Requirement -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.credits else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>Total Credits</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.credits else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.credits else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Grades Requirement -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.grades else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>Grades</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.grades else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.grades else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+
+                {% if grad_type == 'PhD' %}
+                <!-- CS Credits for PhD -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.cs_credits else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>CS Credits</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.cs_credits else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.cs_credits else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Thesis Requirement for PhD -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.thesis else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>Thesis Approval</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.thesis else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.thesis else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- GPA Requirement -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.GPA else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>GPA</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.GPA else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.GPA else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Advisor Approval -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.advisor_approval else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>Form 1 Approved</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.advisor_approval else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.advisor_approval else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Form Matches Transcript -->
+                <div class="requirement-item {{ 'fulfilled' if requirements_status.form_match else 'missing' }}">
+                  <div class="d-flex justify-content-between">
+                    <span>Form 1 Matches Transcript</span>
+                    <span class="badge {{ 'badge-success' if requirements_status.form_match else 'badge-danger' }}">
+                      {{ 'Met' if requirements_status.form_match else 'Not Met' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Apply for Graduation Button -->
+            <form method="post" action="{{ url_for('apply', audit_passed=audit_passed, UID=UID) }}">
+                <div class="form-group mt-4">
+                    <button class="btn btn-outline-light btn-lg px-5" type="submit" {% if not audit_passed %}disabled{% endif %}>
+                        Apply for Graduation
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <!-- Display Pending Status if Already Applied -->
+            <div class="alert alert-warning text-center">
+              Your graduation application is pending. Please check back later for the status.
+            </div>
+            <p class="text-center mt-4">You have already applied for graduation.</p>
             {% endif %}
-        {% else %}
-            <p>Missing requirements.</p>
-        {% endif %}
-    {% endif %}
-</div>
-<div class = buttonbox>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
-</div>
-</html>
+
+            <!-- Back to Dashboard Button -->
+            <div class="buttonbox mt-4">
+              <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard') }}" class="nav-button">
+                ← Back to Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,189 +1,81 @@
-<html>
-<head>
-    <link href = "/static/styles/form1.css" rel = "stylesheet" type = "text/css" />
+{% extends "base.html" %}
 
-    <title>Form 1</title>
+{% block title %}Form Selection{% endblock %}
 
-</head>
+{% block content %}
+<section class="vh-75">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-12 col-lg-10 col-xl-9">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h1 class="fw-bold mb-4 text-uppercase">Form 1 Submission</h1>
 
-<body> 
+              <form method="post">
+                <!-- Form Content (Graduation Form 1) -->
+                <h2>{{ program }} Requirements:</h2>
+                {% if program == "Masters" %}
+                  <ul style="list-style-type: none; padding-left: 0;">
+                    <li>Complete all 3 core courses: <strong>CSCI 6212, CSCI 6221, CSCI 6461</strong></li>
+                    <li>Minimum GPA of 3.0</li>
+                    <li>At least 30 credit hours</li>
+                    <li>At most 2 courses outside CS department</li>
+                    <li>No more than 2 grades below B</li>
+                  </ul>
+                {% elif program == "PhD" %}
+                  <ul style="list-style-type: none; padding-left: 0;">
+                    <li>Minimum GPA of 3.5</li>
+                    <li>At least 36 credit hours</li>
+                    <li>At least 30 credit hours must be in CS</li>
+                    <li>At most one grade below B</li>
+                    <li>Pass thesis defense (advisor approved)</li>
+                  </ul>
+                {% else %}
+                  <p><strong>Unknown program. Please contact support.</strong></p>
+                {% endif %}
 
-  <h1>Form 1: Add Your Courses</h1>
-<form action = "{{ url_for('form1')}}" method = "POST"> 
+                <!-- Courses Selection -->
+                <div class="row">
+                  {% set max_courses = 12 %}
+                  {% for i in range(max_courses) %}
+                    {% if i % 2 == 0 %}
+                      <div class="col-md-6">
+                    {% endif %}
+                    <div class="form-outline form-white mb-4">
+                      <label class="form-label">Course {{ i+1 }}:</label>
+                      <select name="course_{{ i+1 }}" class="form-control form-control-lg">
+                        <option value="">-- Select a course --</option>
+                        {% for course in courses %}
+                          <option value="{{ course['course_id'] }}"
+                            {% if i < completed_courses|length and course['course_id'] == completed_courses[i] %}
+                              selected
+                            {% endif %}
+                          >
+                            {{ course['dept'] }} {{ course['course_num'] }} - {{ course['title'] }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    {% if (i + 1) % 2 == 0 or i == max_courses - 1 %}
+                      </div> <!-- Close the column after every second course or at the end -->
+                    {% endif %}
+                  {% endfor %}
+                </div>
 
+                <div class="form-group">
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Submit Form 1</button>
+                </div>
+              </form>
 
-
-  {% if 'UID' in session %}
-  <h2><span>Name: {{ session['firstName'] }} {{ session['lastName'] }}</span></h2>
-  <h3>Program: {{ program }}</h3>
-
-<div class = sketchy>
-<div class = course>
-<label>Course 1:</label>
-
-<select name = "course_1">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}">  {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-
-<div class = course>
-<label>Course 2:</label>
-
-<select name = "course_2">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}">{{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-
-</div>
-
-
-
-<div class = course>
-
-<label>Course 3:</label>
-
-<select name = "course_3">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}"> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-
-<div class = course>
-
-<label>Course 4:</label>
-
-<select name = "course_4">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}"> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-
-<div class = course>
-<label>Course 5:</label>
-
-<select name = "course_5">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}"> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-
-<div class = course>
-<label>Course 6:</label>
-
-<select name = "course_6">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}">{{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-
-</div>
-
-<div class = course>
-<label>Course 7:</label>
-
-<select name = "course_7">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}"> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-<div class = course>
-<label>Course 8:</label>
-
-<select name = "course_8">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}">{{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-<div class = course>
-<label>Course 9:</label>
-
-<select name = "course_9">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}">{{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-<div class = course>
-<label>Course 10:</label>
-
-<select name = "course_10">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}">{{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-<div class = course>
-<label>Course 11:</label>
-
-<select name = "course_11">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-    <option value = "{{ course['course_id'] }}"> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-
-<div class = course>
-<label>Course 12:</label>
-
-<select name = "course_12">
-    <option value="">--Please choose a Course--</option>
-    {% for course in courses %}
-  <option value = "{{ course['course_id'] }}"> {{ course['dept'] }} {{ course['course_num'] }} : {{ course['title'] }} </option>
-  {% endfor %}
-</select>
-</div>
-
-<!-- 
-
-    <h2>Enter Your department</h2>
-    <input type = "text" name = "dept"><br>
-    <h2>Enter Your course</h2>
-    <input type = "text" name = "course_num"><br>
- -->
-</div>
-
-    <input type = "submit" name = "submit"  class = buttonsketch><br>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
-    {% else %}
-    <p>not logged in</p>
-    <a href="{{ url_for('login') }}" class = sketchbutton >Login</a>
-    {% endif %}
-
-</form>
-
-</body>
-</html>
+              <div class="buttonbox mt-4">
+                <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
