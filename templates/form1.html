@@ -10,105 +10,61 @@
         <div class="card bg-dark text-white" style="border-radius: 1rem;">
           <div class="card-body p-5 text-center">
             <div class="mb-md-2 mt-md-2 pb-5">
-              <h1 class="fw-bold mb-4 text-uppercase">Form Selection</h1>
+              <h1 class="fw-bold mb-4 text-uppercase">Form 1 Submission</h1>
 
               <form method="post">
-                <!-- Form Type Selector -->
-                <div class="form-outline form-white mb-4">
-                  <label for="form_type" class="form-label">Select Form Type:</label>
-                  <select name="form_type" id="form_type" class="form-control form-control-lg" onchange="toggleFormType()" required>
-                    <option value="Form1">Graduation Form 1</option>
-                    <option value="Advising">Advising Form</option>
-                  </select>
+                <!-- Form Content (Graduation Form 1) -->
+                <h2>{{ program }} Requirements:</h2>
+                {% if program == "Masters" %}
+                  <ul style="list-style-type: none; padding-left: 0;">
+                    <li>Complete all 3 core courses: <strong>CSCI 6212, CSCI 6221, CSCI 6461</strong></li>
+                    <li>Minimum GPA of 3.0</li>
+                    <li>At least 30 credit hours</li>
+                    <li>At most 2 courses outside CS department</li>
+                    <li>No more than 2 grades below B</li>
+                  </ul>
+                {% elif program == "PhD" %}
+                  <ul style="list-style-type: none; padding-left: 0;">
+                    <li>Minimum GPA of 3.5</li>
+                    <li>At least 36 credit hours</li>
+                    <li>At least 30 credit hours must be in CS</li>
+                    <li>At most one grade below B</li>
+                    <li>Pass thesis defense (advisor approved)</li>
+                  </ul>
+                {% else %}
+                  <p><strong>Unknown program. Please contact support.</strong></p>
+                {% endif %}
+
+                <!-- Courses Selection -->
+                <div class="row">
+                  {% set max_courses = 12 %}
+                  {% for i in range(max_courses) %}
+                    {% if i % 2 == 0 %}
+                      <div class="col-md-6">
+                    {% endif %}
+                    <div class="form-outline form-white mb-4">
+                      <label class="form-label">Course {{ i+1 }}:</label>
+                      <select name="course_{{ i+1 }}" class="form-control form-control-lg">
+                        <option value="">-- Select a course --</option>
+                        {% for course in courses %}
+                          <option value="{{ course['course_id'] }}"
+                            {% if i < completed_courses|length and course['course_id'] == completed_courses[i] %}
+                              selected
+                            {% endif %}
+                          >
+                            {{ course['dept'] }} {{ course['course_num'] }} - {{ course['title'] }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    {% if (i + 1) % 2 == 0 or i == max_courses - 1 %}
+                      </div> <!-- Close the column after every second course or at the end -->
+                    {% endif %}
+                  {% endfor %}
                 </div>
 
-                <!-- Graduation Form 1 Content -->
-                <div id="graduation_form" class="form-content">
-                  <h2>{{ program }} Requirements:</h2>
-                  {% if program == "Masters" %}
-                    <ul style="list-style-type: none; padding-left: 0;">
-                      <li>Complete all 3 core courses: <strong>CSCI 6212, CSCI 6221, CSCI 6461</strong></li>
-                      <li>Minimum GPA of 3.0</li>
-                      <li>At least 30 credit hours</li>
-                      <li>At most 2 courses outside CS department</li>
-                      <li>No more than 2 grades below B</li>
-                    </ul>
-                  {% elif program == "PhD" %}
-                    <ul style="list-style-type: none; padding-left: 0;">
-                      <li>Minimum GPA of 3.5</li>
-                      <li>At least 36 credit hours</li>
-                      <li>At least 30 credit hours must be in CS</li>
-                      <li>At most one grade below B</li>
-                      <li>Pass thesis defense (advisor approved)</li>
-                    </ul>
-                  {% else %}
-                    <p><strong>Unknown program. Please contact support.</strong></p>
-                  {% endif %}
-                  <!-- Courses Selection -->
-                  <div class="row">
-                    {% set max_courses = 12 %}
-                    {% for i in range(max_courses) %}
-                      {% if i % 2 == 0 %}
-                        <div class="col-md-6">
-                      {% endif %}
-                      <div class="form-outline form-white mb-4">
-                        <label class="form-label">Course {{ i+1 }}:</label>
-                        <select name="course_{{ i+1 }}" class="form-control form-control-lg">
-                          <option value="">-- Select a course --</option>
-                          {% for course in courses %}
-                            <option value="{{ course['course_id'] }}"
-                              {% if i < completed_courses|length and course['course_id'] == completed_courses[i] %}
-                                selected
-                              {% endif %}
-                            >
-                              {{ course['dept'] }} {{ course['course_num'] }} - {{ course['title'] }}
-                            </option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      {% if (i + 1) % 2 == 0 or i == max_courses - 1 %}
-                        </div> <!-- Close the column after every second course or at the end -->
-                      {% endif %}
-                    {% endfor %}
-                  </div>
-                  <div class="form-group">
-                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Submit Graduation Form</button>
-                  </div>
-                </div>
-
-                <!-- Advising Form Content -->
-                <div id="advising_form" class="form-content" style="display:none;">
-                  <h2>Advising Form</h2>
-                  <p>Provide your course selections.</p>
-                  <div class="row">
-                    {% set max_courses = 12 %}
-                    {% for i in range(max_courses) %}
-                      {% if i % 2 == 0 %}
-                        <div class="col-md-6">
-                      {% endif %}
-                      <div class="form-outline form-white mb-4">
-                        <label class="form-label">Course {{ i+1 }}:</label>
-                        <select name="course_{{ i+1 }}" class="form-control form-control-lg">
-                          <option value="">-- Select a course --</option>
-                          {% for course in courses %}
-                            <option value="{{ course['course_id'] }}"
-                              {% if i < completed_courses|length and course['course_id'] == completed_courses[i] %}
-                                selected
-                              {% endif %}
-                            >
-                              {{ course['dept'] }} {{ course['course_num'] }} - {{ course['title'] }}
-                            </option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      {% if (i + 1) % 2 == 0 or i == max_courses - 1 %}
-                        </div> <!-- Close the column after every second course or at the end -->
-                      {% endif %}
-                    {% endfor %}
-                  </div>
-                  <div class="form-group">
-                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Submit Advising Form</button>
-                  </div>
+                <div class="form-group">
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Submit Form 1</button>
                 </div>
               </form>
 
@@ -122,17 +78,4 @@
     </div>
   </div>
 </section>
-
-<script>
-  function toggleFormType() {
-    const formType = document.getElementById('form_type').value;
-    if (formType === 'Graduation') {
-      document.getElementById('graduation_form').style.display = 'block';
-      document.getElementById('advising_form').style.display = 'none';
-    } else {
-      document.getElementById('graduation_form').style.display = 'none';
-      document.getElementById('advising_form').style.display = 'block';
-    }
-  }
-</script>
 {% endblock %}

@@ -50,7 +50,10 @@
           {% if session.get('role') == 'Faculty' %}
           <!-- Faculty-specific links -->
           <li class="nav-item">
-            <a class="nav-link" href="/review-applications"><i class="fas fa-clipboard-check me-1"></i>Review Applications</a>
+            <a class="nav-link" href="/instructor_dashboard"><i class="fas fa-home me-1"></i>Back To Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/facultyHome"><i class="fas fa-clipboard-check me-1"></i>Review Applications</a>
           </li>
           {% endif %}
           {% if session.get('role') == 'Applicant' %}
@@ -109,7 +112,7 @@
   </div>
 
   <!-- Main Content -->
-  <main class="flex-shrink-0">
+  <main class="flex-grow-1 d-flex flex-column">
     <div class="container py-4 fade-in-content">
       {% block content %}{% endblock %}
     </div>

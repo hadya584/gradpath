@@ -23,7 +23,7 @@
                   <div class="d-flex justify-content-between">
                     <span>Core Courses</span>
                     <span class="badge {{ 'badge-success' if requirements_status.core_courses else 'badge-danger' }}">
-                      {{ 'Met' if requirements_status.core_courses else 'Not Completed' }}
+                      {{ 'Met' if requirements_status.core_courses else 'Not Met' }}
                     </span>
                   </div>
                 </div>
@@ -33,7 +33,7 @@
                   <div class="d-flex justify-content-between">
                     <span>Total Credits</span>
                     <span class="badge {{ 'badge-success' if requirements_status.credits else 'badge-danger' }}">
-                      {{ 'Met' if requirements_status.credits else 'Does not meet' }}
+                      {{ 'Met' if requirements_status.credits else 'Not Met' }}
                     </span>
                   </div>
                 </div>
@@ -43,7 +43,7 @@
                   <div class="d-flex justify-content-between">
                     <span>Grades</span>
                     <span class="badge {{ 'badge-success' if requirements_status.grades else 'badge-danger' }}">
-                      {{ 'Met' if requirements_status.grades else 'Does not meet' }}
+                      {{ 'Met' if requirements_status.grades else 'Not Met' }}
                     </span>
                   </div>
                 </div>
@@ -54,7 +54,7 @@
                   <div class="d-flex justify-content-between">
                     <span>CS Credits</span>
                     <span class="badge {{ 'badge-success' if requirements_status.cs_credits else 'badge-danger' }}">
-                      {{ 'Met' if requirements_status.cs_credits else 'Does not meet' }}
+                      {{ 'Met' if requirements_status.cs_credits else 'Not Met' }}
                     </span>
                   </div>
                 </div>

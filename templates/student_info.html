@@ -1,176 +1,199 @@
-<html>
-    <head>
-        <link href = "/static/styles/student_info.css" rel = "stylesheet" type = "text/css" />
-        <title> Student Information</title>
-    </head>
-    <body>
-    <h1>Student Information</h1>
-   
-    <div class = sketchy>
-    {% if is_suspended %}
-        <p class = "suspended">Under Academic Suspension</p>
-    {% endif %}
-    <p>Name: {{userdata['firstName']}} {{userdata['lastName']}}</p>
-    <p>Email: {{userdata['email']}}</p>
-    <p>UID: {{userdata['UID']}}</p>
-    <p>Graduate Type: {{ userdata['program'] }}</p>
-    {% if facultydata %}
-        <P>Advisor: {{ facultydata['firstName'] }} {{ facultydata['lastName'] }}</P>
-    {% else %}
-        <p>Advisor: None </p>
-    {% endif %}
-    <p>GPA: {{userdata['GPA']}}</p>
+{% extends "base.html" %}
 
-    {% if form1_submitted %}
-        <p>Form 1 Status: {{ form1_status }}</p>
+{% block title %}Student Information{% endblock %}
 
-        {% if role == 'Faculty' or role == 'Admin' %}
-            <form action="{{ url_for('handle_form1_decision', student_UID=userdata['UID']) }}" method="POST">
-                <label for="form1_decision">Change Status:</label>
-                <select name="form1_decision" id="form1_decision">
-                    <option value="Approved">Approve</option>
-                    <option value="Rejected">Reject</option>
-                </select>
-                <button type="submit">Submit</button>
-            </form>
-        {% endif %}
-        <div class = buttonbox>
-        <a href="{{ url_for('form1submission', student_UID=userdata['UID'], form_type = 'Form1') }}" class = student>View Form 1 Submission</a>
-    </div>
-    <br><br>
-    {% else %}
-        <p>Form 1: Not Submitted</p>
-    {% endif %}
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-lg-10">
+        <div class="card bg-dark text-white shadow-lg" style="border-radius: 1rem;">
+          <div class="card-body p-5">
 
-    {% if advising_submitted %}
-        <p>Advising Form Submitted</p>
+            <!-- Title -->
+            <h2 class="fw-bold mb-4 text-center text-uppercase">Student Information</h2>
 
-        {% if role == 'Faculty' or role == 'Admin' %}
-            <form action="{{ url_for('handle_form1_decision', student_UID=userdata['UID']) }}" method="POST">
-                <label for="form1_decision">Change Status:</label>
-                <select name="form1_decision" id="form1_decision">
-                    <option value="Approved">Approve</option>
-                    <option value="Rejected">Reject</option>
-                </select>
-                <button type="submit">Submit</button>
-            </form>
-        {% endif %}
-        <div class = buttonbox>
-        <a href="{{ url_for('form1submission', student_UID=userdata['UID'], form_type = 'Advising') }}" class = student>View Advising Form</a>
-    </div>
-    <br><br>
-    {% endif %}
-
-
-    {% if role == 'GS' or role == 'Admin' %}
-    {% if is_cleared %}
-        <p>Graduation Status: Cleared</p>
-        {% if form1_submitted and advising_submitted %}
-            {% if userdata['program'] == 'PhD' and thesis_approved %}
-                <!-- All conditions are met for graduation -->
-                <div class="buttonbox">
-                    <form action="{{ url_for('graduate_student', student_UID=userdata['UID']) }}" method="POST">
-                        <button type="submit" class="btn btn-success">Graduate</button>
-                    </form>
-                </div>
-            {% elif userdata['program'] != 'PhD' %}
-                <!-- For non-PhD students, they don't need thesis approval -->
-                <div class="buttonbox">
-                    <form action="{{ url_for('graduate_student', student_UID=userdata['UID']) }}" method="POST">
-                        <button type="submit" class="btn btn-success">Graduate</button>
-                    </form>
-                </div>
-            {% else %}
-                <p>Thesis: Not Approved (PhD Students)</p>
+            <!-- Alerts -->
+            {% if is_suspended %}
+              <div class="alert alert-danger text-center">
+                Under Academic Suspension
+              </div>
             {% endif %}
-        {% else %}
-            <p>Form 1 or Advising Form not submitted or cleared.</p>
-        {% endif %}
-    {% else %}
-        <p>Graduation Status: Not Cleared</p>
-    {% endif %}
-{% endif %}
 
+            {% if advisinghold %}
+              <div class="alert alert-warning text-center">
+                Advising Hold: Advising Form Missing
+              </div>
+            {% endif %}
 
-  
-    {% if (role == 'Faculty' or role == 'Admin') and userdata['program'] == 'PhD' %}
-        {% if thesis_approved %}
-            <p>Thesis: Approved</p>
-        {% else %}
-            <p>Thesis: Not Approved</p>
-            <div class = buttonbox>
-            <form action = "{{ url_for('approve_thesis', student_UID = student_UID) }}"  method="POST">
-                <button type="submit" class = buttonsketch>Approve Thesis</button>
-            </form>
+            <!-- Student Details -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <p><strong>Name:</strong> {{ userdata['firstName'] }} {{ userdata['lastName'] }}</p>
+                <p><strong>Email:</strong> {{ userdata['email'] }}</p>
+                <p><strong>UID:</strong> {{ userdata['UID'] }}</p>
+                <p><strong>Graduate Type:</strong> {{ userdata['program'] }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Advisor:</strong> 
+                  {% if facultydata %}
+                    {{ facultydata['firstName'] }} {{ facultydata['lastName'] }}
+                  {% else %}
+                    None
+                  {% endif %}
+                </p>
+                <p><strong>GPA:</strong> {{ userdata['GPA'] }}</p>
+
+                <a href="{{ url_for('assign_advisor', student_UID=userdata['UID']) }}" class="btn btn-outline-light btn-sm">Change Advisor</a>
+              </div>
             </div>
-        {% endif %}
-    </div>
-    {% endif %}
 
-    {% if role == 'Admin' or role == 'GS' %}
-     <div  class = buttonbox>
-        <a href = "{{url_for('edit_student_info', student_UID = student_UID)}}" class = buttonsketch >Edit Information</a>
-     </div >
-    {% elif role == 'Student' %}
-        <a href = "{{url_for('edit_personal_info', UID = student_UID)}}" class = buttonsketch >Edit Information</a>
-    </div>
+            <!-- Form 1 Section -->
+            <div class="mb-4">
+              <h5 class="text-uppercase">Form 1</h5>
+              {% if form1_submitted %}
+                <p><strong>Status:</strong> {{ form1_status }}</p>
 
-    {% endif %}
+                {% if (role == 'Faculty' or role == 'Admin') and form1_status == 'Submitted' %}
+                  <div class="d-flex flex-wrap gap-2">
+                    <form action="{{ url_for('handle_form1_decision', student_UID=userdata['UID']) }}" method="POST">
+                      <input type="hidden" name="form1_decision" value="Approved">
+                      <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                    <form action="{{ url_for('handle_form1_decision', student_UID=userdata['UID']) }}" method="POST">
+                      <input type="hidden" name="form1_decision" value="Rejected">
+                      <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                  </div>
+                {% endif %}
 
-</div>
-    <br><br>
-    <h1>Transcript</h1>
-    <div class = sketchy>
-    {% if transcriptcourses %}
-    <table>
-        <tr>
-            <th>Department</th>
-            <th>Course Number</th>
-            <th>Course Name</th>
-            <th>Credits</th>
-            <th>Semester</th>
-            <th>Year</th>
-            <th>Grade</th>
-            <th>{% if role == 'Admin' %}
-              Edit
+                <div class="mt-2">
+                  <a href="{{ url_for('form1submission', student_UID=userdata['UID'], form_type='Form1') }}" class="btn btn-outline-light btn-sm">View Form 1 Submission</a>
+                </div>
+              {% else %}
+                <p><strong>Status:</strong> Not Submitted</p>
               {% endif %}
-            </th>
-        </tr>
-        {% for course in transcriptcourses %}
-            <tr>
-                <td>{{ course.deptname }}</td>
-                <td>{{ course.coursenum }}</td>
-                <td>{{ course.coursename }}</td>
-                <td>{{ course.credits }}</td>
-                <td>{{ course.semester }}</td>
-                <td>{{ course.year }}</td>
-                <td>{{ course.grade }}</td>
-                <td>
-                    {% if role == 'Admin' %}
-                      <a href="{{ url_for('edit_grade', student_UID = student_UID, course_id = course.course_id) }}" class = buttonsketch>Edit</a>
+            </div>
+
+            <!-- Graduation Section -->
+            {% if role == 'GS' or role == 'Admin' %}
+              <div class="mb-4">
+                <h5 class="text-uppercase">Graduation Status</h5>
+                {% if is_cleared %}
+                  <p><strong>Status:</strong> Cleared</p>
+
+                  {% if form1_submitted %}
+                    {% if userdata['program'] == 'PhD' and thesis_approved %}
+                      <form action="{{ url_for('clear_grad', student_UID=userdata['UID']) }}" method="POST">
+                        <button type="submit" class="btn btn-success btn-sm">Graduate</button>
+                      </form>
+                    {% elif userdata['program'] != 'PhD' %}
+                      <form action="{{ url_for('clear_grad', student_UID=userdata['UID']) }}" method="POST">
+                        <button type="submit" class="btn btn-success btn-sm">Graduate</button>
+                      </form>
+                    {% else %}
+                      <p><strong>Thesis:</strong> Not Approved (PhD Students)</p>
                     {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        {% if role == 'Admin' or role == 'GS' %}
-            <form action="{{ url_for('gs_transcripts') }}" method="POST" style="display:inline;">
-                <input type="hidden" name="student_uid" value="{{ student_UID }}">
-                <input type="submit" value="Edit Transcript">
-            </form>
-        {% endif %}
-    </table>
-    {% else %}
-        <p>No courses available.</p>
-    {% endif %}
-</div>
-    <br><br>
+                  {% else %}
+                    <p>Form 1 not submitted or cleared.</p>
+                  {% endif %}
+                {% else %}
+                  <p><strong>Status:</strong> Not Cleared</p>
+                {% endif %}
+              </div>
+            {% endif %}
 
-    {% if role != 'Student' %}
-        <a href="{{ url_for('display_students') }}" class = buttonsketch>Return to Students</a>
-    {% else %}
-        <a href="{{ url_for('home') }}" class = buttonsketch>Return</a>
-    {% endif %}
+            <!-- Thesis Section -->
+            {% if role == 'Faculty' or role == 'Admin' %}
+              {% if userdata['program'] == 'PhD' %}
+                <div class="mb-4">
+                  <h5 class="text-uppercase">Thesis</h5>
+                  {% if thesis_approved %}
+                    <p><strong>Status:</strong> Approved</p>
+                  {% else %}
+                    <p><strong>Status:</strong> Not Approved</p>
+                    <form action="{{ url_for('approve_thesis', student_UID=student_UID) }}" method="POST">
+                      <button type="submit" class="btn btn-outline-light btn-sm">Approve Thesis</button>
+                    </form>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endif %}
 
+            <!-- Edit Information -->
+            <div class="mb-4">
+              {% if role == 'GS' or role == 'Admin' %}
+                <a href="{{ url_for('edit_record', table='student', ids=student_UID) }}" class="btn btn-outline-light btn-sm">Edit Student Information</a>
+              {% elif role == 'Student' %}
+                <a href="{{ url_for('edit_personal_info', UID=student_UID) }}" class="btn btn-outline-light btn-sm">Edit Personal Information</a>
+              {% endif %}
+            </div>
 
-</body>
-</html>
+            <!-- Transcript Section -->
+            <div class="mb-4">
+              <h3 class="text-uppercase">Transcript</h3>
+              <div class="table-responsive">
+                {% if transcriptcourses %}
+                  <table class="table table-dark table-striped text-center align-middle">
+                    <thead class="table-light text-dark">
+                      <tr>
+                        <th>Department</th>
+                        <th>Course Number</th>
+                        <th>Course Name</th>
+                        <th>Credits</th>
+                        <th>Semester</th>
+                        <th>Year</th>
+                        <th>Grade</th>
+                        {% if role == 'Admin' %}
+                          <th>Edit</th>
+                        {% endif %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for course in transcriptcourses %}
+                        <tr>
+                          <td>{{ course.deptname }}</td>
+                          <td>{{ course.coursenum }}</td>
+                          <td>{{ course.coursename }}</td>
+                          <td>{{ course.credits }}</td>
+                          <td>{{ course.semester }}</td>
+                          <td>{{ course.year }}</td>
+                          <td>{{ course.grade }}</td>
+                          {% if role == 'Admin' %}
+                            <td>
+                              <a href="{{ url_for('edit_grade', student_UID=student_UID, course_id=course.course_id) }}" class="btn btn-outline-light btn-sm">Edit</a>
+                            </td>
+                          {% endif %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+
+                  {% if role == 'Admin' or role == 'GS' %}
+                    <form action="{{ url_for('gs_transcripts') }}" method="POST">
+                      <input type="hidden" name="student_uid" value="{{ student_UID }}">
+                      <button type="submit" class="btn btn-outline-light btn-sm mt-2">Edit Transcript</button>
+                    </form>
+                  {% endif %}
+                {% else %}
+                  <p class="text-center">No courses available.</p>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Return Button -->
+            <div class="text-center">
+              {% if role != 'Student' %}
+                <a href="{{ url_for('display_students') }}" class="btn btn-outline-light">Return to Students</a>
+              {% else %}
+                <a href="{{ url_for('home') }}" class="btn btn-outline-light">Return</a>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

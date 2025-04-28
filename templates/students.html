@@ -1,7 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <h2 class="fw-bold mb-4 text-center text-uppercase">Students</h2>
+
+            <!-- Search Box -->
+            <div class="form-outline form-white mb-4">
+              <input type="text" id="searchInput" onkeyup="filterStudents()" class="form-control form-control-lg" placeholder="Search students">
+            </div>
+
+            <!-- Student List -->
+            <div class="list-group">
+              {% if students %}
+                {% for student in students %}
+                  <a href="{{ url_for('student_information', student_UID=student['UID']) }}" class="list-group-item list-group-item-action bg-dark text-white">
+                    {{ student['firstName'] }} {{ student['lastName'] }}
+                  </a>
+                {% endfor %}
+              {% else %}
+                <p class="text-center">No students found.</p>
+              {% endif %}
+            </div>
+
+            <br><br>
+
+            <!-- Back to Dashboard Button -->
+            <div class="d-flex justify-content-center">
+              <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('admin_dashboard') if session['role'] == 'Admin'}}" class="btn btn-outline-light btn-lg px-5">
+                ← Back to Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <script>
     function filterStudents() {
         const query = document.getElementById('searchInput').value.toLowerCase();
-        const students = document.querySelectorAll("a.student");
+        const students = document.querySelectorAll("a.list-group-item");
 
         students.forEach(student => {
             const studentText = student.innerText.toLowerCase();
@@ -9,29 +55,4 @@
         });
     }
 </script>
-
-<html>
-    <head>
-        <link href = "/static/styles/students.css" rel = "stylesheet" type = "text/css" />
-
-    </head>
-    <h1>Students</h1>
-    <div class="search-box">
-        <input type="text" id="searchInput" onkeyup="filterStudents()" placeholder="Search students">
-    </div>
-    {% if role == 'Admin' %}
-        <a href="{{ url_for('admin_add_student') }}" class = buttonsketch>Add New Student</a>
-    {% endif %}
-    <br><br>
-    <div class = sketchy>
-    {% if students %}
-        {% for student in students %}
-            <a href="{{ url_for('student_information', student_UID = student['UID']) }}" class = student> {{student['firstName']}} {{student['lastName']}} </p>
-        {% endfor %}
-    {% else %}
-        <p>No students.</p>
-    {% endif %}
-</div>
-    <br><br>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
-</html>
+{% endblock %}

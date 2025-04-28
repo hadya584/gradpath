@@ -22,16 +22,34 @@ def redirect_to_dashboard(role):
         return redirect(url_for('grad_secretary_dashboard'))
     elif role == 'Alumni':
         return redirect(url_for('alumni_dashboard'))
+    elif role == 'Applicant':
+        return redirect(url_for('applicantHome'))
     else:
-        flash("Unknown role type.")
+        flash("Unknown role type.", 'error')
         return redirect(url_for('logout'))
 
 @app.route('/stu_dashboard')
 def stu_dashboard():
     if 'UID' not in session:
-        flash('Please login to access the stu_dashboard')
+        flash('Please login to access the stu_dashboard', 'error')
         return redirect(url_for('login'))
-    return render_template('stu_dashboard.html', role=session['role'])
+    
+    UID = session['UID']
+
+    connection = sqlite3.connect('myDatabase.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # check if they have advising hold
+    cursor.execute("SELECT advising_hold FROM student WHERE UID = ?", (UID,))
+    advisinghold = cursor.fetchone()['advising_hold']
+
+    # check if suspended
+    suspended = False
+    if count_low_grades(UID) >= 3:
+      suspended = True
+
+    return render_template('stu_dashboard.html', role=session['role'], advisinghold = advisinghold, suspended = suspended)
 
 def generate_unique_uid():
     conn = sqlite3.connect('myDatabase.db')
@@ -48,14 +66,14 @@ def generate_unique_uid():
 @app.route('/grad_secretary_dashboard')
 def grad_secretary_dashboard():
     if 'UID' not in session or session['role'] != 'GS':
-        flash("Access denied.")
+        flash("Access denied.", 'error')
         return redirect(url_for('login'))
     return render_template('gs_dashboard.html')
 
 @app.route('/alumni_dashboard')
 def alumni_dashboard():
     if 'UID' not in session or session['role'] != 'Alumni':
-        flash("Access denied.")
+        flash("Access denied.", 'error')
         return redirect(url_for('login'))
     return render_template('alumni_dashboard.html')
 
@@ -487,14 +505,14 @@ def admin_manage():
 @app.route('/gs_dashboard')
 def gs_dashboard():
     if 'UID' not in session or session['role'] != 'GS':
-        flash("Login as a Grad Secretary to access this page.")
+        flash("Login as a Grad Secretary to access this page.", 'error')
         return redirect(url_for('login'))
 
     return render_template('gs_dashboard.html')
 
 @app.route('/gs_transcripts', methods=['GET', 'POST'])
 def gs_transcripts():
-    if 'UID' not in session or session['role'] != 'GS':
+    if 'UID' not in session or session['role'] not in ['GS', 'Admin']:
         flash("Login as a Grad Secretary to access this page.")
         return redirect(url_for('login'))
 
@@ -606,7 +624,7 @@ def update_grade():
 @app.route('/instructor_dashboard')
 def instructor_dashboard():
     if 'UID' not in session or session['role'] != 'Faculty':
-        flash("Login as an instructor to access this page.")
+        flash("Login as an instructor to access this page.", 'error')
         return redirect(url_for('login'))
 
     return render_template('instructor_dashboard.html')
@@ -769,7 +787,7 @@ def submit_grade():
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if 'UID' not in session or session['role'] != 'Admin':
-        flash("Unauthorized access.")
+        flash("Unauthorized access.", 'error')
         return redirect(url_for('login'))
     return render_template('admin/dashboard.html')
 
@@ -785,7 +803,22 @@ def create_user():
         lastName = request.form['lastName'].strip().title()
         email = request.form['email'].strip().lower()
         password = request.form['password']
-        role = request.form['role'].strip()
+        raw_role = request.form['role'].strip()
+        role_map = {
+            'admin': 'Admin',
+            'student': 'Student',
+            'faculty': 'Faculty',
+            'gs': 'GS',
+            'grad secretary': 'GS',
+            'alumni': 'Alumni',
+            'applicant': 'Applicant',
+            'cac': 'CAC'
+        }
+
+        role = role_map.get(raw_role.lower())
+        if role is None:
+            raise ValueError(f"Unsupported role selected: {raw_role}")
+
         ssn = request.form.get('ssn', '').strip()
         phone = request.form.get('phone', '').strip()
         address = request.form.get('address', '').strip()
@@ -816,22 +849,29 @@ def create_user():
                 cur.execute("INSERT INTO Faculty (UID, dept) VALUES (?, ?)", (uid, dept))
 
             elif role == 'Admin':
-                cur.execute("INSERT INTO admin (UID, access_level) VALUES (?, ?)", (uid, 'full'))
+                pass
 
             elif role == 'GS':
                 cur.execute("INSERT INTO grad_secretary (UID, office) VALUES (?, ?)", (uid, office))
 
             elif role == 'Alumni':
+                degree = request.form.get('degree', '').strip().upper()
+                grad_year = request.form.get('grad_year', '').strip()
                 if not grad_year.isdigit():
                     raise ValueError("Graduation year must be numeric")
                 cur.execute("INSERT INTO alumni (UID, grad_year, degree) VALUES (?, ?, ?)",
                             (uid, grad_year, degree))
-
+            elif role == 'Applicant':
+                pass
+            elif role == 'CAC':
+                pass
+            else:
+                raise ValueError("Unsupported role selected.")
             conn.commit()
             flash(f"User created successfully. Assigned UID: {uid}", "success")
 
         except (sqlite3.Error, ValueError) as e:
-            flash(f"Error: {str(e)}", "error")
+            flash(f"Error: {str(e)} Role trying to insert: {role}", "error")
             conn.rollback()
 
         finally:
@@ -1097,60 +1137,59 @@ def view_table(table):
         flash("Unauthorized.")
         return redirect(url_for('login'))
     conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     try:
-        user_tables = ['student', 'faculty', 'alumni', 'admin', 'grad_secretary']
-        if table in user_tables:
+        if table in ['student', 'faculty', 'admin', 'grad_secretary', 'alumni']:
             query = f'''
                 SELECT r.*, u.firstName || ' ' || u.lastName AS full_name, u.email, u.role
                 FROM {table} r
                 JOIN user u ON r.UID = u.UID
             '''
-            cursor.execute(query)
-
         elif table == 'course':
             query = '''
                 SELECT c.*, u.firstName || ' ' || u.lastName AS instructor_name
                 FROM course c
-                LEFT JOIN faculty i ON c.instructor_id = i.UID
-                LEFT JOIN user u ON i.UID = u.UID
+                LEFT JOIN faculty f ON c.instructor_id = f.UID
+                LEFT JOIN user u ON f.UID = u.UID
             '''
-            cursor.execute(query)
         elif table == 'schedule':
             query = '''
                 SELECT s.*, c.title AS course_title, u.firstName || ' ' || u.lastName AS instructor_name
                 FROM schedule s
                 LEFT JOIN course c ON s.course_id = c.course_id
-                LEFT JOIN faculty i ON s.instructor_id = i.UID
-                LEFT JOIN user u ON i.UID = u.UID
+                LEFT JOIN faculty f ON s.instructor_id = f.UID
+                LEFT JOIN user u ON f.UID = u.UID
             '''
-            cursor.execute(query)
         elif table == 'transcript':
             query = '''
-                SELECT t.*, c.title AS course_title,
-                u.firstName || ' ' || u.lastName AS student_name
+                SELECT t.*, c.title AS course_title, u.firstName || ' ' || u.lastName AS student_name
                 FROM transcript t
                 LEFT JOIN course c ON t.course_id = c.course_id
                 LEFT JOIN student s ON t.student_uid = s.UID
                 LEFT JOIN user u ON s.UID = u.UID
             '''
-            cursor.execute(query)
         else:
-            cursor.execute(f"SELECT * FROM {table}")
+            query = f"SELECT * FROM {table}"
 
+        cursor.execute(query)
         data = cursor.fetchall()
         columns = [description[0] for description in cursor.description]
+
         if 'full_name' in columns:
             columns.insert(0, columns.pop(columns.index('full_name')))
-
     except sqlite3.Error as e:
         flash(f"Error: {str(e)}", "error")
         return redirect(url_for('admin_dashboard'))
     finally:
         conn.close()
 
-    pk_column = columns[0]  # Assuming first column is primary key
-    return render_template('admin/view_table.html', table=table, columns=columns, data=data, pk_column=pk_column)
+    print(f"Columns: {columns}")
+    print(f"First row: {data[0] if data else 'No rows'}")
+
+    return render_template('admin/view_table.html', table=table, columns=columns, data=data)
+
+
 
 def get_role_specific_columns(table):
     conn = get_db_connection()
@@ -1162,8 +1201,8 @@ def get_role_specific_columns(table):
     return columns
 
 # Edits records
-@app.route('/admin/edit/<table>/<id>', methods=['GET', 'POST'])
-def edit_record(table, id):
+@app.route('/admin/edit/<table>/<path:ids>', methods=['GET', 'POST'])
+def edit_record(table, ids):
     if not is_admin():
         flash("Unauthorized.")
         return redirect(url_for('login'))
@@ -1172,47 +1211,53 @@ def edit_record(table, id):
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
+    id_list = ids.split(',')
+
     user_related_tables = ['student', 'faculty', 'admin', 'grad_secretary', 'alumni']
 
     if table in user_related_tables:
+        # Handle user + role-specific table
         role_cols = get_role_specific_columns(table)
-        role_select = ", ".join([f"r.{col}" for col in role_cols])
+        role_select = ", ".join([f"r.{col}" for col in role_cols if col != 'UID'])  # no duplicate UID
         cur.execute(f'''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.password, u.role, {role_select}
             FROM user u
             JOIN {table} r ON u.UID = r.UID
             WHERE u.UID = ?
-        ''', (int(id),))
+        ''', (int(id_list[0]),))
         record = cur.fetchone()
 
         if not record:
-            flash("Record is not found.", "error")
+            flash("Record not found.", "error")
             return redirect(url_for('view_table', table=table))
 
-        user_columns = ['UID', 'firstName', 'lastName', 'email', 'password', 'role']
-        role_columns = [col for col in role_cols if col != 'UID']
-
         if request.method == 'POST':
-            # Update u
-            cur.execute('''
-                UPDATE user SET firstName = ?, lastName = ?, email = ?, password = ?, role = ?
-                WHERE UID = ?
-            ''', (
+            # Update USER table first
+            user_update_fields = ['firstName', 'lastName', 'email', 'password', 'role']
+            user_update_values = [
                 request.form['firstName'].strip().title(),
                 request.form['lastName'].strip().title(),
                 request.form['email'].strip().lower(),
                 request.form['password'],
-                request.form['role'],
-                id
-            ))
+                request.form['role']
+            ]
+            user_update_values.append(id_list[0])
 
-            # Update Role
+            cur.execute(f'''
+                UPDATE user
+                SET firstName = ?, lastName = ?, email = ?, password = ?, role = ?
+                WHERE UID = ?
+            ''', user_update_values)
+
+            # Update ROLE-SPECIFIC table now
             updates = []
             values = []
-            for col in role_columns:
-                updates.append(f"{col} = ?")
-                values.append(request.form.get(col))
-            values.append(id)
+            for col in role_cols:
+                if col != 'UID':  # UID should not be editable
+                    updates.append(f"{col} = ?")
+                    values.append(request.form.get(col))  # from form input
+
+            values.append(id_list[0])
 
             cur.execute(f'''
                 UPDATE {table}
@@ -1227,37 +1272,105 @@ def edit_record(table, id):
         return render_template('admin/edit_record.html',
                                table=table,
                                record=record,
-                               user_columns=user_columns,
-                               role_columns=role_columns)
+                               columns=record.keys())
+    elif table == 'course':
+      cur.execute('SELECT * FROM course WHERE course_id = ?', (int(id_list[0]),))
+      record = cur.fetchone()
 
-    else:
-        cur.execute(f"PRAGMA table_info({table})")
-        columns_info = cur.fetchall()
-        pk_column = columns_info[0]['name']
+      if not record:
+          flash("Course not found.", "error")
+          return redirect(url_for('view_table', table='course'))
 
-        cur.execute(f"SELECT * FROM {table} WHERE {pk_column} = ?", (id,))
+      if request.method == 'POST':
+          updates = []
+          values = []
+          for col in record.keys():
+              if col != 'course_id':  # don't allow editing primary key
+                  updates.append(f"{col} = ?")
+                  values.append(request.form.get(col))
+          values.append(id_list[0])
+
+          cur.execute(f'''
+              UPDATE course
+              SET {', '.join(updates)}
+              WHERE course_id = ?
+          ''', values)
+
+          conn.commit()
+          flash("Course updated successfully.", "success")
+          return redirect(url_for('view_table', table='course'))
+
+      return render_template('admin/edit_record.html', table=table, record=record, columns=record.keys())
+
+    elif table == 'schedule':
+        # Composite key
+        cur.execute('''
+            SELECT * FROM schedule
+            WHERE course_id = ? AND section = ? AND semester = ? AND year = ?
+        ''', tuple(id_list))
         record = cur.fetchone()
 
         if not record:
             flash("Record not found.", "error")
             return redirect(url_for('view_table', table=table))
 
-        columns = record.keys()
-
         if request.method == 'POST':
-            updates = []
-            values = []
-            for col in columns[1:]:  
-                updates.append(f"{col} = ?")
-                values.append(request.form[col])
-            values.append(id)
+            updates = ['day = ?', 'time_slot = ?', 'instructor_id = ?']
+            values = [
+                request.form['day'],
+                request.form['time_slot'],
+                request.form['instructor_id']
+            ]
+            values.extend(id_list)
 
-            cur.execute(f"UPDATE {table} SET {', '.join(updates)} WHERE {pk_column} = ?", values)
+            cur.execute(f'''
+                UPDATE schedule
+                SET {', '.join(updates)}
+                WHERE course_id = ? AND section = ? AND semester = ? AND year = ?
+            ''', values)
+
             conn.commit()
-            flash("Record updated successfully.", "success")
+            flash("Schedule updated successfully.", "success")
+            return redirect(url_for('view_table', table='schedule'))
+
+        return render_template('admin/edit_record.html', table=table, record=record, columns=record.keys())
+
+    elif table == 'transcript':
+        cur.execute('''
+            SELECT * FROM transcript
+            WHERE student_uid = ? AND course_id = ? AND section = ? AND semester = ? AND year = ?
+        ''', tuple(id_list))
+        record = cur.fetchone()
+
+        if not record:
+            flash("Record not found.", "error")
             return redirect(url_for('view_table', table=table))
 
-        return render_template('admin/edit_record.html', table=table, columns=columns, record=record)
+        if request.method == 'POST':
+            updates = ['grade = ?', 'graded = ?']
+            values = [
+                request.form['grade'],
+                request.form['graded']
+            ]
+            values.extend(id_list)
+
+            cur.execute(f'''
+                UPDATE transcript
+                SET {', '.join(updates)}
+                WHERE student_uid = ? AND course_id = ? AND section = ? AND semester = ? AND year = ?
+            ''', values)
+
+            conn.commit()
+            flash("Transcript updated successfully.", "success")
+            return redirect(url_for('view_table', table='transcript'))
+
+        return render_template('admin/edit_record.html', table=table, record=record, columns=record.keys())
+
+    else:
+        flash("Unsupported table.", "error")
+        return redirect(url_for('admin_dashboard'))
+
+
 
 # Re-defining the GPA calculation function after code state reset.
 
@@ -1303,10 +1416,8 @@ def applicantHome():
     return redirect('/')
   
   # Redirects to appropriate home page based on role if not applicant
-  if role == 'Admin':
-    return redirect(url_for('adminDashboard'))
-  elif role == 'Faculty' or role == 'CAC' or role == 'GS':
-    return redirect(url_for('facultyHome'))
+  if role != 'Applicant':
+    return redirect_to_dashboard(role)
 
   # session stuff and action and error 
   UID = session.get('UID')
@@ -1776,8 +1887,10 @@ def createPassword():
         return redirect(url_for('adminDashboard'))
       elif session['role'] in ['Faculty', 'CAC', 'GS']:
         return redirect(url_for('facultyHome'))
-      else:
+      elif session['role'] == 'Applicant':
         return redirect(url_for('applicantHome'))
+      else: 
+         return redirect(url_for('stu_dashboard'))
         
     # Check if we're in signup flow (should have email but not a fully created account)
     if not session.get('email') and not session.get('new_user') and not request.method == 'POST':
@@ -1920,7 +2033,7 @@ def login():
           elif role == 'Student':
             return redirect(url_for('stu_dashboard'))
           elif role == 'Admin':
-            return redirect(url_for('adminDashboard'))
+            return redirect(url_for('admin_dashboard'))
           elif role == 'GS':
             return redirect(url_for('gs_dashboard'))
           elif role == 'Faculty':
@@ -2522,10 +2635,9 @@ def form1():
   
   #when form is submitted 
   if request.method == 'POST':
-    form_type = request.form.get('form_type')  # Get the form type (Form 1 or Advising)
 
-    # Check if the student already has a submitted form (based on form_type)
-    cursor.execute("SELECT form1_id FROM form1 WHERE UID = ? AND form_type = ? AND status = 'Submitted'", (UID, form_type))
+    # Check if the student already has a submitted form
+    cursor.execute("SELECT form1_id FROM form1 WHERE UID = ? AND status = 'Submitted'", (UID,))
     existing_form1 = cursor.fetchone()
 
     if existing_form1:
@@ -2536,7 +2648,7 @@ def form1():
       cursor.execute("DELETE FROM form1_course WHERE form1_id = ?", (form1_id,))
     else:
       # If it's a new form, insert a new entry
-      cursor.execute("INSERT INTO form1 (UID, form_type, status) VALUES (?, ?, ?)", (UID, form_type, "Submitted"))
+      cursor.execute("INSERT INTO form1 (UID, status) VALUES (?, ?)", (UID, "Submitted"))
       form1_id = cursor.lastrowid 
     
     #list for all dropdown items (Course Fields) for form1 
@@ -2683,7 +2795,11 @@ def student_information(student_UID):
   connection = sqlite3.connect("myDatabase.db")
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
-
+ 
+  # check if they have advising hold
+  cursor.execute("SELECT advising_hold FROM student WHERE UID = ?", (student_UID,))
+  advisinghold = cursor.fetchone()['advising_hold']
+  
   #check if user is cleared for grad
   cursor.execute("SELECT * FROM applied_for_grad WHERE UID = ? AND cleared = 'Cleared'",(student_UID,))
   cleared = cursor.fetchone()
@@ -2691,7 +2807,7 @@ def student_information(student_UID):
   if cleared == None:
     is_cleared = False
 
-  cursor.execute("SELECT status FROM form1 WHERE UID = ? AND form_type = 'Form1'", (student_UID,))
+  cursor.execute("SELECT status FROM form1 WHERE UID = ?", (student_UID,))
   form1 = cursor.fetchone()
 
   if form1 is not None:
@@ -2700,14 +2816,6 @@ def student_information(student_UID):
   else:
     form1_submitted = False
     form1_status = 'not submitted'
-
-  cursor.execute("SELECT status FROM form1 WHERE UID = ? AND form_type = 'Advising'", (student_UID,))
-  advising = cursor.fetchone()
-
-  if advising is not None:
-    advising_submitted = True
-  else:
-    advising_submitted = False
 
   GPA = calculate_gpa(student_UID)
   cursor.execute("UPDATE student SET GPA = ? WHERE UID = ?", (GPA, student_UID))
@@ -2744,12 +2852,12 @@ def student_information(student_UID):
   if low_grade_count >= 3:
     connection.commit()
     connection.close()
-    return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = True, advising_submitted = advising_submitted)
+    return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = True, advisinghold = advisinghold)
       
   connection.commit()
   connection.close()
 
-  return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = False, advising_submitted = advising_submitted)
+  return render_template("student_info.html", userdata = userdata, is_cleared = is_cleared, role = session['role'], transcriptcourses = coursedetails, student_UID = student_UID,  form1_submitted = form1_submitted, form1_status = form1_status, thesis_approved = thesis_approved, facultydata = facultydata, is_suspended = False, advisinghold = advisinghold)
 
 @app.route('/edit_grade/<student_UID>/<course_id>', methods = ['GET', 'POST'])
 def edit_grade(student_UID, course_id):
@@ -2939,7 +3047,7 @@ def apply_graduation():
       requirements_status['thesis'] = thesis_status == 'Approved'
 
     # Check if the advising form is approved
-    cursor.execute("SELECT status, form1_id FROM form1 WHERE UID = ? AND form_type = 'Form1'", (UID,))
+    cursor.execute("SELECT status, form1_id FROM form1 WHERE UID = ?", (UID,))
     form = cursor.fetchone()
     if form:
         requirements_status['advisor_approval'] = form['status'] == 'Approved'
@@ -2994,9 +3102,7 @@ def display_students():
   if role == 'GS':
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
   if role == 'Faculty':
-    cursor.execute("SELECT faculty.UID FROM faculty JOIN user ON faculty.UID = user.UID WHERE faculty.UID = ?",(session['UID'],))
-    facultyData = cursor.fetchone()
-    UID = facultyData['UID']
+    UID = session['UID']
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?",(UID,))
   if role == 'Admin':
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
@@ -3102,7 +3208,9 @@ def clear_grad(student_UID):
   
   connection.commit()
   connection.close()
-  return redirect (url_for('home')) 
+  if session['role'] == 'GS':
+    return redirect (url_for('gs_dashboard')) 
+  return redirect (url_for('admin_dashboard')) 
 
 def ms_requirements(UID):
   connection = sqlite3.connect('myDatabase.db')
@@ -3171,8 +3279,8 @@ def phd_requirements(UID):
   return True
 
 
-@app.route('/form1submission/<student_UID>/<form_type>', methods = ['GET', 'POST'])
-def form1submission(student_UID, form_type):
+@app.route('/form1submission/<student_UID>', methods = ['GET', 'POST'])
+def form1submission(student_UID):
   if 'UID' not in session:
     return redirect (url_for('login'))
 
@@ -3180,7 +3288,7 @@ def form1submission(student_UID, form_type):
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
 
-  cursor.execute("SELECT course.course_id, course.title, course.dept, course.course_num FROM form1 JOIN form1_course ON form1.form1_id = form1_course.form1_id JOIN course on form1_course.course_id = course.course_id WHERE form1.UID = ? AND form1.form_type = ?", (student_UID, form_type))
+  cursor.execute("SELECT course.course_id, course.title, course.dept, course.course_num FROM form1 JOIN form1_course ON form1.form1_id = form1_course.form1_id JOIN course on form1_course.course_id = course.course_id WHERE form1.UID = ?", (student_UID, ))
   form1courses = cursor.fetchall()
 
   is_form1courses = True
@@ -3193,15 +3301,12 @@ def form1submission(student_UID, form_type):
   connection.commit()
   connection.close()
 
-  return render_template("form1submission.html", form1courses = form1courses, is_form1courses = is_form1courses, userdata = userdata, role = session['role'], form_type = form_type)
+  return render_template("form1submission.html", form1courses = form1courses, is_form1courses = is_form1courses, userdata = userdata, role = session['role'])
 
 
 @app.route('/approve_thesis/<student_UID>', methods = ['GET', 'POST'])
 def approve_thesis(student_UID):
-  # # make sure secretary
-  # if 'UID' not in session:
-  #   return redirect('/')
-  
+
   connection = sqlite3.connect('myDatabase.db')
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
@@ -3252,8 +3357,11 @@ def handle_form1_decision(student_UID):
 
     if decision in ['Approved', 'Rejected']:
       cursor.execute("UPDATE form1 SET status = ? WHERE UID = ?", (decision, student_UID))
+      if decision == 'Approved':
+        cursor.execute("")
+        cursor.execute("UPDATE student SET advising_hold = FALSE WHERE UID = ?", (student_UID,))
       connection.commit()
-
+    
     return redirect(url_for('student_information', student_UID=student_UID))
 
 def count_low_grades(UID):

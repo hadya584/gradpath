@@ -1,20 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumni Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Alumni Dashboard</h1>
+{% extends "base.html" %}
 
-        <div class="nav-buttons">
-            <a href="{{ url_for('view_transcript') }}" class="nav-button">View Transcript</a>
-            <a href="{{ url_for('personal_info') }}" class="nav-button">Personal Info</a> 
-            <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
+{% block title %}Alumni Dashboard{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-5">
+                <h2 class="fw-bold mb-4 text-uppercase">Alumni Dashboard</h2>
+                <div class="d-flex flex-column align-items-center ">
+                  
+                  {% if session['role'] == 'Alumni' %}
+                    <a href="{{ url_for('view_transcript') }}" class="btn btn-outline-light btn-lg w-75 mb-2">View Transcript</a>
+                    <a href="{{ url_for('personal_info') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Personal Info</a> 
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Logout</a>
+                  {% endif %}
+                </div>
+                {% if error %}
+                  <div class="alert alert-danger mt-3">{{ error }}</div>
+                {% endif %}
+              </div>
+          </div>
         </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+{% endblock %}
