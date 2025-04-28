@@ -311,12 +311,25 @@
 
               <div>
                 <!-- Action buttons -->
+                {% if app.applicationStatus == 'Admitted' %}
                 <div class="mt-3">
                   <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
-                    type="submit" name="action" value="submit">Save Changes</button>
-                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
-                    type="submit" name="action" value="apply">Apply</button>
+                    type="accept" name="action" value="Accept">Accept Admission</button>
                 </div>
+                {% elif app.applicationStatus == 'Rejected' %}
+                {% elif app.applicationStatus == 'Incomplete' %}
+                  <div class="mt-3">
+                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
+                      type="submit" name="action" value="submit">Save Changes</button>
+                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
+                      type="submit" name="action" value="apply">Apply</button>
+                  </div>
+                {% else %}
+                  <div class="mt-3">
+                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
+                      type="submit" name="action" value="submit">Save Changes</button>
+                  </div>
+                {% endif %}
               </div>
             </div>
           </div>

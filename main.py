@@ -1519,7 +1519,7 @@ def applicantHome():
         validation_errors.append("GRE Quantitative score must be between 130 and 170")
       
       # Validate GPA is a float between 0.0 and 4.0
-      if priorGPA1:
+      if priorGPA1 != 'None' and priorGPA1:
         try:
           gpa1 = float(priorGPA1)
           if gpa1 < 0.0 or gpa1 > 4.0:
@@ -1559,7 +1559,7 @@ def applicantHome():
         AllFilled = 1 if degree and GRE_Verbal and GRE_Quant and GRE_Year and GRE_Advanced and GRE_Subject and TOEFL_Score and TOEFL_Date and degreeType2 and priorUni2 and priorMajor2 and priorGPA2 and priorYear2 and Interests and priorWorkExp and fName and lName and  SSN and email and pNumber and addr1 and UID else 0
         AllFilled_forapp = 1 if degree and GRE_Verbal and GRE_Quant and GRE_Year and GRE_Advanced and GRE_Subject and TOEFL_Score and TOEFL_Date and degreeType2 and priorUni2 and priorMajor2 and priorGPA2 and priorYear2 and Interests and priorWorkExp and fName and lName and  SSN and email and pNumber and addr1 and UID and AppYear and AppSem else 0
 
-        if action == 'submit' or 'apply':
+        if action == 'submit' or 'apply' and action != 'Accept':
 
           # If not all required fields are filled
           if not AllFilled:
@@ -1601,7 +1601,7 @@ def applicantHome():
             
             flash("Information saved successfully", "success")
 
-        if action == 'apply':
+        if action == 'apply' and action != 'Accept':
 
           if len(recLets) < 3:
             error = 'Must Have Three Recommendation Letters'
@@ -1612,6 +1612,14 @@ def applicantHome():
           if not app and not error:
             cursor.execute('INSERT INTO application (UID, applicationStatus, applySemester, applyYear) VALUES (?, ?, ?, ?)', (UID, 'Complete and Under Review', AppSem, AppYear))
             flash("Application submitted successfully", "success")
+
+        if action == 'Accept':
+          cursor.execute('UPDATE user SET role = ? WHERE UID = ?', ('Student', UID))
+          cursor.execute('INSERT INTO student (UID, program) VALUES (?, ?)', (UID, degree))
+          connection.commit()
+          redirect_to_dashboard()
+        
+
       
     # Commit changes if no errors
     connection.commit()
