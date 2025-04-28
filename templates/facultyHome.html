@@ -3,8 +3,36 @@
 {% block title %}Faculty Home{% endblock %}
 
 {% block content %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      function filterTable() {
+          const query = document.getElementById('searchInput').value.toLowerCase();
+          const rows = document.querySelectorAll("tbody tr");
+
+          rows.forEach(row => {
+              const name = row.querySelector(".fw-bold").innerText.toLowerCase(); // Get applicant name
+              const uid = row.querySelector(".fw-normal").innerText.toLowerCase(); // Get UID
+              const isMatch = name.includes(query) || uid.includes(query); // Check if query matches name or UID
+              row.style.display = isMatch ? "" : "none"; // Show or hide row based on match
+          });
+      }
+
+      // Add event listener for the search input
+      document.getElementById('searchInput').addEventListener("keyup", filterTable);
+  });
+</script>
+
 <div class="container fade-in-content">
   <h1 class="text-center mb-4">Applicant Database</h1>
+
+  <form method="POST" action="search">
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <input type="text" id="searchInput" name="search" class="form-control" placeholder="Search by Last Name or UID" value="{{ search_term or '' }}">
+      </div>
+    </div>
+  </form>
+
   <div class="card mb-4">
     <div class="card-body p-0">
       <table class="table align-middle mb-0">
@@ -25,7 +53,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for row, code, numrevs in rows %}
+          {% for row, code, numrevs, review_status in rows %}
           <tr>
             <td>
               <div class="d-flex align-items-center">
@@ -66,7 +94,7 @@
               </td>
             {% endif %}
             {% if session['role'] == "Faculty" %}
-              {% if code == 4 or code == 2 or code == 3 %}
+              {% if review_status or code == 2 or code == 3 %}
               <td>
                 <span class="badge bg-secondary rounded-pill d-inline"><i class="fas fa-check me-1"></i>Already Reviewed</span>
               </td>
@@ -92,10 +120,12 @@
               <td>
                 {% if row.applicationStatus == 'Reviewed' and row['transcripts'] == 'Received' %}
                   <a href="viewReviews/{{row.UID}}" class="btn btn-success btn-sm"><i class="fas fa-clipboard-check me-1"></i>View/Decide</a>
-                {% else %}
+                {% elif row.applicationStatus == 'Complete and Under Review' or row['transcripts'] != 'Received' %}
                   <div class="alert alert-warning p-2 mb-0" style="font-size: 0.9rem;">
                     <i class="fas fa-exclamation-triangle me-1"></i> Final decision pending review and transcript
                   </div>
+                {% else %}
+                  <p>Final Decision Made</p>
                 {% endif %}
               </td>
               <td>

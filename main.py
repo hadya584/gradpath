@@ -2200,9 +2200,9 @@ def viewReviews(UID):
   connection.commit()
   connection.close()
   if len(rows) < 3:
-    isEmpty = 0
-  else:
     isEmpty = 1
+  else:
+    isEmpty = 0
     
   # Create a dictionary structure that includes recommendation letters
   application_data = {
@@ -2225,14 +2225,29 @@ def facultyHome():
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
 
-  # Get all applicants with their application and academic information
-  cursor.execute("""
-    SELECT u.*, ap.*, ai.transcripts 
-    FROM user u
-    RIGHT JOIN application ap ON u.UID = ap.UID
-    LEFT JOIN academicInformation ai ON u.UID = ai.UID
-  """)
-  rows_taken = cursor.fetchall()
+  action = request.form.get('action')
+  search_term = ''
+  filters = []
+  params = []
+
+  if request.method == 'POST' and action == 'search':
+    search_term = request.form.get('search', '')
+
+    if search_term:
+      filters.append('(u.lName LIKE ? OR u.UID LIKE ?)')
+      params.extend(['%' + search_term + '%'] * 2)
+
+  query = """
+      SELECT u.*, ap.*, ai.transcripts 
+      FROM user u
+      RIGHT JOIN application ap ON u.UID = ap.UID
+      LEFT JOIN academicInformation ai ON u.UID = ai.UID
+  """
+  if filters:
+    query += ' WHERE ' + ' AND '.join(filters)
+
+  # Execute the query
+  rows_taken = cursor.execute(query, params).fetchall()
   
   # map the status text to a code in one line
   code_map = {
@@ -2246,9 +2261,18 @@ def facultyHome():
 
   # maps the number of reviews for the uid in row the same way codes is mapped
   numrevs = [cursor.execute("SELECT COUNT(*) FROM reviewForm WHERE UID = ?", (row['UID'],)).fetchone()[0] for row in rows_taken]
-
+  
+  # Check if the faculty has already reviewed each application
+  reviewed_status = [
+      cursor.execute(
+          "SELECT COUNT(*) FROM reviewForm WHERE UID = ? AND reviewerUID = ?",
+          (row['UID'], session['UID'])
+      ).fetchone()[0] > 0  # True if a review exists, False otherwise
+      for row in rows_taken
+  ]
+  
   # Build once, make it re‑iterable
-  rows = list(zip(rows_taken, codes, numrevs))
+  rows = list(zip(rows_taken, codes, numrevs, reviewed_status))
 
   connection.commit()
   connection.close()
