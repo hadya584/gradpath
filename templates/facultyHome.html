@@ -125,6 +125,28 @@
     </div>
   </form>
 
+  <h2 class="text-center mb-4">Applicant Statistics</h2>
+  <div class="card mb-4">
+    <div class="card-body p-0">
+      <table class="table align-middle mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Count</th>
+            <th>GRE Verbal Average</th>
+            <th>GRE Quantitative Average</th>
+            <th>TOEFL Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          <td id="totalApplicants">{{ stats.totalapps }}</td>
+          <td id="avgGREVerbal">{{ stats.GRE_VerbalAVG }}</td>
+          <td id="avgGREQuant">{{ stats.GRE_QuantAVG }}</td>
+          <td id="avgTOEFL">{{ stats.TOEFLAVG }}</td>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <h2 class="text-center mb-4">Applicants</h2>
   <div class="card mb-4">
     <div class="card-body p-0">
@@ -243,28 +265,6 @@
             </td>
             </tr>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <h2 class="text-center mb-4">Applicant Statistics</h2>
-  <div class="card mb-4">
-    <div class="card-body p-0">
-      <table class="table align-middle mb-0">
-        <thead class="table-dark">
-          <tr>
-            <th>Count</th>
-            <th>GRE Verbal Average</th>
-            <th>GRE Quantitative Average</th>
-            <th>TOEFL Average</th>
-          </tr>
-        </thead>
-        <tbody>
-          <td id="totalApplicants">{{ stats.totalapps }}</td>
-          <td id="avgGREVerbal">{{ stats.GRE_VerbalAVG }}</td>
-          <td id="avgGREQuant">{{ stats.GRE_QuantAVG }}</td>
-          <td id="avgTOEFL">{{ stats.TOEFLAVG }}</td>
         </tbody>
       </table>
     </div>

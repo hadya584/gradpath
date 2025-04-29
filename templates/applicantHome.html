@@ -189,12 +189,12 @@
                   <div class="col-md-6 mb-1">
                     <label for="firstName" class="form-label">First Name</label>
                     <input type="text" class="form-control" id="firstName" name="firstName"
-                      value="{{ persInfo.firstName }}" required readonly>
+                      value="{{ persInfo.firstName }}" required>
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="lastName" class="form-label">Last Name</label>
                     <input type="text" class="form-control" id="lastName" name="lastName"
-                      value="{{ persInfo.lastName }}" required readonly>
+                      value="{{ persInfo.lastName }}" required>
                   </div>
                 </div>
               </div>
@@ -209,7 +209,7 @@
                   <div class="col-md-6 mb-1">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" name="email" value="{{ persInfo.email }}"
-                      required readonly>
+                      required>
                   </div>
                 </div>
               </div>
@@ -219,13 +219,12 @@
                 <div class="row">
                   <div class="col-md-6 mb-1">
                     <label for="SSN" class="form-label">SSN</label>
-                    <input type="password" class="form-control" id="SSN" name="SSN" value="{{ persInfo.ssn }}" required
-                      readonly>
+                    <input type="password" class="form-control" id="SSN" name="SSN" value="{{ persInfo.ssn }}" required>
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="pNumber" class="form-label">Phone Number</label>
                     <input type="pNumber" class="form-control" id="pNumber" name="pNumber" value="{{ persInfo.phone }}"
-                      required readonly>
+                      required>
                   </div>
                 </div>
               </div>
@@ -233,13 +232,11 @@
               <!-- Addresses -->
               <div class="mb-1">
                 <label for="addr1" class="form-label">Address 1</label>
-                <input type="text" class="form-control" id="addr1" name="addr1" value="{{ persInfo.address }}" required
-                  readonly>
+                <input type="text" class="form-control" id="addr1" name="addr1" value="{{ persInfo.address }}" required>
               </div>
               <div class="mb-1">
                 <label for="addr2" class="form-label">Address 2</label>
-                <input type="text" class="form-control" id="addr2" name="addr2" value="{{ persInfo.address2 }}" required
-                  readonly>
+                <input type="text" class="form-control" id="addr2" name="addr2" value="{{ persInfo.address2 }}">
               </div>
 
               <!-- App Time -->
@@ -279,10 +276,7 @@
                   <div class="text-center">
                     <h3 class="fw-bold text-uppercase">Application Status:</h3>
                     <div class="mt-3" id="status-container">
-                      {% if app.applicationStatus == 'Incomplete' %}
-                      <h2 class="text-warning mb-0">{{ app.applicationStatus }}</h2>
-                      <p class="text-muted mt-2">Please complete all required fields to submit your application.</p>
-                      {% elif app.applicationStatus == 'Complete and Under Review' %}
+                      {% if app.applicationStatus == 'Complete and Under Review' %}
                       <h2 class="text-primary mb-0">{{ app.applicationStatus }}</h2>
                       <p class="text-muted mt-2">Your application is being reviewed by the admissions committee.</p>
                       {% elif app.applicationStatus == 'Admitted' %}
@@ -317,13 +311,6 @@
                     type="accept" name="action" value="Accept">Accept Admission</button>
                 </div>
                 {% elif app.applicationStatus == 'Rejected' %}
-                {% elif app.applicationStatus == 'Incomplete' %}
-                  <div class="mt-3">
-                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
-                      type="submit" name="action" value="submit">Save Changes</button>
-                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
-                      type="submit" name="action" value="apply">Apply</button>
-                  </div>
                 {% else %}
                   <div class="mt-3">
                     <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
@@ -536,7 +523,7 @@
                 <div class="row">
                   <div class="col-md-6 mb-1">
                     <label for="UID" class="form-label">UID</label>
-                    <input type="text" class="form-control" id="UID" name="UID" value="{{ UID }}" required>
+                    <input type="text" class="form-control" id="UID" name="UID" value="{{ UID }}" required readonly>
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="email" class="form-label">Email</label>
@@ -581,7 +568,7 @@
                   <div class="col-md-6 mb-1">
                     <label for="yearPicker" class="form-label">Year</label>
                     <input type="text" class="form-control" id="yearPicker" name="yearPicker"
-                      value="{{ app.applyYear if app else 2025 }}" required>
+                      value="{{ app.applyYear if app else '' }}" required>
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="semesterPicker" class="form-label">Semester</label>
@@ -638,8 +625,13 @@
                   <div class="text-center">
                     <h3 class="fw-bold text-uppercase">Application Status:</h3>
                     <div class="mt-3" id="status-container">
-                      <h2 class="text-warning mb-0">Incomplete</h2>
-                      <p class="text-muted mt-2">Please complete all required fields to submit your application.</p>
+                      {% if app.applicationStatus == 'Complete and Under Review' %}
+                        <h2 class="text-primary mb-0">{{ app.applicationStatus }}</h2>
+                        <p class="text-muted mt-2">Your application is being reviewed by the admissions committee.</p>
+                      {% else %}
+                        <h2 class="text-warning mb-0">Incomplete</h2>
+                        <p class="text-muted mt-2">Please complete all required fields to submit your application.</p>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
@@ -650,8 +642,10 @@
                 <div class="mt-3">
                   <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5 me-2"
                     type="submit" name="action" value="submit">Save Changes</button>
+                  {% if not app %}
                   <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
                     type="submit" name="action" value="apply">Apply</button>
+                  {% endif %}
                 </div>
               </div>
             </div>

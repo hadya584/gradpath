@@ -1446,6 +1446,9 @@ def applicantHome():
     cursor.execute('SELECT * FROM recommendationLetter WHERE UID = ?', (UID,))
     recLets = cursor.fetchall()
 
+    cursor.execute('SELECT * FROM reviewForm WHERE UID = ?', (UID,))
+    hasReview = cursor.fetchall()
+
     # Initialize prior degrees
     MS = None
     BABS = None
@@ -1559,7 +1562,7 @@ def applicantHome():
         AllFilled = 1 if degree and GRE_Verbal and GRE_Quant and GRE_Year and GRE_Advanced and GRE_Subject and TOEFL_Score and TOEFL_Date and degreeType2 and priorUni2 and priorMajor2 and priorGPA2 and priorYear2 and Interests and priorWorkExp and fName and lName and  SSN and email and pNumber and addr1 and UID else 0
         AllFilled_forapp = 1 if degree and GRE_Verbal and GRE_Quant and GRE_Year and GRE_Advanced and GRE_Subject and TOEFL_Score and TOEFL_Date and degreeType2 and priorUni2 and priorMajor2 and priorGPA2 and priorYear2 and Interests and priorWorkExp and fName and lName and  SSN and email and pNumber and addr1 and UID and AppYear and AppSem else 0
 
-        if action == 'submit' or 'apply' and action != 'Accept':
+        if action == 'submit' or 'apply' and action != 'Accept' and not hasReview:
 
           # If not all required fields are filled
           if not AllFilled:
@@ -1607,7 +1610,7 @@ def applicantHome():
             error = 'Must Have Three Recommendation Letters'
           
           if not AllFilled_forapp:
-            error = 'Please Fill Out Application Year and Semester'
+            error = 'Please Fill Out All Fields'
           # Inserts the application into the db
           if not app and not error:
             cursor.execute('INSERT INTO application (UID, applicationStatus, applySemester, applyYear) VALUES (?, ?, ?, ?)', (UID, 'Complete and Under Review', AppSem, AppYear))
@@ -1618,6 +1621,11 @@ def applicantHome():
           cursor.execute('INSERT INTO student (UID, program) VALUES (?, ?)', (UID, degree))
           connection.commit()
           redirect_to_dashboard()
+
+        if action == 'submit' and hasReview and AllFilled_forapp and not error:
+          cursor.execute('UPDATE user set firstName = ?, lastName = ?, ssn = ?, email = ?, phone = ?, address = ?, address2 = ? WHERE UID = ?', (fName, lName, SSN, email, pNumber, addr1, addr2, UID))
+
+           
         
 
       
@@ -1660,7 +1668,7 @@ def applicantHome():
     
     # If the user has applied, set condition to 1
     condition = 0
-    if app:
+    if hasReview:
       condition = 1
       
     connection.close()
@@ -2303,49 +2311,6 @@ def facultyHome():
   connection.commit()
   connection.close()
   return render_template('facultyHome.html', rows = rows, stats = Stats, session = session) # For faculty, we want to put some if statements here
-
-@app.route('/applicantStats', methods=['GET', 'POST'])
-def applicantStats():
-    if session.get('role') != 'GS':
-        flash('Access denied. GS privileges required.', 'danger')
-        return redirect(url_for('login'))
-
-    connection = sqlite3.connect("myDatabase.db")
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-
-    # Get filters from the form
-    semester = request.form.get('semester', None)
-    year = request.form.get('year', None)
-    degree = request.form.get('degree', None)
-
-    # SQL query with filters
-    query = """
-        SELECT 
-            COUNT(*) AS total_applicants,
-            SUM(CASE WHEN ap.applicationStatus = 'Admitted' THEN 1 ELSE 0 END) AS total_admitted,
-            SUM(CASE WHEN ap.applicationStatus = 'Rejected' THEN 1 ELSE 0 END) AS total_rejected,
-            ROUND(AVG(CASE WHEN ap.applicationStatus = 'Admitted' AND ai.GRE_Quant IS NOT NULL THEN ai.GRE_Quant ELSE NULL END), 2) AS avg_gre_quant_admitted,
-            ROUND(AVG(CASE WHEN ap.applicationStatus = 'Admitted' AND ai.GRE_Verbal IS NOT NULL THEN ai.GRE_Verbal ELSE NULL END), 2) AS avg_gre_verbal_admitted
-        FROM 
-            application ap
-        JOIN 
-            academicInformation ai ON ap.UID = ai.UID
-        WHERE 
-            (ai.applySemester = ? OR ? IS NULL) AND
-            (ai.applyYear = ? OR ? IS NULL) AND
-            (ai.degree = ? OR ? IS NULL);
-    """
-
-    # Execute query with parameters
-    cursor.execute(query, (semester, semester, year, year, degree, degree))
-    stats = cursor.fetchone()
-
-    connection.close()
-
-    return render_template('applicantStats.html', stats=stats)
-   
-
 
 # Defines a route for faculties to view a specific applicant's reviews and write a new review
 @app.route('/reviewForm/<UID>', methods=['GET', 'POST'])
