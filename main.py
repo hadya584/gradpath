@@ -1462,6 +1462,9 @@ def applicantHome():
     cursor.execute('SELECT * FROM recommendationLetter WHERE UID = ?', (UID,))
     recLets = cursor.fetchall()
 
+    cursor.execute('SELECT * FROM reviewForm WHERE UID = ?', (UID,))
+    hasReview = cursor.fetchall()
+
     # Initialize prior degrees
     MS = None
     BABS = None
@@ -1535,7 +1538,7 @@ def applicantHome():
         validation_errors.append("GRE Quantitative score must be between 130 and 170")
       
       # Validate GPA is a float between 0.0 and 4.0
-      if priorGPA1:
+      if priorGPA1 != 'None' and priorGPA1:
         try:
           gpa1 = float(priorGPA1)
           if gpa1 < 0.0 or gpa1 > 4.0:
@@ -1575,7 +1578,7 @@ def applicantHome():
         AllFilled = 1 if degree and GRE_Verbal and GRE_Quant and GRE_Year and GRE_Advanced and GRE_Subject and TOEFL_Score and TOEFL_Date and degreeType2 and priorUni2 and priorMajor2 and priorGPA2 and priorYear2 and Interests and priorWorkExp and fName and lName and  SSN and email and pNumber and addr1 and UID else 0
         AllFilled_forapp = 1 if degree and GRE_Verbal and GRE_Quant and GRE_Year and GRE_Advanced and GRE_Subject and TOEFL_Score and TOEFL_Date and degreeType2 and priorUni2 and priorMajor2 and priorGPA2 and priorYear2 and Interests and priorWorkExp and fName and lName and  SSN and email and pNumber and addr1 and UID and AppYear and AppSem else 0
 
-        if action == 'submit' or 'apply':
+        if action == 'submit' or 'apply' and action != 'Accept' and not hasReview:
 
           # If not all required fields are filled
           if not AllFilled:
@@ -1617,17 +1620,30 @@ def applicantHome():
             
             flash("Information saved successfully", "success")
 
-        if action == 'apply':
+        if action == 'apply' and action != 'Accept':
 
           if len(recLets) < 3:
             error = 'Must Have Three Recommendation Letters'
           
           if not AllFilled_forapp:
-            error = 'Please Fill Out Application Year and Semester'
+            error = 'Please Fill Out All Fields'
           # Inserts the application into the db
           if not app and not error:
             cursor.execute('INSERT INTO application (UID, applicationStatus, applySemester, applyYear) VALUES (?, ?, ?, ?)', (UID, 'Complete and Under Review', AppSem, AppYear))
             flash("Application submitted successfully", "success")
+
+        if action == 'Accept':
+          cursor.execute('UPDATE user SET role = ? WHERE UID = ?', ('Student', UID))
+          cursor.execute('INSERT INTO student (UID, program) VALUES (?, ?)', (UID, degree))
+          connection.commit()
+          redirect_to_dashboard()
+
+        if action == 'submit' and hasReview and AllFilled_forapp and not error:
+          cursor.execute('UPDATE user set firstName = ?, lastName = ?, ssn = ?, email = ?, phone = ?, address = ?, address2 = ? WHERE UID = ?', (fName, lName, SSN, email, pNumber, addr1, addr2, UID))
+
+           
+        
+
       
     # Commit changes if no errors
     connection.commit()
@@ -1668,7 +1684,7 @@ def applicantHome():
     
     # If the user has applied, set condition to 1
     condition = 0
-    if app:
+    if hasReview:
       condition = 1
       
     connection.close()
@@ -2208,9 +2224,9 @@ def viewReviews(UID):
   connection.commit()
   connection.close()
   if len(rows) < 3:
-    isEmpty = 0
-  else:
     isEmpty = 1
+  else:
+    isEmpty = 0
     
   # Create a dictionary structure that includes recommendation letters
   application_data = {
@@ -2233,15 +2249,56 @@ def facultyHome():
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
 
-  # Get all applicants with their application and academic information
-  cursor.execute("""
-    SELECT u.*, ap.*, ai.transcripts 
-    FROM user u
-    RIGHT JOIN application ap ON u.UID = ap.UID
-    LEFT JOIN academicInformation ai ON u.UID = ai.UID
-  """)
-  rows_taken = cursor.fetchall()
-  
+  action = request.form.get('action')
+  search_term = ''
+  filters = []
+  params = []
+
+  if request.method == 'POST' and action == 'search':
+    search_term = request.form.get('search', '')
+
+    if search_term:
+      filters.append('(u.lName LIKE ? OR u.UID LIKE ?)')
+      params.extend(['%' + search_term + '%'] * 2)
+
+  query = """
+      SELECT u.*, ap.*, ai.*
+      FROM user u
+      RIGHT JOIN application ap ON u.UID = ap.UID
+      LEFT JOIN academicInformation ai ON u.UID = ai.UID
+  """
+  if filters:
+    query += ' WHERE ' + ' AND '.join(filters)
+
+  # Execute the query
+  rows_taken = cursor.execute(query, params).fetchall()
+
+  # Calculate averages for GRE Verbal, GRE Quantitative, and TOEFL scores with the same filters
+  avg_query = f"""
+      SELECT 
+          AVG(CAST(ai.GRE_Verbal AS FLOAT)) AS GRE_VerbalAVG,
+          AVG(CAST(ai.GRE_Quant AS FLOAT)) AS GRE_QuantAVG,
+          AVG(CAST(ai.TOEFL_Score AS FLOAT)) AS TOEFLAVG
+      FROM academicInformation ai
+      LEFT JOIN application ap ON ai.UID = ap.UID
+      LEFT JOIN user u ON ai.UID = u.UID
+      {'WHERE ' + ' AND '.join(filters) if filters else ''}
+  """
+  cursor.execute(avg_query, params)
+  averages = cursor.fetchone()
+
+  GRE_VerbalAVG = round(averages['GRE_VerbalAVG'], 2) if averages['GRE_VerbalAVG'] else "N/A"
+  GRE_QuantAVG = round(averages['GRE_QuantAVG'], 2) if averages['GRE_QuantAVG'] else "N/A"
+  TOEFLAVG = round(averages['TOEFLAVG'], 2) if averages['TOEFLAVG'] else "N/A"
+  totalapps = len(rows_taken)
+
+  Stats = {
+    "totalapps": totalapps,
+    "TOEFLAVG": TOEFLAVG,
+    "GRE_QuantAVG": GRE_QuantAVG,
+    "GRE_VerbalAVG": GRE_VerbalAVG,
+  }
+
   # map the status text to a code in one line
   code_map = {
         "Incomplete": 0,
@@ -2254,13 +2311,22 @@ def facultyHome():
 
   # maps the number of reviews for the uid in row the same way codes is mapped
   numrevs = [cursor.execute("SELECT COUNT(*) FROM reviewForm WHERE UID = ?", (row['UID'],)).fetchone()[0] for row in rows_taken]
-
+  
+  # Check if the faculty has already reviewed each application
+  reviewed_status = [
+      cursor.execute(
+          "SELECT COUNT(*) FROM reviewForm WHERE UID = ? AND reviewerUID = ?",
+          (row['UID'], session['UID'])
+      ).fetchone()[0] > 0  # True if a review exists, False otherwise
+      for row in rows_taken
+  ]
+  
   # Build once, make it re‑iterable
-  rows = list(zip(rows_taken, codes, numrevs))
+  rows = list(zip(rows_taken, codes, numrevs, reviewed_status))
 
   connection.commit()
   connection.close()
-  return render_template('facultyHome.html', rows = rows, session = session) # For faculty, we want to put some if statements here
+  return render_template('facultyHome.html', rows = rows, stats = Stats, session = session) # For faculty, we want to put some if statements here
 
 # Defines a route for faculties to view a specific applicant's reviews and write a new review
 @app.route('/reviewForm/<UID>', methods=['GET', 'POST'])

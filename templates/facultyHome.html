@@ -3,8 +3,151 @@
 {% block title %}Faculty Home{% endblock %}
 
 {% block content %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function filterTable() {
+        const query = document.getElementById('searchNameUID').value.toLowerCase();
+        const selectedYear = document.querySelector("select[name='Year']").value.toLowerCase();
+        const selectedSem = document.querySelector("select[name='Semester']").value.toLowerCase();
+        const selectedDeg = document.querySelector("select[name='Degree']").value.toLowerCase();
+        const selectedStat = document.querySelector("select[name='AppStatus']").value.toLowerCase();
+        const rows = document.querySelectorAll("tbody tr");
+
+        let totalApplicants = 0;
+        let totalGREVerbal = 0;
+        let totalGREQuant = 0;
+        let totalTOEFL = 0;
+        let countGREVerbal = 0;
+        let countGREQuant = 0;
+        let countTOEFL = 0;
+
+        rows.forEach(row => {
+            // Skip rows in the statistics table
+            if (!row.closest('table').querySelector('th').textContent.includes('Count')) {
+                const name = row.querySelector(".fw-bold")?.innerText.toLowerCase() || ""; // Get applicant name
+                const uid = row.querySelector(".fw-normal")?.innerText.toLowerCase() || ""; // Get UID
+                const year = row.getAttribute("data-year")?.toLowerCase() || ""; // Get year from data attribute
+                const sem = row.getAttribute("data-semester")?.toLowerCase() || ""; // Get semester from data attribute
+                const deg = row.getAttribute("data-degree")?.toLowerCase() || ""; // Get degree type from data attribute
+                const stat = row.getAttribute("data-appstatus")?.toLowerCase() || "";
+                const greVerbal = parseFloat(row.getAttribute("data-gre-verbal")) || 0;
+                const greQuant = parseFloat(row.getAttribute("data-gre-quant")) || 0;
+                const toefl = parseFloat(row.getAttribute("data-toefl")) || 0;
+
+                const isMatch = (name.includes(query) || uid.includes(query)) &&
+                            (selectedYear === "" || year === selectedYear) &&
+                            (selectedSem === "" || sem === selectedSem) &&
+                            (selectedDeg === "" || deg === selectedDeg) &&
+                            (selectedStat === "" || stat === selectedStat); // Check if query matches name or UID
+
+                if (isMatch) {
+                    row.style.display = ""; // Show row
+                    totalApplicants++;
+
+                    if (greVerbal > 0) {
+                        totalGREVerbal += greVerbal;
+                        countGREVerbal++;
+                    }
+                    if (greQuant > 0) {
+                        totalGREQuant += greQuant;
+                        countGREQuant++;
+                    }
+                    if (toefl > 0) {
+                        totalTOEFL += toefl;
+                        countTOEFL++;
+                    }
+                } else {
+                    row.style.display = "none"; // Hide row
+                }
+            }
+        });
+
+        // Update the statistics table with new values
+        document.getElementById('totalApplicants').innerText = totalApplicants;
+        document.getElementById('avgGREVerbal').innerText = countGREVerbal > 0 ? (totalGREVerbal / countGREVerbal).toFixed(2) : "N/A";
+        document.getElementById('avgGREQuant').innerText = countGREQuant > 0 ? (totalGREQuant / countGREQuant).toFixed(2) : "N/A";
+        document.getElementById('avgTOEFL').innerText = countTOEFL > 0 ? (totalTOEFL / countTOEFL).toFixed(2) : "N/A";
+    }
+
+    // Add event listener for the search input and all filter dropdowns
+    document.getElementById('searchNameUID')?.addEventListener("keyup", filterTable);
+    document.querySelector("select[name='Year']")?.addEventListener("change", filterTable);
+    document.querySelector("select[name='Semester']")?.addEventListener("change", filterTable);
+    document.querySelector("select[name='Degree']")?.addEventListener("change", filterTable);
+    document.querySelector("select[name='AppStatus']")?.addEventListener("change", filterTable);
+
+    // Run initial filtering to set up correct statistics
+    filterTable();
+  });
+</script>
+
 <div class="container fade-in-content">
   <h1 class="text-center mb-4">Applicant Database</h1>
+
+  <form method="POST" action="search">
+    <div class="row g-2 mb-3">
+      <div class="col-md-3">
+        <input type="text" id="searchNameUID" name="search" class="form-control" placeholder="Search by Last Name or UID" value="{{ search_term or '' }}">
+      </div>
+      {% if session['role'] == "GS" %}
+        <div class="col-md-2">
+          <select name="Year" id="yearPicker" class="form-select">
+            <option value="">Select Year</option>
+            {% for year in range(1900, 2027) %}
+              <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select name="Semester" id="semPicker" class="form-select">
+            <option value="">Select Semester</option>
+            <option value="Fall">Fall</option>
+            <option value="Spring">Spring</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select name="Degree" id="degPicker" class="form-select">
+            <option value="">Select Program</option>
+            <option value="PhD">PhD</option>
+            <option value="MS">MS</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select name="AppStatus" id="appStatPicker" class="form-select">
+            <option value="">Select Application Status</option>
+            <option value="Complete and Under Review">Complete and Under Review</option>
+            <option value="Reviewed">Reviewed</option>
+            <option value="Admitted">Admitted</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      {% endif %}
+    </div>
+  </form>
+
+  <h2 class="text-center mb-4">Applicant Statistics</h2>
+  <div class="card mb-4">
+    <div class="card-body p-0">
+      <table class="table align-middle mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Count</th>
+            <th>GRE Verbal Average</th>
+            <th>GRE Quantitative Average</th>
+            <th>TOEFL Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          <td id="totalApplicants">{{ stats.totalapps }}</td>
+          <td id="avgGREVerbal">{{ stats.GRE_VerbalAVG }}</td>
+          <td id="avgGREQuant">{{ stats.GRE_QuantAVG }}</td>
+          <td id="avgTOEFL">{{ stats.TOEFLAVG }}</td>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="text-center mb-4">Applicants</h2>
   <div class="card mb-4">
     <div class="card-body p-0">
       <table class="table align-middle mb-0">
@@ -25,8 +168,8 @@
           </tr>
         </thead>
         <tbody>
-          {% for row, code, numrevs in rows %}
-          <tr>
+          {% for row, code, numrevs, review_status in rows %}
+          <tr data-year="{{ row.applyYear }}" data-gre-verbal="{{ row.GRE_Verbal }}" data-gre-quant="{{ row.GRE_Quant }}" data-toefl="{{ row.TOEFL_Score }}" data-semester="{{ row.applySemester }}" data-degree="{{ row.degree|lower }}" data-appstatus="{{ row.applicationStatus|lower }}">
             <td>
               <div class="d-flex align-items-center">
                 <img
@@ -66,7 +209,7 @@
               </td>
             {% endif %}
             {% if session['role'] == "Faculty" %}
-              {% if code == 4 or code == 2 or code == 3 %}
+              {% if review_status or code == 2 or code == 3 %}
               <td>
                 <span class="badge bg-secondary rounded-pill d-inline"><i class="fas fa-check me-1"></i>Already Reviewed</span>
               </td>
@@ -92,10 +235,12 @@
               <td>
                 {% if row.applicationStatus == 'Reviewed' and row['transcripts'] == 'Received' %}
                   <a href="viewReviews/{{row.UID}}" class="btn btn-success btn-sm"><i class="fas fa-clipboard-check me-1"></i>View/Decide</a>
-                {% else %}
+                {% elif row.applicationStatus == 'Complete and Under Review' or row['transcripts'] != 'Received' %}
                   <div class="alert alert-warning p-2 mb-0" style="font-size: 0.9rem;">
                     <i class="fas fa-exclamation-triangle me-1"></i> Final decision pending review and transcript
                   </div>
+                {% else %}
+                  <p>Final Decision Made</p>
                 {% endif %}
               </td>
               <td>
