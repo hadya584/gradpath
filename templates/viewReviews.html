@@ -79,7 +79,7 @@
         </div>
 
         <!-- Final Decision Form Card (for GS/CAC) -->
-        {% if session['role'] == "GS" or (session['role'] == "CAC" and application.data[4] is none) %}
+        {% if session['role'] == "GS" or (session['role'] == "CAC" and application.data[4] is none and isEmpty == 0) %}
             <div class="card mb-4 shadow-sm">
                 <div class="card-header text-white gradient-custom">
                     <i class="fas fa-gavel me-2"></i>Make Final Decision

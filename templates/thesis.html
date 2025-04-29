@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Thesis{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Submit Thesis</h2>
+
+              {% if existing_thesis %}
+                <div class="alert {% if approved == 0 %}alert-warning{% else %}alert-success{% endif %}">
+                  <strong>Status: {{ approved }}</strong>
+                </div>
+
+                <div class="alert alert-info text-dark">
+                  <strong>Your Thesis Submission:</strong><br>
+                  <p class="mt-2">{{ existing_thesis }}</p>
+                </div>
+
+                <a href="{{ url_for('stu_dashboard') }}" class="btn btn-outline-light btn-lg px-5 mt-4">Return to Dashboard</a>
+
+              {% else %}
+                <form method="post">
+                  <div class="form-outline form-white mb-4">
+                    <label class="form-label" for="thesis_text">Thesis Text</label>
+                    <textarea class="form-control form-control-lg" id="thesis_text" name="thesis_text" rows="8" placeholder="Type your thesis here..." required></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <button class="btn btn-outline-light btn-lg px-5" type="submit">Submit Thesis</button>
+                    <a href="{{ url_for('stu_dashboard') }}" class="btn btn-outline-light btn-lg px-5 ms-2">Cancel</a>
+                  </div>
+                </form>
+              {% endif %}
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

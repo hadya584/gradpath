@@ -19,6 +19,7 @@
                 <p>Audit Passed: {{ audit_passed }}</p>
 
                 <!-- Core Courses Requirement -->
+                {% if grad_type == 'Masters' %}
                 <div class="requirement-item {{ 'fulfilled' if requirements_status.core_courses else 'missing' }}">
                   <div class="d-flex justify-content-between">
                     <span>Core Courses</span>
@@ -27,6 +28,7 @@
                     </span>
                   </div>
                 </div>
+                {% endif %}
 
                 <!-- Total Credits Requirement -->
                 <div class="requirement-item {{ 'fulfilled' if requirements_status.credits else 'missing' }}">

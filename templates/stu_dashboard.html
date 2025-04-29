@@ -39,7 +39,9 @@
 
                   <a href="{{ url_for('personal_info') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Personal Info</a>
                   <a href="{{ url_for('course_offerings') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Course Offerings</a>
-
+                  {% if program == 'PhD' %}
+                    <a href="{{ url_for('submit_thesis') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Thesis</a>
+                  {% endif %}
                   {% if not suspended %}
                     <a href="{{ url_for('form1') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Form 1</a>
                     <a href="{{ url_for('apply_graduation') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Apply For Graduation</a>
@@ -47,6 +49,8 @@
                     <button class="btn btn-outline-light btn-lg w-75 mb-2" disabled>Form 1</button>
                     <button class="btn btn-outline-light btn-lg w-75 mb-2" disabled>Apply For Graduation</button>
                   {% endif %}
+
+
                 {% endif %}
               </div>
 
