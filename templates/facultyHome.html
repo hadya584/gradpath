@@ -6,19 +6,36 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
       function filterTable() {
-          const query = document.getElementById('searchInput').value.toLowerCase();
+          const query = document.getElementById('searchNameUID').value.toLowerCase();
+          const selectedYear = document.querySelector("select[name='Year']").value.toLowerCase();
+          const selectedSem = document.querySelector("select[name='Semester']").value.toLowerCase();
+          const selectedDeg = document.querySelector("select[name='Degree']").value.toLowerCase();
           const rows = document.querySelectorAll("tbody tr");
 
           rows.forEach(row => {
               const name = row.querySelector(".fw-bold").innerText.toLowerCase(); // Get applicant name
               const uid = row.querySelector(".fw-normal").innerText.toLowerCase(); // Get UID
-              const isMatch = name.includes(query) || uid.includes(query); // Check if query matches name or UID
+              const year = row.getAttribute("data-year").toLowerCase(); // Get year from data attribute
+              const sem = row.getAttribute("data-semester").toLowerCase(); // Get semester from data attribute
+              const deg = row.getAttribute("data-degree").toLowerCase(); // Get degree type from data attribute
+
+              console.log("Selected Degree:", selectedDeg);
+              console.log("Row Degree:", deg);
+
+              const isMatch = (name.includes(query) || uid.includes(query)) &&
+                              (selectedYear === "" || year === selectedYear) &&
+                              (selectedSem === "" || sem === selectedSem) &&
+                              (selectedDeg === "" || deg === selectedDeg); // Check if query matches name or UID
+
               row.style.display = isMatch ? "" : "none"; // Show or hide row based on match
           });
       }
 
       // Add event listener for the search input
-      document.getElementById('searchInput').addEventListener("keyup", filterTable);
+      document.getElementById('searchNameUID').addEventListener("keyup", filterTable);
+      document.getElementById('yearPicker').addEventListener("change", filterTable);
+      document.getElementById('semPicker').addEventListener("change", filterTable);
+      document.getElementById('degPicker').addEventListener("change", filterTable);
   });
 </script>
 
@@ -27,9 +44,33 @@
 
   <form method="POST" action="search">
     <div class="row g-2 mb-3">
-      <div class="col-md-6">
-        <input type="text" id="searchInput" name="search" class="form-control" placeholder="Search by Last Name or UID" value="{{ search_term or '' }}">
+      <div class="col-md-4">
+        <input type="text" id="searchNameUID" name="search" class="form-control" placeholder="Search by Last Name or UID" value="{{ search_term or '' }}">
       </div>
+      {% if session['role'] == "GS" %}
+        <div class="col-md-2">
+          <select name="Year" id="yearPicker" class="form-select">
+            <option value="">Select Year</option>
+            {% for year in range(1900, 2027) %}
+              <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select name="Semester" id="semPicker" class="form-select">
+            <option value="">Select Semester</option>
+            <option value="Fall">Fall</option>
+            <option value="Spring">Spring</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select name="Degree" id="degPicker" class="form-select">
+            <option value="">Select Program Type</option>
+            <option value="PhD">PhD</option>
+            <option value="MS">MS</option>
+          </select>
+        </div>
+      {% endif %}
     </div>
   </form>
 
@@ -54,7 +95,7 @@
         </thead>
         <tbody>
           {% for row, code, numrevs, review_status in rows %}
-          <tr>
+          <tr data-year="{{ row.applyYear }}" data-semester="{{ row.applySemester }}" data-degree="{{ row.degree|lower }}">
             <td>
               <div class="d-flex align-items-center">
                 <img

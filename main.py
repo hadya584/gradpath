@@ -2238,7 +2238,7 @@ def facultyHome():
       params.extend(['%' + search_term + '%'] * 2)
 
   query = """
-      SELECT u.*, ap.*, ai.transcripts 
+      SELECT u.*, ap.*, ai.*
       FROM user u
       RIGHT JOIN application ap ON u.UID = ap.UID
       LEFT JOIN academicInformation ai ON u.UID = ai.UID
