@@ -106,15 +106,26 @@
             <!-- Thesis Section -->
             {% if role == 'Faculty' or role == 'Admin' %}
               {% if userdata['program'] == 'PhD' %}
-                <div class="mb-4">
-                  <h5 class="text-uppercase">Thesis</h5>
-                  {% if thesis_approved %}
+              <div class="mb-4">
+              <h5 class="text-uppercase">Thesis</h5>
+              {% if thesis_submitted %}
+                  {% if thesis_approved == 'Approved' %}
                     <p><strong>Status:</strong> Approved</p>
+                  {% elif thesis_approved == 'Denied' %}
+                   <p><strong>Status:</strong> Denied: Waiting Resubmission</p>
                   {% else %}
                     <p><strong>Status:</strong> Not Approved</p>
-                    <form action="{{ url_for('approve_thesis', student_UID=student_UID) }}" method="POST">
-                      <button type="submit" class="btn btn-outline-light btn-sm">Approve Thesis</button>
-                    </form>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                      <form action="{{ url_for('approve_thesis', student_UID=student_UID) }}" method="POST">
+                        <button type="submit" class="btn btn-success btn-sm">Approve Thesis</button>
+                      </form>
+                      <form action="{{ url_for('deny_thesis', student_UID=student_UID) }}" method="POST">
+                        <button type="submit" class="btn btn-danger btn-sm">Reject Thesis</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                  {% else %}
+                  <p><strong>Status: </strong> Not Submitted</p>
                   {% endif %}
                 </div>
               {% endif %}

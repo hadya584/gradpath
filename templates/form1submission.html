@@ -36,11 +36,19 @@
               <p>No forms submitted</p>
             {% endif %}
 
+            {% if session['role'] == 'Student' %}
+            <div class="buttonbox mt-4">
+              <a href="{{ url_for('form1') }}">
+                <button type="button" class="btn btn-outline-light btn-lg px-5">Back</button>
+              </a>
+            </div>
+            {% else %}
             <div class="buttonbox mt-4">
               <a href="{{ url_for('student_information', student_UID=userdata['UID']) }}">
                 <button type="button" class="btn btn-outline-light btn-lg px-5">Back</button>
               </a>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>
