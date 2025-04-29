@@ -1,81 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Course Offerings</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
-</head>
-<script>
-    function filterTable() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const sections = document.querySelectorAll(".catalog-section");
-    
-        sections.forEach(section => {
-            const rows = section.querySelectorAll("table tr:not(:first-child)");
-            let matchFound = false;
-    
-            rows.forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                const isMatch = rowText.includes(query);
-                row.style.display = isMatch ? "" : "none";
-                if (isMatch) matchFound = true;
-            });
-    
-            section.style.display = matchFound ? "" : "none";
-        });
-    }
-</script>
-<body>
-  <div class="container">
-    <h2>Current Course Offerings</h2>
+{% extends "base.html" %}
+{% block title %}Course Offerings{% endblock %}
+{% block content %}
+<div class="container fade-in-content">
+  <h2 class="text-center mb-4">Current Course Offerings</h2>
 
-    <form method="get">
-        <label for="semester">Semester:</label>
-        <select name="semester">
-            <option value="">All</option>
-            <option value="Fall" {% if semester_filter == 'Fall' %}selected{% endif %}>Fall</option>
-            <option value="Spring" {% if semester_filter == 'Spring' %}selected{% endif %}>Spring</option>
-        </select>
-
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search Course Offerings..." value="{{ search_term or '' }}">
-
-        <button type="submit">Search</button>
-    </form>
-
-    {% if offerings %}
-    <div class="catalog-section">
-        <table>
-            <tr>
-                <th>Department</th>
-                <th>Course #</th>
-                <th>Title</th>
-                <th>Section</th>
-                <th>Semester</th>
-                <th>Year</th>
-                <th>Day</th>
-                <th>Time</th>
-                <th>Instructor</th>
-            </tr>
-            {% for row in offerings %}
-            <tr>
-                <td>{{ row.dept }}</td>
-                <td>{{ row.course_num }}</td>
-                <td>{{ row.title }}</td>
-                <td>{{ row.section }}</td>
-                <td>{{ row.semester }}</td>
-                <td>{{ row.year }}</td>
-                <td>{{ row.day }}</td>
-                <td>{{ row.time_slot }}</td>
-                <td>{{ row.instructor_name }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+  <form method="GET" action="{{ url_for('course_offerings') }}" class="row g-3 align-items-end mb-4">
+    <div class="col-md-3">
+      <label for="semester" class="form-label">Semester</label>
+      <select name="semester" id="semester" class="form-select">
+        <option value="">All</option>
+        <option value="Fall" {% if semester_filter == 'Fall' %}selected{% endif %}>Fall</option>
+        <option value="Spring" {% if semester_filter == 'Spring' %}selected{% endif %}>Spring</option>
+      </select>
     </div>
-    {% else %}
-      <p>No course offerings found.</p>
-    {% endif %}
+    <div class="col-md-5">
+      <label for="searchInput" class="form-label">Search Courses</label>
+      <input type="text" id="searchInput" name="search_term" value="{{ search_term or '' }}" onkeyup="filterTable()" class="form-control" placeholder="Search Course Offerings...">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Apply Filters</button>
+    </div>
+  </form>
 
-    <br>
-    <a href="{{ url_for('stu_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+  {% if offerings %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Department</th>
+          <th>Course #</th>
+          <th>Title</th>
+          <th>Section</th>
+          <th>Semester</th>
+          <th>Year</th>
+          <th>Day</th>
+          <th>Time</th>
+          <th>Instructor</th>
+        </tr>
+      </thead>
+      <tbody class="catalog-section">
+        {% for row in offerings %}
+        <tr>
+          <td>{{ row.dept }}</td>
+          <td>{{ row.course_num }}</td>
+          <td>{{ row.title }}</td>
+          <td>{{ row.section }}</td>
+          <td>{{ row.semester }}</td>
+          <td>{{ row.year }}</td>
+          <td>{{ row.day }}</td>
+          <td>{{ row.time_slot }}</td>
+          <td>{{ row.instructor_name }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-</body>
-</html>
+  {% else %}
+    <p>No course offerings found.</p>
+  {% endif %}
+
+  <a href="{{ url_for('stu_dashboard') }}" class="btn btn-primary mt-4">← Back to Dashboard</a>
+</div>
+
+<script>
+function filterTable() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const rows = document.querySelectorAll(".catalog-section tr");
+  
+  rows.forEach((row, index) => {
+    // Skip header row
+    if (index === 0) return;
+    const rowText = row.innerText.toLowerCase();
+    const match = rowText.includes(query);
+    row.style.display = match ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

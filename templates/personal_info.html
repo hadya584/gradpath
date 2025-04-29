@@ -1,79 +1,131 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Personal Info</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
-</head>
-<body>
-  <div class="container">
-    <h1>My Personal Information</h1>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    <form method="POST">
-        <label>UID</label>
-        <input type="text" value="{{ user.UID }}" readonly>
+{% extends "base.html" %}
+{% block title %}My Personal Info{% endblock %}
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
 
-        <label for="firstName">First Name</label>
-        <input type="text" name="firstName" value="{{ user.firstName }}" required>
+            <h2 class="fw-bold mb-4 text-uppercase">My Personal Information</h2>
 
-        <label for="lastName">Last Name</label>
-        <input type="text" name="lastName" value="{{ user.lastName }}" required>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
 
-        <label for="email">Email</label>
-        <input type="email" name="email" value="{{ user.email }}" required>
+            <form method="POST">
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">UID</label>
+                <input type="text" class="form-control form-control-lg" value="{{ user.UID }}" readonly>
+              </div>
 
-        <label for="phone">Phone</label>
-        <input type="text" name="phone" value="{{ user.phone }}" required>
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">First Name</label>
+                <input type="text" name="firstName" class="form-control form-control-lg" value="{{ user.firstName }}" required>
+              </div>
 
-        <label for="address">Address</label>
-        <input type="text" name="address" value="{{ user.address }}" required>
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">Last Name</label>
+                <input type="text" name="lastName" class="form-control form-control-lg" value="{{ user.lastName }}" required>
+              </div>
 
-        <label for="address2">Address 2</label>
-        <input type="text" name="address2" value="{{ user.address2 }}">
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control form-control-lg" value="{{ user.email }}" required>
+              </div>
 
-        <label for="password">Password</label>
-        <input type="password" name="password" placeholder="New password">
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">Phone</label>
+                <input type="text" name="phone" class="form-control form-control-lg" value="{{ user.phone }}" required>
+              </div>
 
-        {% if role == 'Student' %}
-            <label for="program">Program</label>
-            <input type="text" name="program" value="{{ user.program }}" readonly>
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">Address</label>
+                <input type="text" name="address" class="form-control form-control-lg" value="{{ user.address }}" required>
+              </div>
 
-            <label for="GPA">GPA</label>
-            <input type="text" name="GPA" value="{{ user.GPA }}" readonly>
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">Address 2</label>
+                <input type="text" name="address2" class="form-control form-control-lg" value="{{ user.address2 }}">
+              </div>
 
-            <label for="thesis_status">Thesis Status</label>
-            <input type="text" name="thesis_status" value="{{ user.thesis_status }}" readonly>
+              <div class="form-outline form-white mb-4 text-start">
+                <label class="form-label">New Password (Optional)</label>
+                <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter new password">
+              </div>
 
-        {% elif role == 'Alumni' %}
-            <label for="degree">Degree</label>
-            <input type="text" value="{{ user.degree }}" readonly>
+              {% if role == 'Student' %}
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Program</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.program }}" readonly>
+                </div>
 
-            <label for="grad_year">Graduation Year</label>
-            <input type="text" value="{{ user.grad_year }}" readonly>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">GPA</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.GPA }}" readonly>
+                </div>
 
-        {% elif role == 'GS' %}
-            <label for="office">Office</label>
-            <input type="text" name="office" value="{{ user.office }}" readonly>
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Thesis Status</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.thesis_status }}" readonly>
+                </div>
 
-        {% elif role == 'Faculty' %}
-            <label for="dept">Department</label>
-            <input type="text" name="dept" value="{{ user.dept }}" readonly>
+              {% elif role == 'Alumni' %}
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Degree</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.degree }}" readonly>
+                </div>
 
-        {% elif role == 'Admin' %}
-            <label for="access_level">Access Level</label>
-            <input type="text" name="access_level" value="{{ user.access_level }}" readonly>
-        {% endif %}
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Graduation Year</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.grad_year }}" readonly>
+                </div>
 
-        <input type="submit" value="Update Info">
-    </form>
+              {% elif role == 'GS' %}
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Office</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.office }}" readonly>
+                </div>
 
-    <br>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('stu_dashboard') if session['role'] == 'Student' else url_for('grad_secretary_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('admin_dashboard') if session['role'] == 'Admin' else url_for('login') }}" class="nav-button">← Back to Dashboard</a>
+              {% elif role == 'Faculty' %}
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Department</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.dept }}" readonly>
+                </div>
+
+              {% elif role == 'Admin' %}
+                <div class="form-outline form-white mb-4 text-start">
+                  <label class="form-label">Access Level</label>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.access_level }}" readonly>
+                </div>
+              {% endif %}
+
+              <button type="submit" class="btn btn-outline-light btn-lg px-5 mt-3">Update Info</button>
+            </form>
+
+            <div class="mt-4">
+              <a href="{{
+                url_for('alumni_dashboard') if session['role'] == 'Alumni' else
+                url_for('stu_dashboard') if session['role'] == 'Student' else
+                url_for('grad_secretary_dashboard') if session['role'] == 'GS' else
+                url_for('instructor_dashboard') if session['role'] == 'Faculty' else
+                url_for('admin_dashboard') if session['role'] == 'Admin' else
+                url_for('login')
+              }}" class="btn btn-primary mt-4">← Back to Dashboard</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</body>
-</html>
+</section>
+{% endblock %}

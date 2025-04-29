@@ -89,23 +89,28 @@ def view_transcript():
 
     query = '''
     SELECT c.course_num, c.title, c.credits, 
-        t.semester, t.year, t.section, 
-        t.grade, t.graded 
+           t.semester, t.year, t.section, t.grade
     FROM transcript t 
     JOIN course c ON t.course_id = c.course_id 
     WHERE t.student_uid = ?
     ORDER BY t.year, 
-            CASE t.semester 
-                WHEN 'Spring' THEN 1 
-                WHEN 'Summer' THEN 2 
-                WHEN 'Fall' THEN 3 
-                ELSE 4 
-            END
+             CASE t.semester 
+                 WHEN 'Spring' THEN 1 
+                 WHEN 'Summer' THEN 2 
+                 WHEN 'Fall' THEN 3 
+                 ELSE 4 
+             END
     '''
-
-    transcript = cursor.execute(query, (student_id,)).fetchall()
-    GPA = calculategpa(transcript)
+    results = cursor.execute(query, (student_id,)).fetchall()
     conn.close()
+
+    # Group by (year, semester)
+    transcript = {}
+    for row in results:
+        key = (row['year'], row['semester'])
+        transcript.setdefault(key, []).append(row)
+
+    GPA = calculategpa(results)
 
     return render_template('transcript.html', transcript=transcript, GPA=GPA, student_id=student_id)
 
@@ -180,62 +185,61 @@ def register_course():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
+    # Get semester/year from URL or default to Fall 2024
+    semester = request.args.get('semester', 'Fall')
+    year = int(request.args.get('year', 2024))
+
     if request.method == 'POST':
         course_id = int(request.form['course_id'])
         section = int(request.form['section'])
         semester = request.form['semester']
 
-        # Fetch schedule first to access year
+        # Fetch schedule to get the year
         cursor.execute('SELECT * FROM schedule WHERE course_id = ? AND section = ? AND semester = ?', 
                        (course_id, section, semester))
         schedule = cursor.fetchone()
         if not schedule:
             flash("Error: course schedule not found.", "error")
-            return redirect(url_for('register_course'))
+            return redirect(url_for('register_course', semester=semester, year=year))
 
-        year = schedule['year']
+        year = schedule['year']  # update year from actual schedule
 
-        # Already registered check 
+        # Check if already registered
         cursor.execute('''
             SELECT * FROM transcript 
-            WHERE student_uid = ? AND course_id = ? AND section = ? AND semester = ?
-        ''', (student_uid, course_id, section, semester))
+            WHERE student_uid = ? AND course_id = ? AND section = ? AND semester = ? AND year = ?
+        ''', (student_uid, course_id, section, semester, year))
         if cursor.fetchone():
             flash("Error: Already registered.", "error")
-            return redirect(url_for('register_course'))
+            return redirect(url_for('register_course', semester=semester, year=year))
 
-        # Conflict check 
+        # Check for conflict
         cursor.execute('''
             SELECT s.day, s.time_slot
             FROM schedule s
             JOIN transcript t 
-              ON s.course_id = t.course_id 
-             AND s.section = t.section 
-             AND s.semester = t.semester 
-             AND s.year = t.year
+              ON s.course_id = t.course_id AND s.section = t.section AND s.semester = t.semester AND s.year = t.year
             WHERE t.student_uid = ? AND t.semester = ? AND t.year = ?
         ''', (student_uid, semester, year))
         for row in cursor.fetchall():
             if row['day'] == schedule['day'] and row['time_slot'] == schedule['time_slot']:
-                flash("Error: schedule conflict with another course.", "error")
-                return redirect(url_for('register_course'))
-        cursor.execute('''
-            SELECT prereq_id FROM course_prerequisite WHERE course_id = ?
-        ''', (course_id,))
+                flash("Error: schedule conflict.", "error")
+                return redirect(url_for('register_course', semester=semester, year=year))
+
+        # Check prerequisites
+        cursor.execute('SELECT prereq_id FROM course_prerequisite WHERE course_id = ?', (course_id,))
         prereqs = cursor.fetchall()
 
         for prereq in prereqs:
-            prereq_id = prereq['prereq_id']
             cursor.execute('''
                 SELECT grade FROM transcript
                 WHERE student_uid = ? AND course_id = ? AND graded = TRUE
-            ''', (student_uid, prereq_id))
+            ''', (student_uid, prereq['prereq_id']))
             result = cursor.fetchone()
             if not result or result['grade'] not in ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C']:
-                flash("Error: Prerequisite course not satisfied.", "error")
-                return redirect(url_for('register_course'))
-                
-        # Insert registration 
+                flash("Error: Prerequisite not satisfied.", "error")
+                return redirect(url_for('register_course', semester=semester, year=year))
+
         try:
             cursor.execute('''
                 INSERT INTO transcript (student_uid, course_id, section, semester, year, grade, graded)
@@ -245,38 +249,39 @@ def register_course():
             flash("Successfully registered.", "success")
         except sqlite3.IntegrityError as e:
             flash(f"Registration failed: {str(e)}", "error")
-        return redirect(url_for('register_course'))
+        return redirect(url_for('register_course', semester=semester, year=year))
 
-    # Fetch available offerings
+    # GET method: show available/enrolled courses
     available_courses = cursor.execute('''
         SELECT s.*, c.title, c.course_num, u.firstName || ' ' || u.lastName AS instructor_name
         FROM schedule s
         JOIN course c ON s.course_id = c.course_id
         JOIN faculty i ON s.instructor_id = i.UID
         JOIN user u ON u.UID = i.UID
-        WHERE s.year = 2024
+        WHERE s.year = ? AND s.semester = ?
         AND NOT EXISTS (
             SELECT 1 FROM transcript t
             WHERE t.student_uid = ? AND t.course_id = s.course_id 
               AND t.section = s.section AND t.semester = s.semester AND t.year = s.year
         )
-    ''', (student_uid,)).fetchall()
+    ''', (year, semester, student_uid)).fetchall()
 
-    # Fetch enrolled courses
     enrolled_courses = cursor.execute('''
         SELECT s.*, c.title, c.course_num, u.firstName || ' ' || u.lastName AS instructor_name, t.graded
         FROM transcript t
         JOIN schedule s 
-          ON t.course_id = s.course_id AND t.section = s.section 
-         AND t.semester = s.semester AND t.year = s.year
+          ON t.course_id = s.course_id AND t.section = s.section AND t.semester = s.semester AND t.year = s.year
         JOIN course c ON s.course_id = c.course_id
         JOIN faculty i ON s.instructor_id = i.UID
         JOIN user u ON u.UID = i.UID
-        WHERE t.student_uid = ?
-    ''', (student_uid,)).fetchall()
+        WHERE t.semester = ? AND t.year = ? AND t.student_uid = ?
+    ''', (semester, year, student_uid)).fetchall()
 
     conn.close()
-    return render_template('register.html', available_courses=available_courses, enrolled_courses=enrolled_courses)
+    return render_template('register.html', available_courses=available_courses, 
+                           enrolled_courses=enrolled_courses,
+                           semester=semester, year=year)
+
 
 @app.route('/drop_course', methods=['POST'])
 def drop_course():
