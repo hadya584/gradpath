@@ -2248,7 +2248,33 @@ def facultyHome():
 
   # Execute the query
   rows_taken = cursor.execute(query, params).fetchall()
-  
+
+  # Calculate averages for GRE Verbal, GRE Quantitative, and TOEFL scores with the same filters
+  avg_query = f"""
+      SELECT 
+          AVG(CAST(ai.GRE_Verbal AS FLOAT)) AS GRE_VerbalAVG,
+          AVG(CAST(ai.GRE_Quant AS FLOAT)) AS GRE_QuantAVG,
+          AVG(CAST(ai.TOEFL_Score AS FLOAT)) AS TOEFLAVG
+      FROM academicInformation ai
+      LEFT JOIN application ap ON ai.UID = ap.UID
+      LEFT JOIN user u ON ai.UID = u.UID
+      {'WHERE ' + ' AND '.join(filters) if filters else ''}
+  """
+  cursor.execute(avg_query, params)
+  averages = cursor.fetchone()
+
+  GRE_VerbalAVG = round(averages['GRE_VerbalAVG'], 2) if averages['GRE_VerbalAVG'] else "N/A"
+  GRE_QuantAVG = round(averages['GRE_QuantAVG'], 2) if averages['GRE_QuantAVG'] else "N/A"
+  TOEFLAVG = round(averages['TOEFLAVG'], 2) if averages['TOEFLAVG'] else "N/A"
+  totalapps = len(rows_taken)
+
+  Stats = {
+    "totalapps": totalapps,
+    "TOEFLAVG": TOEFLAVG,
+    "GRE_QuantAVG": GRE_QuantAVG,
+    "GRE_VerbalAVG": GRE_VerbalAVG,
+  }
+
   # map the status text to a code in one line
   code_map = {
         "Incomplete": 0,
@@ -2276,7 +2302,50 @@ def facultyHome():
 
   connection.commit()
   connection.close()
-  return render_template('facultyHome.html', rows = rows, session = session) # For faculty, we want to put some if statements here
+  return render_template('facultyHome.html', rows = rows, stats = Stats, session = session) # For faculty, we want to put some if statements here
+
+@app.route('/applicantStats', methods=['GET', 'POST'])
+def applicantStats():
+    if session.get('role') != 'GS':
+        flash('Access denied. GS privileges required.', 'danger')
+        return redirect(url_for('login'))
+
+    connection = sqlite3.connect("myDatabase.db")
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # Get filters from the form
+    semester = request.form.get('semester', None)
+    year = request.form.get('year', None)
+    degree = request.form.get('degree', None)
+
+    # SQL query with filters
+    query = """
+        SELECT 
+            COUNT(*) AS total_applicants,
+            SUM(CASE WHEN ap.applicationStatus = 'Admitted' THEN 1 ELSE 0 END) AS total_admitted,
+            SUM(CASE WHEN ap.applicationStatus = 'Rejected' THEN 1 ELSE 0 END) AS total_rejected,
+            ROUND(AVG(CASE WHEN ap.applicationStatus = 'Admitted' AND ai.GRE_Quant IS NOT NULL THEN ai.GRE_Quant ELSE NULL END), 2) AS avg_gre_quant_admitted,
+            ROUND(AVG(CASE WHEN ap.applicationStatus = 'Admitted' AND ai.GRE_Verbal IS NOT NULL THEN ai.GRE_Verbal ELSE NULL END), 2) AS avg_gre_verbal_admitted
+        FROM 
+            application ap
+        JOIN 
+            academicInformation ai ON ap.UID = ai.UID
+        WHERE 
+            (ai.applySemester = ? OR ? IS NULL) AND
+            (ai.applyYear = ? OR ? IS NULL) AND
+            (ai.degree = ? OR ? IS NULL);
+    """
+
+    # Execute query with parameters
+    cursor.execute(query, (semester, semester, year, year, degree, degree))
+    stats = cursor.fetchone()
+
+    connection.close()
+
+    return render_template('applicantStats.html', stats=stats)
+   
+
 
 # Defines a route for faculties to view a specific applicant's reviews and write a new review
 @app.route('/reviewForm/<UID>', methods=['GET', 'POST'])
