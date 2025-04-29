@@ -45,10 +45,10 @@
 
             <label for="GPA">GPA</label>
             <input type="text" name="GPA" value="{{ user.GPA }}" readonly>
-
+            {% if program == 'PhD' %}
             <label for="thesis_status">Thesis Status</label>
             <input type="text" name="thesis_status" value="{{ user.thesis_status }}" readonly>
-
+            {% endif %}
         {% elif role == 'Alumni' %}
             <label for="degree">Degree</label>
             <input type="text" value="{{ user.degree }}" readonly>

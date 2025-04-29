@@ -51,6 +51,13 @@ def stu_dashboard():
     if count_low_grades(UID) >= 3:
       suspended = True
 
+    #calculate gpa
+    GPA = calculate_gpa(UID)
+    cursor.execute("UPDATE student SET GPA = ? WHERE UID = ?",(GPA, UID))
+
+    connection.commit()
+    connection.close()
+
     return render_template('stu_dashboard.html', role=session['role'], advisinghold = advisinghold, suspended = suspended, program = program)
 
 def generate_unique_uid():
@@ -323,6 +330,7 @@ def personal_info():
     role = session['role']
     conn = get_db_connection()
     cursor = conn.cursor()
+    program = None
 
     if request.method == 'POST':
         new_first = request.form['firstName'].strip().title()
@@ -422,8 +430,10 @@ def personal_info():
         ''', (uid,))
         
     user = cursor.fetchone()
+    if role == 'Student':
+      program = user['program']
     conn.close()
-    return render_template('personal_info.html', user=user, role=role)
+    return render_template('personal_info.html', user=user, role=role, program = program)
 
 
 
@@ -2638,7 +2648,6 @@ def home():
   if session['role'] == 'Student':
     #cursor.execute("SELECT UID FROM student JOIN user ON student.UID = user.UID WHERE user.email = ?", (session['email'],))
     #student_UID = cursor.fetchone()
-    
     id = session['UID']
     GPA = calculate_gpa(id)
     cursor.execute("UPDATE student SET GPA = ? WHERE UID = ?",(GPA, id))
