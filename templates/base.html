@@ -56,6 +56,15 @@
             <a class="nav-link" href="/facultyHome"><i class="fas fa-clipboard-check me-1"></i>Review Applications</a>
           </li>
           {% endif %}
+          {% if session.get('role') == 'GS' %}
+          <!-- Faculty-specific links -->
+          <li class="nav-item">
+            <a class="nav-link" href="/gs_dashboard"><i class="fas fa-home me-1"></i>Back To Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/facultyHome"><i class="fas fa-clipboard-check me-1"></i>Review Applications</a>
+          </li>
+          {% endif %}
           {% if session.get('role') == 'Applicant' %}
           <!-- Link for submitting documents, visible to all logged-in users -->
           <li class="nav-item">

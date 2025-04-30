@@ -13,7 +13,7 @@
                 <h2 class="fw-bold mb-4 text-uppercase">Faculty Dashboard</h2>
                 <div class="d-flex flex-column align-items-center ">
                   
-                    {% if session['role'] == 'Faculty' %}
+                    {% if session['role'] == 'Faculty' or 'CAC' %}
                         <a href="{{ url_for('facultyHome') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Applicants</a>
                         <a href="{{url_for('display_students')}}" class="btn btn-outline-light btn-lg w-75 mb-2">View Advisees</a> 
                         <a href="{{ url_for('instructor_schedule') }}" class="btn btn-outline-light btn-lg w-75 mb-2">View My Courses</a>

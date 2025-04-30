@@ -252,7 +252,9 @@ INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, a
 (50000004, 'Katherine', 'Johnson', 'kjohnson@uni.edu', 'pass', 'Faculty', '000-00-0024', '555-0024', 'Science Hall', NULL),
 (50000005, 'Ada', 'Lovelace', 'ada@uni.edu', 'pass', 'Faculty', '000-00-0025', '555-0025', 'Science Hall', NULL),
 (22222222, 'Narahari', 'Prof', 'narahari@uni.edu', 'naraharipass', 'Faculty', '000-00-0026', '555-0026', 'Science Hall', NULL),
-(33333333, 'Choi', 'Prof', 'choi@uni.edu', 'choipass', 'Faculty', '000-00-0027', '555-0027', 'Science Hall', NULL);
+(33333333, 'Choi', 'Prof', 'choi@uni.edu', 'choipass', 'Faculty', '000-00-0027', '555-0027', 'Science Hall', NULL),
+(60000001, 'CAC', 'CAC', 'cac@uni.edu', 'pass', 'CAC', '020-00-0027', '525-0027', 'Science Hall', NULL);
+
 
 -- INSTRUCTORS
 INSERT INTO faculty (UID, dept) VALUES
@@ -262,7 +264,8 @@ INSERT INTO faculty (UID, dept) VALUES
 (50000004, 'CSCI'), 
 (50000005, 'CSCI'),
 (22222222, 'CSCI'), 
-(33333333, 'CSCI');
+(33333333, 'CSCI'),
+(60000001, 'CSCI');
 
 -- populate with additional info - about each typeuser, grad year, address, etc
 INSERT INTO Student (UID, advisor_id, GPA, program, thesis_status, advising_hold) VALUES

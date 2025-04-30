@@ -327,7 +327,7 @@ def drop_course():
 
 @app.route('/personal_info', methods=['GET', 'POST'])
 def personal_info():
-    if 'UID' not in session or session['role'] not in ['Student', 'Alumni', 'GS', 'Faculty', 'Admin']:
+    if 'UID' not in session or session['role'] not in ['Student', 'Alumni', 'GS', 'Faculty', 'Admin', 'CAC']:
         flash("Login to view personal info.")
         return redirect(url_for('login'))
 
@@ -371,7 +371,7 @@ def personal_info():
                 WHERE UID = ?
             ''', (new_office, uid))
 
-        elif role == 'Faculty':
+        elif role in ['Faculty', 'CAC']:
             new_dept = request.form['dept'].strip()
             cursor.execute('''
                 UPDATE faculty
@@ -417,7 +417,7 @@ def personal_info():
             JOIN grad_secretary g ON u.UID = g.UID
             WHERE u.UID = ?
         ''', (uid,))
-    elif role == 'Faculty':
+    elif role in ['Faculty', 'CAC']:
         cursor.execute('''
             SELECT u.UID, u.firstName, u.lastName, u.email, u.phone, u.address, u.address2,
                    f.dept
@@ -640,7 +640,7 @@ def update_grade():
 
 @app.route('/instructor_dashboard')
 def instructor_dashboard():
-    if 'UID' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] not in ['Faculty', 'CAC'] :
         flash("Login as an instructor to access this page.", 'error')
         return redirect(url_for('login'))
 
@@ -648,7 +648,7 @@ def instructor_dashboard():
 
 @app.route('/instructor_schedule')
 def instructor_schedule():
-    if 'UID' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] not in  ['Faculty', 'CAC']:
         flash("Login as an instructor to access this page.")
         return redirect(url_for('login'))
 
@@ -670,7 +670,7 @@ def instructor_schedule():
 
 @app.route('/instructor_courses')
 def instructor_courses():
-    if 'UID' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] not in ['Faculty', 'CAC']:
         flash("Login as an instructor to access this page.")
         return redirect(url_for('login'))
 
@@ -728,7 +728,7 @@ def instructor_roster():
 
 @app.route('/instructor_grading', methods=['GET', 'POST'])
 def instructor_grading():
-    if 'UID' not in session or session['role'] != 'Faculty':
+    if 'UID' not in session or session['role'] not in ['Faculty', 'CAC']:
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
@@ -2072,7 +2072,7 @@ def login():
           elif role == 'Faculty':
             return redirect(url_for('instructor_dashboard'))
           elif role == 'CAC':
-            return redirect(url_for('facultyHome'))
+            return redirect(url_for('instructor_dashboard'))
           elif role == 'Alumni':
             return redirect(url_for('alumni_dashboard'))
           
@@ -3094,7 +3094,7 @@ def apply_graduation():
         # Check total credits
         cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
         total_credits = cursor.fetchone()['total_credits']
-        requirements_status['credits'] = total_credits >= 30
+        requirements_status['credits'] = total_credits >= 30 if total_credits else 0
 
         # Check grades
         cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'D+', 'D-', 'F')", (UID,))
@@ -3187,7 +3187,7 @@ def display_students():
   cursor = connection.cursor()
   if role == 'GS':
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
-  if role == 'Faculty':
+  if role == 'Faculty' or 'CAC':
     UID = session['UID']
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?",(UID,))
   if role == 'Admin':

@@ -33,7 +33,7 @@
 
             <!-- Back to Dashboard Button -->
             <div class="d-flex justify-content-center">
-              <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('admin_dashboard') if session['role'] == 'Admin'}}" class="btn btn-outline-light btn-lg px-5">
+              <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' or 'CAC' else url_for('admin_dashboard') if session['role'] == 'Admin'}}" class="btn btn-outline-light btn-lg px-5">
                 ← Back to Dashboard
               </a>
             </div>
