@@ -44,7 +44,10 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           {% if session.get('role') == 'Admin' %}
           <li class="nav-item">
-            <a class="nav-link" href="/admin/dashboard"><i class="fas fa-home me-1"></i>Back to Dashboard</a>
+            <a class="nav-link" href="/admin/dashboard"><i class="fas fa-home me-1"></i>Back To Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin-dashboard"><i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard</a>
           </li>
           {% endif %}
           {% if session.get('role') == 'Faculty' or session.get('role') == 'CAC' %}
@@ -72,6 +75,21 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/define-recommenders"><i class="fas fa-user-plus me-1"></i>Define Recommenders</a>
+          </li>
+          {% endif %}
+          {% if session.get('role') == 'Student' %}
+          <li class="nav-item">
+            <a class="nav-link" href="/stu_dashboard"><i class="fas fa-home me-1"></i>Back To Dashboard</a>
+          </li>
+          {% endif %}
+          {% if session.get('role') == 'Alumni' %}
+          <li class="nav-item">
+            <a class="nav-link" href="/alumni_dashboard"><i class="fas fa-home me-1"></i>Back To Dashboard</a>
+          </li>
+          {% endif %}
+          {% if session.get('role') == 'GS' %}
+          <li class="nav-item">
+            <a class="nav-link" href="/gs_dashboard"><i class="fas fa-home me-1"></i>Back To Dashboard</a>
           </li>
           {% endif %}
         </ul>

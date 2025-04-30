@@ -1,17 +1,36 @@
-<html>
-    <link href = "/static/styles/add.css" rel = "stylesheet" type = "text/css" />
+{% extends "base.html" %}
 
-    <h1>Pending Students</h1>
-    <div class =sketchy>
-    {% if not pending_students %}
-        <p>No pending students</p>
-    {% else %}
-        {% for student in pending_students %}
-            <a href="{{ url_for('assign_advisor', student_UID = student['UID']) }}" class = student> {{student['f_name']}} {{student['l_name']}} </p>
-        {% endfor %}
-    {% endif %}
-</div>
-<div class = buttonbox>
-    <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard')}}" class="nav-button">← Back to Dashboard</a>
-</div>
-</html>
+{% block title %}Admitted Students{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <h2 class="fw-bold mb-4 text-uppercase">Admitted Students</h2>
+            <div class="d-grid gap-3">
+              {% if not pending_students %}
+                <p class="alert alert-warning">No recently admitted students</p>
+              {% else %}
+                <div class="list-group">
+                  {% for student in pending_students %}
+                    <div class="list-group-item list-group-item-action text-white bg-dark d-flex justify-content-between align-items-center">
+                      <span>{{ student['firstName'] }} {{ student['lastName'] }}</span>
+                      <a href="{{ url_for('assign_advisor', student_UID=student['UID']) }}" class="btn btn-outline-light btn-sm">Assign Advisor</a>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="mt-4">
+              <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('stu_dashboard') }}" class="btn btn-outline-light btn-sm mt-3">← Back to Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

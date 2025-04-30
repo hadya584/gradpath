@@ -3,7 +3,7 @@
 {% block title %}Students{% endblock %}
 
 {% block content %}
-<section class="vh-100">
+<section class="vh-75">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
       <div class="col-12 col-md-10 col-lg-8 col-xl-7">
@@ -32,11 +32,17 @@
             <br><br>
 
             <!-- Back to Dashboard Button -->
+            {% if session['role'] == 'Admin' %}
+             <div class="text-center mt-4">
+              <a href="{{ url_for('admin_manage') }}" class="btn btn-primary mt-4">← Back to Manage Records</a>
+            </div>
+            {% else %}
             <div class="d-flex justify-content-center">
               <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' or 'CAC' else url_for('admin_dashboard') if session['role'] == 'Admin'}}" class="btn btn-outline-light btn-lg px-5">
                 ← Back to Dashboard
               </a>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>

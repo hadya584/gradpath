@@ -2848,7 +2848,7 @@ def assign_advisor(student_UID):
     cursor.execute("UPDATE student SET advisor_id = ? WHERE UID = ?",(advisor_id, student_UID))
     connection.commit()
     connection.close()
-    return redirect(url_for('student_information', student_UID = student_UID))
+    return redirect(url_for('pending_students'))
 
   cursor.execute("SELECT user.firstName, user.lastName FROM student JOIN user ON student.UID = user.UID WHERE student.UID= ?", (student_UID,))
   studentdata = cursor.fetchone()
@@ -2867,6 +2867,25 @@ def pending_students():
   pending_students = cursor.fetchall()
 
   return render_template("pending_students.html", pending_students = pending_students)
+
+@app.route('/cleared_students')
+def cleared_students():
+  connection = sqlite3.connect('myDatabase.db')
+  connection.row_factory = sqlite3.Row
+  cursor = connection.cursor()
+
+  cursor.execute("""
+        SELECT s.UID, u.firstName, u.lastName, s.program, a.year, a.semester
+        FROM student s
+        JOIN applied_for_grad a ON s.UID = a.UID JOIN user u on u.UID = s.UID
+        WHERE a.cleared = 'Cleared'
+        ORDER BY u.lastName, u.firstName
+    """)
+    
+  students = cursor.fetchall()
+  connection.close()
+
+  return render_template("cleared_students.html", students=students)
 
 @app.route('/student_information/<student_UID>', methods = ['GET', 'POST'])
 def student_information(student_UID):
@@ -3089,12 +3108,15 @@ def apply_graduation():
         # Check core courses
         cursor.execute("SELECT COUNT(*) AS core_courses FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND c.dept = 'CSCI' AND c.course_num IN (6212, 6221, 6461)", (UID,))
         core_courses = cursor.fetchone()['core_courses']
-        requirements_status['core_courses'] = core_courses == 3
+        if core_courses:
+          requirements_status['core_courses'] = core_courses == 3
 
         # Check total credits
         cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
         total_credits = cursor.fetchone()['total_credits']
-        requirements_status['credits'] = total_credits >= 30 if total_credits else 0
+        
+        if total_credits:
+          requirements_status['credits'] = total_credits >= 30
 
         # Check grades
         cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'D+', 'D-', 'F')", (UID,))
@@ -3117,12 +3139,14 @@ def apply_graduation():
       # Check total credits
       cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
       total_credits = cursor.fetchone()['total_credits']
-      requirements_status['credits'] = total_credits >= 36
+      if total_credits:
+        requirements_status['credits'] = total_credits >= 36
 
       # Check CS credits
       cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND c.dept LIKE 'CSCI%'", (UID,))
       cs_credits = cursor.fetchone()['total_credits']
-      requirements_status['cs_credits'] = cs_credits >= 30
+      if cs_credits:
+        requirements_status['cs_credits'] = cs_credits >= 30
 
       # Check grades
       cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'F')", (UID,))
@@ -3144,9 +3168,10 @@ def apply_graduation():
         cursor.execute("SELECT course_id FROM transcript WHERE student_uid = ?", (UID,))
         transcript_courses = cursor.fetchall()
 
-        form_courses_set = set([course['course_id'] for course in form_courses])
-        transcript_courses_set = set([course['course_id'] for course in transcript_courses])
-        requirements_status['form_match'] = form_courses_set == transcript_courses_set
+        if transcript_courses:
+          form_courses_set = set([course['course_id'] for course in form_courses])
+          transcript_courses_set = set([course['course_id'] for course in transcript_courses])
+          requirements_status['form_match'] = form_courses_set == transcript_courses_set
     else:
       requirements_status['advisor_approval'] = False
       requirements_status['form_match'] = False
@@ -3164,12 +3189,15 @@ def apply(audit_passed, UID):
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
+    semester = request.form['semester']
+    year = request.form['year']
+
     # If the audit passes, insert into applied_for_grad
     if audit_passed:
-        cursor.execute("INSERT INTO applied_for_grad (UID, cleared) VALUES (?, ?)", (UID, 'Cleared'))
+        cursor.execute("INSERT INTO applied_for_grad (UID, cleared, semester, year) VALUES (?, ?, ?, ?)", (UID, 'Cleared', semester, year))
         flash('You have successfully applied for graduation! Your application is cleared.', 'success')
     else:
-        cursor.execute("INSERT INTO applied_for_grad (UID, cleared) VALUES (?, ?)", (UID, 'Not Cleared'))
+        cursor.execute("INSERT INTO applied_for_grad (UID, cleared, semester, year) VALUES (?, ?, ?, ?)", (UID, 'Not Cleared', semester, year))
         flash('Your graduation application was submitted but you did not meet all requirements.', 'danger')
 
     connection.commit()
@@ -3286,12 +3314,17 @@ def clear_grad(student_UID):
   connection.row_factory = sqlite3.Row
   cursor = connection.cursor()
 
+  cursor.execute("SELECT year FROM applied_for_grad WHERE applied_for_grad.UID = ?", (student_UID,))
+  year = cursor.fetchone()
+  grad_year = year['year']
+
   # delete from graduate table and add to alumni table
   cursor.execute("UPDATE user SET role = 'Alumni' WHERE UID = ?", (student_UID,))
-  cursor.execute("INSERT INTO alumni (UID) VALUES (?)", (student_UID,))
+  cursor.execute("INSERT INTO alumni (UID, grad_year) VALUES (?, ?)", (student_UID, grad_year))
   cursor.execute("DELETE FROM student WHERE UID = (?)", (student_UID,))
   #might also want to delete from applied?
-  
+  cursor.execute("DELETE FROM applied_for_grad WHERE UID = (?)", (student_UID,))
+
   connection.commit()
   connection.close()
   if session['role'] == 'GS':

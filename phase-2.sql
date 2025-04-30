@@ -19,8 +19,6 @@ DROP TABLE IF EXISTS course_prerequisite;
 DROP TABLE IF EXISTS applied_for_grad;
 DROP TABLE IF EXISTS form1;
 DROP TABLE IF EXISTS form1_course;
-DROP TABLE IF EXISTS thesis;
-
 
 -- Now enable foreign keys for table creation and data insertion
 PRAGMA foreign_keys=ON;
@@ -199,6 +197,8 @@ CREATE TABLE applied_for_grad (
   application_id   INTEGER not null PRIMARY KEY,
   UID              INTEGER not null,
   cleared          VARCHAR(50) not null CHECK (cleared IN ('Cleared', 'Not Cleared')),
+  semester         VARCHAR(50) not null CHECK (semester IN ('Fall', 'Spring')),
+  year             INTEGER not null,
   foreign key (UID) references Student(UID)
 );
 
@@ -216,13 +216,6 @@ CREATE TABLE form1_course (
   foreign key (form1_id) references form1(form1_id),
   foreign key (course_id) references course(course_id)
 );
-
-CREATE TABLE thesis (
-  UID              INTEGER not null PRIMARY KEY,
-  thesis_text           TEXT not null,
-  foreign key (UID) references Student(UID)
-);
-
 
 
 INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, address, address2) VALUES
