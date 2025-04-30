@@ -199,6 +199,8 @@ CREATE TABLE applied_for_grad (
   application_id   INTEGER not null PRIMARY KEY,
   UID              INTEGER not null,
   cleared          VARCHAR(50) not null CHECK (cleared IN ('Cleared', 'Not Cleared')),
+  semester         VARCHAR(50) not null CHECK (semester IN ('Fall', 'Spring')),
+  year             INTEGER not null,
   foreign key (UID) references Student(UID)
 );
 

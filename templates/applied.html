@@ -104,14 +104,28 @@
               </div>
             </div>
 
-            <!-- Apply for Graduation Button -->
             <form method="post" action="{{ url_for('apply', audit_passed=audit_passed, UID=UID) }}">
-                <div class="form-group mt-4">
-                    <button class="btn btn-outline-light btn-lg px-5" type="submit" {% if not audit_passed %}disabled{% endif %}>
-                        Apply for Graduation
-                    </button>
-                </div>
+              <div class="form-group">
+                <label for="semester">Semester</label>
+                <select class="form-control" name="semester" required>
+                  <option value="">Select Semester</option>
+                  <option value="Spring">Spring</option>
+                  <option value="Fall">Fall</option>
+                </select>
+              </div>
+            
+              <div class="form-group mt-3">
+                <label for="year">Graduation Year</label>
+                <input type="number" name="year" class="form-control" required min="2023" max="2100" value="{{ current_year }}">
+              </div>
+            
+              <div class="form-group mt-4">
+                <button class="btn btn-outline-light btn-lg px-5" type="submit" {% if not audit_passed %}disabled{% endif %}>
+                  Apply for Graduation
+                </button>
+              </div>
             </form>
+            
             {% else %}
             <!-- Display Pending Status if Already Applied -->
             <div class="alert alert-warning text-center">
