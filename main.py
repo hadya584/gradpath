@@ -3226,7 +3226,7 @@ def display_students():
   cursor = connection.cursor()
   if role == 'GS':
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
-  if role == 'Faculty' or 'CAC':
+  if role in ['Faculty','CAC']:
     UID = session['UID']
     cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?",(UID,))
   if role == 'Admin':
