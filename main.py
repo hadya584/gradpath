@@ -3205,55 +3205,26 @@ def apply(audit_passed, UID):
     # Redirect to the dashboard (or wherever you want the user to go after applying)
     return redirect(url_for('stu_dashboard'))
 
-@app.route('/display_students', methods=['GET', 'POST'])
+@app.route('/display_students', methods = ['GET', 'POST'])
 def display_students():
-    # Check if the user type (role) exists in session
-    role = session.get('role')
-    
-    if not role:
-        # If there's no role in the session, redirect to login page or show an error
-        return redirect(url_for('login'))
+  #check if type user in session
+  role = session['role']
+  connection = sqlite3.connect('myDatabase.db')
+  connection.row_factory = sqlite3.Row
+  cursor = connection.cursor()
+  if role == 'GS':
+    cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
+  if role == 'Faculty':
+    UID = session['UID']
+    cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?",(UID,))
+  if role == 'Admin':
+    cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
+  studentData = cursor.fetchall()
 
-    connection = sqlite3.connect('myDatabase.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
+  connection.commit()
+  connection.close()
 
-    # Handle different roles: GS, Faculty, Admin
-    if role == 'GS':
-        # For GS (Graduate Secretary), display all students
-        cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
-        student_data = cursor.fetchall()
-    elif role == 'Faculty':
-        # For Faculty, display only students they advise
-        UID = session['UID']
-        cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?", (UID,))
-        student_data = cursor.fetchall()
-    elif role == 'Admin':
-        # For Admin, display all students
-        cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
-        student_data = cursor.fetchall()
-
-    # Fetch the list of advisors for the dropdown (GS and Faculty only should see this)
-    cursor.execute("SELECT faculty.UID, user.firstName, user.lastName FROM faculty JOIN user ON faculty.UID = user.UID")
-    advisors = cursor.fetchall()
-
-    # Get the selected advisor's ID from the form (POST method or default to None)
-    selected_advisor_id = request.form.get('advisor_id')
-
-    if selected_advisor_id and role == 'GS':  # Only allow GS to filter by advisor
-        # Filter students by the selected advisor's ID
-        cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID WHERE student.advisor_id = ?", (selected_advisor_id,))
-        student_data = cursor.fetchall()
-    elif not selected_advisor_id and role == 'GS':
-        # If no advisor is selected, show all students for GS
-        cursor.execute("SELECT * FROM student JOIN user ON student.UID = user.UID")
-        student_data = cursor.fetchall()
-
-    connection.commit()
-    connection.close()
-
-    # Return the template, passing the student data, role, and advisors
-    return render_template("students.html", students=student_data, role=role, advisors=advisors, selected_advisor_id=selected_advisor_id)
+  return render_template("students.html", students = studentData, role = role)
 
 @app.route('/display_faculty', methods = ['GET', 'POST'])
 def display_faculty():

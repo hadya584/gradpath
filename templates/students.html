@@ -11,21 +11,10 @@
           <div class="card-body p-5">
             <h2 class="fw-bold mb-4 text-center text-uppercase">Students</h2>
 
-            {% if role == 'GS' %}
-              <!-- Advisor Filter Dropdown -->
-              <form method="POST" action="{{ url_for('display_students') }}">
-                <div class="form-outline form-white mb-4">
-                  <select class="form-control form-control-lg" name="advisor_id" onchange="this.form.submit()">
-                    <option value="" {% if not selected_advisor_id %}selected{% endif %}>All Students</option>
-                    {% for advisor in advisors %}
-                      <option value="{{ advisor[0] }}" {% if advisor[0] == selected_advisor_id %}selected{% endif %}>
-                        {{ advisor[1] }} {{ advisor[2] }}  <!-- First and Last Name of Advisor -->
-                      </option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </form>
-            {% endif %}
+            <!-- Search Box -->
+            <div class="form-outline form-white mb-4">
+              <input type="text" id="searchInput" onkeyup="filterStudents()" class="form-control form-control-lg" placeholder="Search students">
+            </div>
 
             <!-- Student List -->
             <div class="list-group">
@@ -43,16 +32,27 @@
             <br><br>
 
             <!-- Back to Dashboard Button -->
-            <div class="text-center mt-4">
-              <a href="{{ url_for('gs_dashboard') }}" class="btn btn-outline-light btn-lg px-5">
+            <div class="d-flex justify-content-center">
+              <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('gs_dashboard') if session['role'] == 'GS' else url_for('instructor_dashboard') if session['role'] == 'Faculty' else url_for('admin_dashboard') if session['role'] == 'Admin'}}" class="btn btn-outline-light btn-lg px-5">
                 ← Back to Dashboard
               </a>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+    function filterStudents() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const students = document.querySelectorAll("a.list-group-item");
+
+        students.forEach(student => {
+            const studentText = student.innerText.toLowerCase();
+            student.style.display = studentText.includes(query) ? "" : "none";
+        });
+    }
+</script>
 {% endblock %}
