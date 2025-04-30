@@ -1481,6 +1481,10 @@ def applicantHome():
 
     cursor.execute('SELECT * FROM reviewForm WHERE UID = ?', (UID,))
     hasReview = cursor.fetchall()
+    print(hasReview)
+    hasReview = 1 if hasReview else 0
+
+  
 
     # Initialize prior degrees
     MS = None
@@ -1650,7 +1654,14 @@ def applicantHome():
             flash("Application submitted successfully", "success")
 
         if action == 'Accept':
+          print('here2')
           cursor.execute('UPDATE user SET role = ? WHERE UID = ?', ('Student', UID))
+
+          cursor.execute('SELECT * FROM academicInformation WHERE UID = ?', (UID,))
+          degree = cursor.fetchone()['degree']
+          if degree == 'MS':
+             degree = 'Masters'
+
           cursor.execute('INSERT INTO student (UID, program) VALUES (?, ?)', (UID, degree))
           connection.commit()
           redirect_to_dashboard()
@@ -1999,7 +2010,7 @@ def createPassword():
         connection.close()
     
     # Generate a random 8-digit UID
-    num = random.randrange(0, 10**8)
+    num = random.randrange(10000000, 10**8)
     num_with_zeros = str(num).zfill(8)
     session['UID'] = num_with_zeros
     
