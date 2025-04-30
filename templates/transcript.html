@@ -1,46 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transcript for Student {{ student_id }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h2>Transcript</h2>
+{% extends "base.html" %}
+{% block title %}Transcript{% endblock %}
+{% block content %}
+<div class="container fade-in-content">
+  <h2 class="text-center mb-4">Transcript</h2>
 
-        {% if transcript %}
-            <table>
-                <tr>
-                    <th>Course</th>
-                    <th>Title</th>
-                    <th>Credits</th>
-                    <th>Semester</th>
-                    <th>Year</th>
-                    <th>Section</th>
-                    <th>Grade</th>
-                    <th>Graded</th>
-                </tr>
-                {% for row in transcript %}
-                <tr>
-                    <td>{{ row.course_num }}</td>
-                    <td>{{ row.title }}</td>
-                    <td>{{ row.credits }}</td>
-                    <td>{{ row.semester }}</td>
-                    <td>{{ row.year }}</td>
-                    <td>{{ row.section }}</td>
-                    <td>{{ row.grade }}</td>
-                    <td>{{ 'Yes' if row['graded'] else 'No' }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            <h4>GPA: {{ GPA }}</h4>
-        {% else %}
-            <p>No transcript data found.</p>
-        {% endif %}
-
-        <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('stu_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+  {% if transcript %}
+    {% for (year, semester), courses in transcript.items() %}
+      <h4 class="mb-3">{{ semester }} {{ year }}</h4>
+      <div class="table-responsive mb-5">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Course</th>
+              <th>Title</th>
+              <th>Credits</th>
+              <th>Section</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for course in courses %}
+            <tr>
+              <td>{{ course.course_num }}</td>
+              <td>{{ course.title }}</td>
+              <td>{{ course.credits }}</td>
+              <td>{{ course.section }}</td>
+              <td>{{ course.grade }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+    <div class="text-end">
+      <h5><strong>Total GPA:</strong> {{ GPA }}</h5>
     </div>
-</body>
-</html>
+  {% else %}
+    <p>No transcript data found.</p>
+  {% endif %}
+
+  <a href="{{ url_for('alumni_dashboard') if session['role'] == 'Alumni' else url_for('stu_dashboard') }}" class="btn btn-primary mt-4">← Back to Dashboard</a>
+</div>
+{% endblock %}
