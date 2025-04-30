@@ -2843,7 +2843,7 @@ def assign_advisor(student_UID):
     cursor.execute("UPDATE student SET advisor_id = ? WHERE UID = ?",(advisor_id, student_UID))
     connection.commit()
     connection.close()
-    return redirect(url_for('student_information', student_UID = student_UID))
+    return redirect(url_for('pending_students'))
 
   cursor.execute("SELECT user.firstName, user.lastName FROM student JOIN user ON student.UID = user.UID WHERE student.UID= ?", (student_UID,))
   studentdata = cursor.fetchone()
@@ -2862,6 +2862,17 @@ def pending_students():
   pending_students = cursor.fetchall()
 
   return render_template("pending_students.html", pending_students = pending_students)
+
+@app.route('/pending_graduates', methods = ['GET', 'POST'])
+def pending_graduates():
+  connection = sqlite3.connect("myDatabase.db")
+  connection.row_factory = sqlite3.Row
+  cursor = connection.cursor()
+
+  cursor.execute("SELECT * FROM applied_for_grad JOIN user ON applied_for_grad.UID = user.UID")
+  pending_graduates = cursor.fetchall()
+
+  return render_template("pending_graduates.html", pending_graduates = pending_graduates)
 
 @app.route('/student_information/<student_UID>', methods = ['GET', 'POST'])
 def student_information(student_UID):
@@ -3084,17 +3095,20 @@ def apply_graduation():
         # Check core courses
         cursor.execute("SELECT COUNT(*) AS core_courses FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND c.dept = 'CSCI' AND c.course_num IN (6212, 6221, 6461)", (UID,))
         core_courses = cursor.fetchone()['core_courses']
-        requirements_status['core_courses'] = core_courses == 3
+        if core_courses:
+          requirements_status['core_courses'] = core_courses == 3
 
         # Check total credits
         cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
         total_credits = cursor.fetchone()['total_credits']
-        requirements_status['credits'] = total_credits >= 30
+        if total_credits:
+          requirements_status['credits'] = total_credits >= 30
 
         # Check grades
         cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'D+', 'D-', 'F')", (UID,))
         grades_count = cursor.fetchone()['grades_count']
-        requirements_status['grades'] = grades_count <= 2
+        if grades_count:
+          requirements_status['grades'] = grades_count <= 2
 
     # Check if PhD requirements are fulfilled
     elif grad_type == 'PhD':
@@ -3112,17 +3126,20 @@ def apply_graduation():
       # Check total credits
       cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ?", (UID,))
       total_credits = cursor.fetchone()['total_credits']
-      requirements_status['credits'] = total_credits >= 36
+      if total_credits:
+        requirements_status['credits'] = total_credits >= 36
 
       # Check CS credits
       cursor.execute("SELECT SUM(c.credits) AS total_credits FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND c.dept LIKE 'CSCI%'", (UID,))
       cs_credits = cursor.fetchone()['total_credits']
-      requirements_status['cs_credits'] = cs_credits >= 30
+      if cs_credits:
+        requirements_status['cs_credits'] = cs_credits >= 30
 
       # Check grades
       cursor.execute("SELECT COUNT(*) AS grades_count FROM course c JOIN transcript t ON c.course_id = t.course_id WHERE t.student_uid = ? AND t.grade IN ('C', 'C+', 'C-', 'D', 'F')", (UID,))
       grades_count = cursor.fetchone()['grades_count']
-      requirements_status['grades'] = grades_count <= 1
+      if grades_count:
+        requirements_status['grades'] = grades_count <= 1
 
       # Check thesis status
       requirements_status['thesis'] = thesis_status == 'Approved'
@@ -3139,9 +3156,10 @@ def apply_graduation():
         cursor.execute("SELECT course_id FROM transcript WHERE student_uid = ?", (UID,))
         transcript_courses = cursor.fetchall()
 
-        form_courses_set = set([course['course_id'] for course in form_courses])
-        transcript_courses_set = set([course['course_id'] for course in transcript_courses])
-        requirements_status['form_match'] = form_courses_set == transcript_courses_set
+        if transcript_courses:
+          form_courses_set = set([course['course_id'] for course in form_courses])
+          transcript_courses_set = set([course['course_id'] for course in transcript_courses])
+          requirements_status['form_match'] = form_courses_set == transcript_courses_set
     else:
       requirements_status['advisor_approval'] = False
       requirements_status['form_match'] = False

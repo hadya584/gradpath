@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Graduation Applicants{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <h2 class="fw-bold mb-4 text-uppercase">Graduation Applicants</h2>
+            <div class="d-grid gap-3">
+              {% if not grad_applicants %}
+                <p class="alert alert-warning">No students have applied for graduation.</p>
+              {% else %}
+                <div class="list-group">
+                  {% for student in grad_applicants %}
+                    <div class="list-group-item list-group-item-action text-white bg-dark d-flex justify-content-between align-items-center">
+                      <span>{{ student['firstName'] }} {{ student['lastName'] }} ({{ student['program'] }})</span>
+                      <a href="{{ url_for('clear_grad', student_UID=student['UID']) }}" class="btn btn-outline-light btn-sm">Review Graduation</a>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="mt-4">
+              <a href="{{ url_for('gs_dashboard') }}" class="btn btn-outline-light btn-sm mt-3">← Back to Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
