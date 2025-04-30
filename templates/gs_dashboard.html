@@ -16,7 +16,8 @@
                     {% if session['role'] == 'GS' %}
                         <a href="{{ url_for('facultyHome') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Applicants</a>
                         <a href="{{url_for('display_students')}}" class="btn btn-outline-light btn-lg w-75 mb-2">Students </a> 
-                        <a href="{{url_for('pending_students')}}" class="btn btn-outline-light btn-lg w-75 mb-2"> Pending Students</a>   
+                        <a href="{{url_for('pending_students')}}" class="btn btn-outline-light btn-lg w-75 mb-2"> Admitted Students</a>    
+                        <a href="{{url_for('cleared_students')}}" class="btn btn-outline-light btn-lg w-75 mb-2"> Graduating Students</a>    
                         <a href="{{url_for('personal_info')}}" class="btn btn-outline-light btn-lg w-75 mb-2"> Personal Information </a> 
                         <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Logout</a>
                     {% endif %}

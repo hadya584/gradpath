@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Cleared Students{% endblock %}
+
+{% block content %}
+<section class="vh-75">
+  <div class="container py-5 h-100">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-lg-8">
+        <div class="card bg-dark text-white rounded-4">
+          <div class="card-body p-5">
+            <h2 class="fw-bold mb-4 text-center text-uppercase">Graduating Students</h2>
+
+            <!-- Filter Dropdowns -->
+            <div class="row mb-4">
+              <div class="col">
+                <!-- Degree Program Filter -->
+                <select class="form-select" id="degree_program" onchange="filterStudents()">
+                  <option value="">Degree Program</option>
+                  <option value="Masters">Masters</option>
+                  <option value="PhD">PhD</option>
+                </select>
+              </div>
+              <div class="col">
+                <!-- Graduation Year Filter -->
+                <select class="form-select" id="graduation_year" onchange="filterStudents()">
+                  <option value="">Graduation Year</option>
+                  {% for year in range(2020, 2030) %}
+                    <option value="{{ year }}">{{ year }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col">
+                <!-- Semester Filter -->
+                <select class="form-select" id="semester" onchange="filterStudents()">
+                  <option value="">Semester</option>
+                  <option value="Fall">Fall</option>
+                  <option value="Spring">Spring</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Student List -->
+            <div class="list-group" id="studentList">
+              {% if students %}
+                {% for student in students %}
+                  <a href="{{ url_for('student_information', student_UID=student['UID']) }}" class="list-group-item list-group-item-action bg-dark text-white student-item"
+                     data-degree="{{ student['program'] }}"
+                     data-year="{{ student['year'] }}"
+                     data-semester="{{ student['semester'] }}">
+                    {{ student['firstName'] }} {{ student['lastName'] }} 
+                    <span class="badge bg-success float-end">{{ student['graduation_year'] }}</span>
+                  </a>
+                {% endfor %}
+              {% else %}
+                <p class="text-center">No students found.</p>
+              {% endif %}
+            </div>
+
+            <!-- Back to Dashboard Button -->
+            <div class="mt-4 text-center">
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light btn-lg px-5">← Back to Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function filterStudents() {
+    const degreeProgram = document.getElementById('degree_program').value.toLowerCase();
+    const graduationYear = document.getElementById('graduation_year').value;
+    const semester = document.getElementById('semester').value.toLowerCase();
+    const students = document.querySelectorAll('.student-item');
+
+    students.forEach(student => {
+      const studentDegree = student.getAttribute('data-degree').toLowerCase();
+      const studentYear = student.getAttribute('data-year');
+      const studentSemester = student.getAttribute('data-semester').toLowerCase();
+
+      const matchesDegree = degreeProgram ? studentDegree.includes(degreeProgram) : true;
+      const matchesYear = graduationYear ? studentYear === graduationYear : true;
+      const matchesSemester = semester ? studentSemester.includes(semester) : true;
+
+      // Show/hide student item based on filter criteria
+      if (matchesDegree && matchesYear && matchesSemester) {
+        student.style.display = '';
+      } else {
+        student.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+{% endblock %}
