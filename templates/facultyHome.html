@@ -269,6 +269,14 @@
       </table>
     </div>
   </div>
+  <div class="mt-4">
+    <a href="{{
+      url_for('grad_secretary_dashboard') if session['role'] == 'GS' else
+      url_for('instructor_dashboard') if session['role'] == 'Faculty' else
+      url_for('admin_dashboard') if session['role'] == 'Admin' else
+      url_for('login')
+    }}" class="btn btn-primary mt-4">← Back to Dashboard</a>
+  </div>
 </div>
 {% endblock %}
 

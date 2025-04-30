@@ -6,20 +6,20 @@
 <section class="vh-75">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
         <div class="card bg-dark text-white" style="border-radius: 1rem;">
           <div class="card-body p-5 text-center">
-            <h2 class="fw-bold mb-4 text-uppercase">Manage Records</h2>
-            <div class="d-grid gap-3">
-              <a href="{{ url_for('display_students') }}" class="btn btn-outline-light btn-lg">Students</a>
-              <a href="{{ url_for('view_table', table='faculty') }}" class="btn btn-outline-light btn-lg">Faculty</a>
-              <a href="{{ url_for('view_table', table='grad_secretary') }}" class="btn btn-outline-light btn-lg">Grad Secretary</a>
-              <a href="{{ url_for('view_table', table='alumni') }}" class="btn btn-outline-light btn-lg">Alumni</a>
-              <a href="{{ url_for('view_table', table='course') }}" class="btn btn-outline-light btn-lg">Courses</a>
-              <a href="{{ url_for('view_table', table='schedule') }}" class="btn btn-outline-light btn-lg">Schedules</a>
-              <a href="{{ url_for('view_table', table='transcript') }}" class="btn btn-outline-light btn-lg">Transcripts</a>
-              <div class="mt-4">
-                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-sm mt-3">← Back to Dashboard</a>
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Manage Records</h2>
+              <div class="d-flex flex-column align-items-center">
+                <a href="{{ url_for('display_students') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Students</a>
+                <a href="{{ url_for('view_table', table='faculty') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Faculty</a>
+                <a href="{{ url_for('view_table', table='grad_secretary') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Grad Secretaries</a>
+                <a href="{{ url_for('view_table', table='alumni') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Alumni</a>
+                <a href="{{ url_for('view_table', table='course') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Courses</a>
+                <a href="{{ url_for('view_table', table='schedule') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Schedules</a>
+                <a href="{{ url_for('view_table', table='transcript') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Transcripts</a>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary mt-4">← Back to Dashboard</a>
               </div>
             </div>
           </div>

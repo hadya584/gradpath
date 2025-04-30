@@ -3,21 +3,26 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<section class="vh-100">
+<section class="vh-75">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
         <div class="card bg-dark text-white" style="border-radius: 1rem;">
           <div class="card-body p-5 text-center">
-            <h2 class="fw-bold mb-4 text-uppercase">Admin Dashboard</h2>
-            <div class="d-grid gap-3">
-              <a href="{{ url_for('create_user') }}" class="btn btn-outline-light btn-lg">Create Users</a>
-              <a href="{{ url_for('assign_instructor') }}" class="btn btn-outline-light btn-lg">Assign Instructors to Courses</a>
-              <a href="{{ url_for('add_course') }}" class="btn btn-outline-light btn-lg">Add Courses</a>
-              <a href="{{ url_for('add_schedule') }}" class="btn btn-outline-light btn-lg">Add Course Offerings (Schedule)</a>
-              <a href="{{ url_for('add_prerequisite') }}" class="btn btn-outline-light btn-lg">Add Course Prerequisites</a>
-              <a href="{{ url_for('admin_manage') }}" class="btn btn-outline-light btn-lg">View / Edit Information</a>
-              <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-lg">Logout</a>
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Admin Dashboard</h2>
+              <div class="d-flex flex-column align-items-center">
+                <a href="{{ url_for('create_user') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Create Users</a>
+                <a href="{{ url_for('assign_instructor') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Assign Instructors</a>
+                <a href="{{ url_for('add_course') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Add Courses</a>
+                <a href="{{ url_for('add_schedule') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Add Course Offerings</a>
+                <a href="{{ url_for('add_prerequisite') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Add Prerequisites</a>
+                <a href="{{ url_for('admin_manage') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Manage Information</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Logout</a>
+              </div>
+              {% if error %}
+                <div class="alert alert-danger mt-3">{{ error }}</div>
+              {% endif %}
             </div>
           </div>
         </div>
