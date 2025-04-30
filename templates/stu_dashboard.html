@@ -65,4 +65,383 @@
     </div>
   </div>
 </section>
+
+{% if app.applicationStatus == 'Rejected' %}
+<!-- Rejection JS -->
+<script>
+  // Rejection effect 
+  document.addEventListener('DOMContentLoaded', function () {
+    // Slow fade in for the whole page
+    document.body.style.animation = 'slow-fade-in 5s ease-in';
+
+    // Create gray overlay for grayscale effect
+    const rejectionOverlay = document.createElement('div');
+    rejectionOverlay.className = 'rejection-overlay';
+    document.body.appendChild(rejectionOverlay);
+
+    // Add slowed down buzzer sound
+    const buzzerAudio = document.createElement('audio');
+    buzzerAudio.id = 'buzzer-audio';
+    buzzerAudio.src = '/static/buzzer.mp3'; // You'll need to add this file
+    buzzerAudio.playbackRate = 0.1; // Play at half speed
+    buzzerAudio.volume = 0.7;
+
+    // Add audio controls
+    const audioControls = document.createElement('div');
+    audioControls.className = 'audio-controls rejection';
+    audioControls.innerHTML = `
+      <button id="toggle-audio" class="audio-btn rejection">
+        <span class="audio-icon">🔊</span> Toggle Sound
+      </button>
+    `;
+    document.body.appendChild(audioControls);
+
+    // Try to play audio (may be blocked by browser autoplay policy)
+    setTimeout(() => {
+      buzzerAudio.play().catch(error => {
+        console.log('Autoplay prevented. Click the play button to start sound.', error);
+      });
+    }, 1000); // Delay start of sound
+
+    document.body.appendChild(buzzerAudio);
+
+    // Toggle audio button functionality
+    const toggleAudioBtn = document.getElementById('toggle-audio');
+    toggleAudioBtn.addEventListener('click', function () {
+      if (buzzerAudio.paused) {
+        buzzerAudio.play();
+        toggleAudioBtn.querySelector('.audio-icon').textContent = '🔊';
+      } else {
+        buzzerAudio.pause();
+        toggleAudioBtn.querySelector('.audio-icon').textContent = '🔇';
+      }
+    });
+
+    // Create rejection popup
+    const rejectionPopup = document.createElement('div');
+    rejectionPopup.className = 'rejection-popup';
+    rejectionPopup.innerHTML = `
+      <div class="rejection-content">
+        <div class="big-red-x">✕</div>
+        <h1 class="rejection-title">YOU HAVE ARE SUSPENDED</h1>
+        <h2 class="rejection-subtitle">We regret to inform you</h2>
+        <p class="rejection-message">Your grades were too poor to allow you access.</p>
+        <p class="rejection-message">Please seek your advisor for further details.</p>
+        <p class="rejection-message">YOU SUCK!!! 🙁🙁🙁</p>
+        <button class="rejection-button">I Understand</button>
+      </div>
+    `;
+
+    // Slow fade in for the popup
+    setTimeout(() => {
+      document.body.appendChild(rejectionPopup);
+    }, 2000);
+
+    // Close button functionality
+    setTimeout(() => {
+      const closeButton = document.querySelector('.rejection-button');
+      if (closeButton) {
+        closeButton.addEventListener('click', function () {
+          rejectionPopup.classList.add('fade-out');
+          setTimeout(() => {
+            rejectionPopup.style.display = 'none';
+          }, 3000); // Slow fade out
+        });
+      }
+    }, 3000);
+
+    // Add rain effect
+    const rainContainer = document.createElement('div');
+    rainContainer.id = 'rain-container';
+    document.body.appendChild(rainContainer);
+
+    // Create initial rain drops
+    createRaindrops(100);
+
+    // Keep generating rain
+    setInterval(() => {
+      createRaindrops(20);
+    }, 1000);
+
+    // Function to create raindrops
+    function createRaindrops(amount) {
+      for (let i = 0; i < amount; i++) {
+        const raindrop = document.createElement('div');
+        raindrop.className = 'raindrop';
+
+        // Randomize raindrop properties
+        raindrop.style.left = Math.random() * 100 + 'vw';
+        raindrop.style.opacity = Math.random() * 0.4 + 0.1;
+        raindrop.style.width = Math.random() * 2 + 1 + 'px';
+        raindrop.style.height = Math.random() * 10 + 5 + 'px';
+        raindrop.style.animationDuration = Math.random() * 2 + 3 + 's';
+
+        rainContainer.appendChild(raindrop);
+
+        // Remove raindrop element after animation
+        setTimeout(() => {
+          raindrop.remove();
+        }, 6000);
+      }
+    }
+
+    // Apply grayscale to the entire page
+    document.body.classList.add('grayscale');
+
+    // Darken the background
+    document.body.style.backgroundColor = '#252525';
+
+    // Return to original background after some time
+    setTimeout(() => {
+      document.body.classList.remove('grayscale');
+      document.body.style.backgroundColor = '';
+    }, 30000); // 30 seconds of gray effect
+  });
+</script>
+
+<style>
+  /* Slow fade in animation */
+  @keyframes slow-fade-in {
+    0% {
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Grayscale effect */
+  .grayscale {
+    filter: grayscale(100%);
+    transition: filter 5s ease;
+  }
+
+  /* Rejection overlay */
+  .rejection-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(40, 40, 40, 0.3);
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* Rejection popup */
+  .rejection-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    width: 80%;
+    max-width: 600px;
+    background: linear-gradient(135deg, #880000, #aa0000);
+    border: 8px solid #dc3545;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 50px rgba(220, 53, 69, 0.3);
+    padding: 30px;
+    text-align: center;
+    color: white;
+    animation: slow-popup-entrance 4s ease-in forwards;
+    opacity: 0;
+  }
+
+  @keyframes slow-popup-entrance {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.1);
+    }
+
+    50% {
+      opacity: 0.5;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  .rejection-popup.fade-out {
+    animation: slow-popup-exit 3s forwards;
+  }
+
+  @keyframes slow-popup-exit {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.1);
+    }
+  }
+
+  .rejection-content {
+    animation: slow-pulse 6s infinite;
+  }
+
+  @keyframes slow-pulse {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(0.98);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .big-red-x {
+    font-size: 8rem;
+    color: white;
+    margin-bottom: 10px;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    animation: slow-rotate 10s linear infinite;
+  }
+
+  @keyframes slow-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .rejection-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    animation: slow-sad-pulse 5s infinite;
+  }
+
+  @keyframes slow-sad-pulse {
+    0% {
+      text-shadow: 0 0 5px #dc3545;
+    }
+
+    50% {
+      text-shadow: 0 0 20px #dc3545;
+    }
+
+    100% {
+      text-shadow: 0 0 5px #dc3545;
+    }
+  }
+
+  .rejection-subtitle {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  }
+
+  .rejection-message {
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+
+  .rejection-button {
+    background-color: #333;
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transition: all 0.5s;
+  }
+
+  .rejection-button:hover {
+    background-color: #555;
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Rain animation */
+  #rain-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .raindrop {
+    position: absolute;
+    top: -20px;
+    background: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.6));
+    animation: raindrop-fall 4s linear forwards;
+  }
+
+  @keyframes raindrop-fall {
+    0% {
+      transform: translateY(0) scaleY(1);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 0.5;
+    }
+
+    90% {
+      opacity: 0.5;
+    }
+
+    100% {
+      transform: translateY(100vh) scaleY(1.5);
+      opacity: 0;
+    }
+  }
+
+  /* Audio controls for rejection */
+  .audio-controls.rejection {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10001;
+  }
+
+  .audio-btn.rejection {
+    background: rgba(220, 53, 69, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.5s ease;
+  }
+
+  .audio-btn.rejection:hover {
+    background: rgba(220, 53, 69, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+  }
+</style>
+{% endif %}
 {% endblock %}

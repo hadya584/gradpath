@@ -563,12 +563,16 @@
 
               <!-- App Time -->
               <div class="mb-1">
-                <label for="yearPicker" class="form-label">Select Time of Application:</label>
+                <label for="Application" class="form-label">Select Time of Application:</label>
                 <div class="row">
                   <div class="col-md-6 mb-1">
                     <label for="yearPicker" class="form-label">Year</label>
-                    <input type="text" class="form-control" id="yearPicker" name="yearPicker"
-                      value="{{ app.applyYear if app else '' }}" required>
+                    <select name="yearPicker" id="yearPicker" class="form-select">
+                      <option value="">Select Year</option>
+                      <!-- {% for year in range(1900, 2027) %}
+                        <option value="{{ year }}" {% if app and app.applyYear == year %}selected{% endif %}>{{ year }}</option>
+                      {% endfor %} -->
+                    </select>
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="semesterPicker" class="form-label">Semester</label>
@@ -674,7 +678,7 @@
   const select = document.getElementById("yearPicker");
 
   // Replace this with the year passed from Flask
-  const selectedYear = '{{ app.applyYear if app else 2025 }}';
+  const selectedYear = '{{ pastInfo.applyYear }}';
 
   for (let year = endYear; year >= startYear; year--) {
     const option = document.createElement("option");
