@@ -1,50 +1,61 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Courses You Teach</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
-</head>
-<body>
-  <div class="container">
-    <h2>Your Courses</h2>
+{% extends "base.html" %}
+{% block title %}Courses You Teach{% endblock %}
 
-    {% if courses %}
-    <table>
-        <tr>
-            <th>Course #</th>
-            <th>Title</th>
-            <th>Section</th>
-            <th>Semester</th>
-            <th>Year</th>
-            <th>Actions</th>
-        </tr>
-        {% for course in courses %}
-        <tr>
-            <td>{{ course.course_num }}</td>
-            <td>{{ course.title }}</td>
-            <td>{{ course.section }}</td>
-            <td>{{ course.semester }}</td>
-            <td>{{ course.year }}</td>
-            <td>
-                <form method="POST" action="{{ url_for('instructor_roster') }}">
-                    <input type="hidden" name="course_id" value="{{ course.course_id }}">
-                    <input type="hidden" name="section" value="{{ course.section }}">
-                    <input type="hidden" name="semester" value="{{ course.semester }}">
-                    <button type="submit">View Roster</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-      <p>You are not teaching any courses.</p>
-    {% endif %}
+{% block content %}
+<div class="container py-4 fade-in-content">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow bg-light">
+        <div class="card-body">
+          <h2 class="fw-bold mb-4 text-center text-uppercase text-primary">Your Courses</h2>
 
-    <br>
-    <a href="{{ url_for('instructor_dashboard') }}" class="nav-button">
-        ← Back to Dashboard</button>
-    </a>
+          {% if courses %}
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">Course #</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Section</th>
+                  <th scope="col">Semester</th>
+                  <th scope="col">Year</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for course in courses %}
+                <tr>
+                  <td>{{ course.course_num }}</td>
+                  <td>{{ course.title }}</td>
+                  <td>{{ course.section }}</td>
+                  <td>{{ course.semester }}</td>
+                  <td>{{ course.year }}</td>
+                  <td>
+                    <form method="POST" action="{{ url_for('instructor_roster') }}">
+                      <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                      <input type="hidden" name="section" value="{{ course.section }}">
+                      <input type="hidden" name="semester" value="{{ course.semester }}">
+                      <button type="submit" class="btn btn-outline-primary btn-sm">View Roster</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-center text-muted">You are not teaching any courses.</p>
+          {% endif %}
+
+          <div class="text-center mt-4">
+            <a href="{{ url_for('instructor_dashboard') }}" class="btn btn-secondary">
+              ← Back to Dashboard
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
-</body>
-</html>
-
+</div>
+{% endblock %}

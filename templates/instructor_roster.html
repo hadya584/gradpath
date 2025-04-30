@@ -1,39 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Student Roster</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
-</head>
-<body>
-  <div class="container">
-    <h2>Roster for {{ course.course_num }} - {{ course.title }}</h2>
-    <p>Section {{ section }}, {{ semester }} {{ course.year }}</p>
+{% extends "base.html" %}
+{% block title %}Student Roster{% endblock %}
 
-    {% if students %}
-    <table>
-        <tr>
-            <th>Student UID</th>
-            <th>Name</th>
-            <th>Grade</th>
-            <th>Status</th>
-        </tr>
-        {% for student in students %}
-        <tr>
-            <td>{{ student.student_uid }}</td>
-            <td>{{ student.firstName }} {{ student.lastName }}</td>
-            <td>{{ student.grade }}</td>
-            <td>{{ 'Finalized' if student.graded else 'In Progress' }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-      <p>No students are enrolled in this course.</p>
-    {% endif %}
+{% block content %}
+<div class="container py-5 fade-in-content">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow bg-light">
+        <div class="card-body">
+          <h2 class="fw-bold mb-3 text-center text-uppercase text-primary">
+            Roster: {{ course.course_num }} - {{ course.title }}
+          </h2>
+          <p class="text-center mb-4 fs-5 text-muted">
+            Section {{ section }} | {{ semester }} {{ course.year }}
+          </p>
 
-    <br>
-    <a href="{{ url_for('instructor_courses') }}" class="nav-button">
-        ← Back to My Courses</button>
-    </a>
+          {% if students %}
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Student UID</th>
+                  <th>Name</th>
+                  <th>Grade</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in students %}
+                <tr>
+                  <td>{{ student.student_uid }}</td>
+                  <td>{{ student.firstName }} {{ student.lastName }}</td>
+                  <td>{{ student.grade }}</td>
+                  <td>
+                    <span class="badge {{ 'bg-success' if student.graded else 'bg-warning text-dark' }}">
+                      {{ 'Finalized' if student.graded else 'In Progress' }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-center text-muted">No students are enrolled in this course.</p>
+          {% endif %}
+
+          <div class="text-center mt-4">
+            <a href="{{ url_for('instructor_courses') }}" class="btn btn-secondary">
+              ← Back to My Courses
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
-</body>
-</html>
+</div>
+{% endblock %}
