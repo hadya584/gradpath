@@ -2,14 +2,14 @@
 
 admin: 
 
-student: make buzzer if on hold
+student: 
 
 alumni: 
 
-GS: fix pending Students styling,
+GS: 
 
 Faculty: 
 
 CAC: more testing
 
-Applicant:
+Applicant: fix shit  toefl requirements

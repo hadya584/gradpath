@@ -246,8 +246,8 @@ INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, a
 (50000005, 'Ada', 'Lovelace', 'ada@uni.edu', 'pass', 'Faculty', '000-00-0025', '555-0025', 'Science Hall', NULL),
 (22222222, 'Narahari', 'Prof', 'narahari@uni.edu', 'naraharipass', 'Faculty', '000-00-0026', '555-0026', 'Science Hall', NULL),
 (33333333, 'Choi', 'Prof', 'choi@uni.edu', 'choipass', 'Faculty', '000-00-0027', '555-0027', 'Science Hall', NULL),
-(60000001, 'CAC', 'CAC', 'cac@uni.edu', 'pass', 'CAC', '020-00-0027', '525-0027', 'Science Hall', NULL);
-
+(60000001, 'CAC', 'CAC', 'cac@uni.edu', 'pass', 'CAC', '020-00-0027', '525-0027', 'Science Hall', NULL),
+(70000001, 'Applicant', 'test', 'user@uer.ej', 'pass', 'Applicant', '101-01-0101', '234-345-3452', 'home', NULL);
 
 -- INSTRUCTORS
 INSERT INTO faculty (UID, dept) VALUES
@@ -463,8 +463,8 @@ INSERT INTO transcript VALUES (55555555, 13, 1, 'Fall', 2024, 'B', TRUE);
 
 -- George Harrison (UID: 66666666)
 INSERT INTO transcript VALUES (66666666, 4, 1, 'Fall', 2023, 'C', TRUE);
-INSERT INTO transcript VALUES (66666666, 1, 1, 'Fall', 2023, 'B', TRUE);
-INSERT INTO transcript VALUES (66666666, 100, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 1, 1, 'Fall', 2023, 'C', TRUE);
+INSERT INTO transcript VALUES (66666666, 100, 1, 'Fall', 2023, 'C', TRUE);
 INSERT INTO transcript VALUES (66666666, 101, 1, 'Fall', 2023, 'B', TRUE);
 INSERT INTO transcript VALUES (66666666, 5, 1, 'Fall', 2023, 'B', TRUE);
 INSERT INTO transcript VALUES (66666666, 12, 1, 'Spring', 2024, 'B', TRUE);
