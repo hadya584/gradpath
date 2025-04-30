@@ -1,108 +1,118 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Transcript Viewer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_view.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin_forms.css') }}">
-    <style>
-        .search-box {
-            margin-bottom: 1rem;
-        }
+{% extends "base.html" %}
 
-        .search-box input {
-            margin-right: 0.5rem;
-            padding: 6px;
-            width: 180px;
-        }
-    </style>
-    <script>
-      function filterTable() {
-          const uidInput = document.getElementById('uidInput').value.toLowerCase();
-          const courseInput = document.getElementById('courseInput').value.toLowerCase();
-          const semInput = document.getElementById('semInput').value.toLowerCase();
-          const rows = document.querySelectorAll("#transcriptTable tbody tr");
+{% block title %}Transcript Viewer{% endblock %}
 
-          rows.forEach(row => {
-              const uidText = row.children[0].innerText.toLowerCase();
-              const courseNumText = row.children[2].innerText.toLowerCase();
-              const semText = row.children[5].innerText.toLowerCase();
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-start h-100">
+      <div class="col-12 col-lg-10">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5">
+            <h2 class="fw-bold mb-4 text-uppercase text-center">Transcript Viewer</h2>
 
-              const matches = uidText.includes(uidInput) &&
-                              courseNumText.includes(courseInput) &&
-                              semText.includes(semInput);
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
 
-              row.style.display = matches ? "" : "none";
-          });
-      }
-    </script>
-</head>
-<body>
-  <div class="container" style="max-width: 1000px;">
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <label class="form-label">Student UID:</label>
+                <input type="text" id="uidInput" class="form-control" onkeyup="filterTable()">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Course #:</label>
+                <input type="text" id="courseInput" class="form-control" onkeyup="filterTable()">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Semester:</label>
+                <input type="text" id="semInput" class="form-control" onkeyup="filterTable()">
+              </div>
+            </div>
 
-    <h2>Transcript Viewer</h2>
+            <div class="table-responsive">
+              <table id="transcriptTable" class="table table-hover text-white">
+                <thead class="table-light text-dark">
+                  <tr>
+                    <th>UID</th>
+                    <th>Name</th>
+                    <th>Course #</th>
+                    <th>Title</th>
+                    <th>Credits</th>
+                    <th>Semester</th>
+                    <th>Year</th>
+                    <th>Grade</th>
+                    <th>Update Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in results %}
+                  <tr>
+                    <td>{{ row.student_uid }}</td>
+                    <td>{{ row.firstName }} {{ row.lastName }}</td>
+                    <td>{{ row.course_num }}</td>
+                    <td>{{ row.title }}</td>
+                    <td>{{ row.credits }}</td>
+                    <td>{{ row.semester }}</td>
+                    <td>{{ row.year }}</td>
+                    <td>{{ row.grade or "—" }}</td>
+                    <td>
+                      <form method="POST" action="{{ url_for('update_grade') }}" class="d-flex">
+                        <input type="hidden" name="student_uid" value="{{ row.student_uid }}">
+                        <input type="hidden" name="course_num" value="{{ row.course_num }}">
+                        <input type="hidden" name="semester" value="{{ row.semester }}">
+                        <input type="text" name="grade" class="form-control form-control-sm me-2" placeholder="A, B, F..." value="{{ row.grade if row.grade != 'IP' else '' }}">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Submit</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="{{ 'flash-message' if category == 'error' else 'success-message' }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+            <h4 class="mt-4">GPA: {{ GPA }}</h4>
+            <a href="{% if session['role'] == 'Admin' %}
+                        {{ url_for('admin_dashboard') }}
+                    {% else %}
+                        {{ url_for('gs_dashboard') }}
+                    {% endif %}" 
+              class="btn btn-primary mt-4">
+              ← Back to Dashboard
+            </a>
 
-    <!-- Instant Search Filters -->
-    <div class="search-box">
-      <label>Student UID:</label>
-      <input type="text" id="uidInput" onkeyup="filterTable()"><br>
-
-      <label>Course #:</label>
-      <input type="text" id="courseInput" onkeyup="filterTable()"><br>
-
-      <label>Semester:</label>
-      <input type="text" id="semInput" onkeyup="filterTable()"><br>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <table id="transcriptTable">
-      <thead>
-        <tr>
-          <th>Student UID</th>
-          <th>Name</th>
-          <th>Course #</th>
-          <th>Title</th>
-          <th>Credits</th>
-          <th>Semester</th>
-          <th>Year</th>
-          <th>Grade</th>
-          <th>Update Grade</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in results %}
-        <tr>
-          <td>{{ row.student_uid }}</td>
-          <td>{{ row.firstName }} {{ row.lastName }}</td>
-          <td>{{ row.course_num }}</td>
-          <td>{{ row.title }}</td>
-          <td>{{ row.credits }}</td>
-          <td>{{ row.semester }}</td>
-          <td>{{ row.year }}</td>
-          <td>{{ row.grade or "—" }}</td>
-          <td>
-            <form method="POST" action="{{ url_for('update_grade') }}">
-                <input type="hidden" name="student_uid" value="{{ row.student_uid }}">
-                <input type="hidden" name="course_num" value="{{ row.course_num }}">
-                <input type="hidden" name="semester" value="{{ row.semester }}">
-                <input type="text" name="grade" placeholder="A, B, F..." value="{{ row.grade if row.grade != 'IP' else '' }}">
-                <button type="submit">Submit</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <h4>GPA: {{ GPA }}</h4>
-    <br>
-    <a href="{{ url_for('gs_dashboard') }}" class="nav-button">← Back to Dashboard</a>
   </div>
-</body>
-</html>
+</section>
+
+<script>
+  function filterTable() {
+    const uidInput = document.getElementById('uidInput').value.toLowerCase();
+    const courseInput = document.getElementById('courseInput').value.toLowerCase();
+    const semInput = document.getElementById('semInput').value.toLowerCase();
+    const rows = document.querySelectorAll("#transcriptTable tbody tr");
+
+    rows.forEach(row => {
+      const uidText = row.children[0].innerText.toLowerCase();
+      const courseNumText = row.children[2].innerText.toLowerCase();
+      const semText = row.children[5].innerText.toLowerCase();
+
+      const matches = uidText.includes(uidInput) &&
+                      courseNumText.includes(courseInput) &&
+                      semText.includes(semInput);
+
+      row.style.display = matches ? "" : "none";
+    });
+  }
+</script>
+{% endblock %}

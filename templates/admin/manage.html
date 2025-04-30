@@ -1,24 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Data</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Manage Records</h1>
-        <div class="nav-buttons">
-            <a href="{{ url_for('display_students') }}" class="nav-button">Students</a>
-            <a href="{{ url_for('view_table', table='faculty') }}" class="nav-button">Faculty</a>
-            <a href="{{ url_for('view_table', table='grad_secretary') }}" class="nav-button">Grad Secretary</a>
-            <a href="{{ url_for('view_table', table='alumni') }}" class="nav-button">Alumni</a>
-            <a href="{{ url_for('view_table', table='course') }}" class="nav-button">Courses</a>
-            <a href="{{ url_for('view_table', table='schedule') }}" class="nav-button">Schedules</a>
-            <a href="{{ url_for('view_table', table='transcript') }}" class="nav-button">Transcripts</a>
+{% extends "base.html" %}
 
-            <a href="{{ url_for('admin_dashboard') }}" class="nav-button">← Back to Dashboard</a>
+{% block title %}Manage Records{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Manage Records</h2>
+              <div class="d-flex flex-column align-items-center">
+                <a href="{{ url_for('display_students') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Students</a>
+                <a href="{{ url_for('view_table', table='faculty') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Faculty</a>
+                <a href="{{ url_for('view_table', table='grad_secretary') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Grad Secretaries</a>
+                <a href="{{ url_for('view_table', table='alumni') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Alumni</a>
+                <a href="{{ url_for('view_table', table='course') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Courses</a>
+                <a href="{{ url_for('view_table', table='schedule') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Schedules</a>
+                <a href="{{ url_for('view_table', table='transcript') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Transcripts</a>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary mt-4">← Back to Dashboard</a>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

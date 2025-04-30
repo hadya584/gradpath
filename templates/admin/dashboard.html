@@ -1,22 +1,33 @@
-<!-- templates/admin/dashboard.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
-</head>
-<body>
-<div class="container">
-    <h1>Admin Dashboard</h1>
-    <div class="nav-buttons">
-        <a href="{{ url_for('create_user') }}" class="nav-button">Create Users</a>
-        <a href="{{ url_for('assign_instructor') }}" class="nav-button">Assign Instructors to Courses</a>
-        <a href="{{ url_for('add_course') }}" class="nav-button">Add Courses</a>
-        <a href="{{ url_for('add_schedule') }}" class="nav-button">Add Course Offerings (Schedule)</a>
-        <a href="{{ url_for('add_prerequisite') }}" class="nav-button">Add Course Prerequisites</a>
-        <a href="{{ url_for('admin_manage') }}" class="nav-button">View / Edit Information</a>
-        <a href="{{ url_for('logout') }}" class="nav-button">Logout</a>
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-md-2 mt-md-2 pb-5">
+              <h2 class="fw-bold mb-4 text-uppercase">Admin Dashboard</h2>
+              <div class="d-flex flex-column align-items-center">
+                <a href="{{ url_for('create_user') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Create Users</a>
+                <a href="{{ url_for('assign_instructor') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Assign Instructors</a>
+                <a href="{{ url_for('add_course') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Add Courses</a>
+                <a href="{{ url_for('add_schedule') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Add Course Offerings</a>
+                <a href="{{ url_for('add_prerequisite') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Add Prerequisites</a>
+                <a href="{{ url_for('admin_manage') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Manage Information</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-lg w-75 mb-2">Logout</a>
+              </div>
+              {% if error %}
+                <div class="alert alert-danger mt-3">{{ error }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}
