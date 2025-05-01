@@ -59,7 +59,7 @@
 
             <!-- Back to Dashboard Button -->
             <div class="mt-4 text-center">
-              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light btn-lg px-5">← Back to Dashboard</a>
+              <a href="{{ url_for('admin_dashboard') if session['role'] == 'Admin' else url_for('gs_dashboard') }}" class="btn btn-outline-light btn-lg px-5">← Back to Dashboard</a>
             </div>
           </div>
         </div>

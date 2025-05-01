@@ -10,16 +10,6 @@
 
             <h2 class="fw-bold mb-4 text-uppercase">My Personal Information</h2>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                {% for category, message in messages %}
-                  <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
 
             <form method="POST">
               <div class="form-outline form-white mb-4 text-start">
@@ -94,7 +84,7 @@
               {% elif role == 'GS' %}
                 <div class="form-outline form-white mb-4 text-start">
                   <label class="form-label">Office</label>
-                  <input type="text" class="form-control form-control-lg" value="{{ user.office }}" readonly>
+                  <input type="text" class="form-control form-control-lg" value="{{ user.office }}">
                 </div>
 
               {% elif role == 'Faculty' or 'CAC' %}
