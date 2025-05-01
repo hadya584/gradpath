@@ -84,13 +84,13 @@
               {% elif role == 'GS' %}
                 <div class="form-outline form-white mb-4 text-start">
                   <label class="form-label">Office</label>
-                  <input type="text" class="form-control form-control-lg" value="{{ user.office }}">
+                  <input type="text" name="office" class="form-control form-control-lg" value="{{ user.office }}">
                 </div>
 
               {% elif role == 'Faculty' or 'CAC' %}
                 <div class="form-outline form-white mb-4 text-start">
                   <label class="form-label">Department</label>
-                  <input type="text" class="form-control form-control-lg" value="{{ user.dept }}" readonly>
+                  <input type="text" name="dept" class="form-control form-control-lg" value="{{ user.dept }}" readonly>
                 </div>
 
               {% elif role == 'Admin' %}
