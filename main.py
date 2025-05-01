@@ -1486,7 +1486,6 @@ def applicantHome():
 
     cursor.execute('SELECT * FROM reviewForm WHERE UID = ?', (UID,))
     hasReview = cursor.fetchall()
-    print(hasReview)
     hasReview = 1 if hasReview else 0
 
   
@@ -1533,6 +1532,28 @@ def applicantHome():
       priorMajor2 = request.form.get('priorMajor2')
       priorGPA2 = request.form.get('priorGPA2')
       priorYear2 = request.form.get('priorYear2')
+      # academ = [degree, GRE_Quant, GRE_Verbal, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, Interests, priorWorkExp, priorUni1, priorGPA1, priorMajor1, priorYear1, degreeType2, priorUni2, priorGPA2, priorMajor2, priorYear2]
+      academ = {
+        "degree": degree,
+        "GRE_Quant": GRE_Quant,
+        "GRE_Verbal": GRE_Verbal,
+        "GRE_Year": GRE_Year,
+        "GRE_Advanced": GRE_Advanced,
+        "GRE_Subject": GRE_Subject,
+        "TOEFL_Score": TOEFL_Score,
+        "TOEFL_Date": TOEFL_Date,
+        "areasOfInterest": Interests,
+        "priorWorkExp": priorWorkExp,
+        "priorUni1": priorUni1,
+        "priorGPA1": priorGPA1,
+        "priorMajor1": priorMajor1,
+        "priorYear1": priorYear1,
+        "degreeType2": degreeType2,
+        "priorUni2": priorUni2,
+        "priorGPA2": priorGPA2,
+        "priorMajor2": priorMajor2,
+        "priorYear2": priorYear2,
+    }
       # Personal Stuff
       fName = request.form.get('firstName')
       lName = request.form.get('lastName')
@@ -1562,6 +1583,7 @@ def applicantHome():
         validation_errors.append("GRE Verbal score must be between 130 and 170")
       if GRE_Quant and GRE_Quant.isdigit() and (int(GRE_Quant) < 130 or int(GRE_Quant) > 170):
         validation_errors.append("GRE Quantitative score must be between 130 and 170")
+    
       
       # Validate GPA is a float between 0.0 and 4.0
       if priorGPA1 != 'None' and priorGPA1:
@@ -1584,6 +1606,9 @@ def applicantHome():
       import re
       if email and not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         validation_errors.append("Invalid email format")
+
+      if TOEFL_Date and not re.match(r"^\d{4}-\d{2}-\d{2}$", TOEFL_Date):
+        validation_errors.append("TOEFL Date must be in the format YYYY-MM-DD")
       
       # Validate SSN format (XXX-XX-XXXX)
       if SSN and not re.match(r"^\d{3}-\d{2}-\d{4}$", SSN):
@@ -1659,7 +1684,6 @@ def applicantHome():
             flash("Application submitted successfully", "success")
 
         if action == 'Accept':
-          print('here2')
           cursor.execute('UPDATE user SET role = ? WHERE UID = ?', ('Student', UID))
 
           cursor.execute('SELECT * FROM academicInformation WHERE UID = ?', (UID,))
@@ -1719,6 +1743,10 @@ def applicantHome():
     condition = 0
     if hasReview:
       condition = 1
+
+    if error and not pastInfo:
+       pastInfo = academ
+       print(academ)
       
     connection.close()
     return render_template('applicantHome.html', error=error, pastInfo=pastInfo, persInfo=persInfo, UID=UID, condition=condition, priors=priors, app=app, recLets=recLets)
