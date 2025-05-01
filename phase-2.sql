@@ -278,7 +278,8 @@ INSERT INTO Student (UID, advisor_id, GPA, program, thesis_status, advising_hold
 (20000008, 50000001, 3.95, 'Masters', 'Complete', FALSE),
 (20000009, 50000001, 3.79, 'PhD', 'Incomplete', FALSE),
 (20000010, 50000002, 3.87, 'Masters', 'Complete', FALSE),
-(88888888, 50000002, 3.93, 'Masters', 'Complete', FALSE);
+(88888888, 50000002, 3.93, 'Masters', 'Complete', FALSE),
+(99999999, 50000001, 0.0, 'Masters', 'Complete', FALSE);
 
 INSERT INTO alumni (UID, grad_year, degree) VALUES
 (30000001, 2020, 'Masters'),
