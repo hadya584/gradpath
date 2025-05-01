@@ -377,7 +377,7 @@ def personal_info():
             ''', (new_office, uid))
 
         elif role in ['Faculty', 'CAC']:
-            new_dept = request.form['dept'].strip()
+            new_dept = request.form.get('dept', '').strip()
             cursor.execute('''
                 UPDATE faculty
                 SET dept = ?
@@ -554,7 +554,10 @@ def gs_transcripts():
                c.course_num, c.title, c.credits,
                s.semester, s.year, t.grade, t.graded
         FROM transcript t
-        JOIN schedule s ON t.course_id = s.course_id AND t.section = s.section AND t.semester = s.semester
+        JOIN schedule s ON t.course_id = s.course_id 
+              AND t.section = s.section 
+              AND t.semester = s.semester 
+              AND t.year = s.year
         JOIN course c ON t.course_id = c.course_id
         JOIN student st ON t.student_uid = st.UID
         JOIN user u ON u.UID = st.UID
@@ -705,6 +708,7 @@ def instructor_roster():
     course_id = request.form['course_id']
     section = request.form['section']
     semester = request.form['semester']
+    year = request.form['year']
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -713,18 +717,18 @@ def instructor_roster():
         SELECT t.student_uid, u.firstName, u.lastName, t.grade, t.graded
         FROM transcript t
         JOIN user u ON t.student_uid = u.UID
-        WHERE t.course_id = ? AND t.section = ? AND t.semester = ?
+        WHERE t.course_id = ? AND t.section = ? AND t.semester = ? AND t.year = ?
     '''
-    students = cursor.execute(query, (course_id, section, semester)).fetchall()
+    students = cursor.execute(query, (course_id, section, semester, year)).fetchall()
 
     # Also fetch course details for header
     course_info = cursor.execute('''
         SELECT c.course_num, c.title, s.year
         FROM course c
         JOIN schedule s ON c.course_id = s.course_id
-        WHERE c.course_id = ? AND s.section = ? AND s.semester = ?
+        WHERE c.course_id = ? AND s.section = ? AND s.semester = ? AND s.year = ?
         LIMIT 1
-    ''', (course_id, section, semester)).fetchone()
+    ''', (course_id, section, semester, year)).fetchone()
 
     conn.close()
 
