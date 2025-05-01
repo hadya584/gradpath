@@ -3112,7 +3112,6 @@ def apply_graduation():
           'grades': False,
           'GPA': False,
           'advisor_approval': False,
-          'form_match': False
         }
         if GPA >= 3.0:
           requirements_status['GPA'] = True
@@ -3143,7 +3142,6 @@ def apply_graduation():
         'thesis': False,
         'GPA': False,
         'advisor_approval': False,
-        'form_match': False
       }
       if GPA >= 3.5:
         requirements_status['GPA'] = True
@@ -3172,20 +3170,8 @@ def apply_graduation():
     form = cursor.fetchone()
     if form:
         requirements_status['advisor_approval'] = form['status'] == 'Approved'
-        
-        # Check if the advising form matches the transcript
-        cursor.execute("SELECT course_id FROM form1_course WHERE form1_id = ?", (form['form1_id'],))
-        form_courses = cursor.fetchall()
-        cursor.execute("SELECT course_id FROM transcript WHERE student_uid = ?", (UID,))
-        transcript_courses = cursor.fetchall()
-
-        if transcript_courses:
-          form_courses_set = set([course['course_id'] for course in form_courses])
-          transcript_courses_set = set([course['course_id'] for course in transcript_courses])
-          requirements_status['form_match'] = form_courses_set == transcript_courses_set
     else:
       requirements_status['advisor_approval'] = False
-      requirements_status['form_match'] = False
 
     # Check if all conditions are met
     audit_passed = all(requirements_status.values())
@@ -3329,13 +3315,18 @@ def clear_grad(student_UID):
   year = cursor.fetchone()
   grad_year = year['year']
 
+  cursor.execute("SELECT program FROM student WHERE UID = ?", (student_UID,))
+  programdata = cursor.fetchone()
+  program = programdata['program']
+
   # delete from graduate table and add to alumni table
   cursor.execute("UPDATE user SET role = 'Alumni' WHERE UID = ?", (student_UID,))
-  cursor.execute("INSERT INTO alumni (UID, grad_year) VALUES (?, ?)", (student_UID, grad_year))
+  cursor.execute("INSERT INTO alumni (UID, grad_year, degree) VALUES (?, ?, ?)", (student_UID, grad_year, program))
   cursor.execute("DELETE FROM student WHERE UID = (?)", (student_UID,))
   #might also want to delete from applied?
   cursor.execute("DELETE FROM applied_for_grad WHERE UID = (?)", (student_UID,))
 
+  flash('Student Graduated successfully!', 'success') 
   connection.commit()
   connection.close()
   if session['role'] == 'GS':

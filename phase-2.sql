@@ -407,21 +407,21 @@ INSERT INTO transcript (Student_uid, course_id, section, semester, year, grade, 
 (30000003, 6, 1, 'Spring', 2022, 'B', TRUE);
 
 -- ads
-INSERT INTO user VALUES(55555555, 'Student', 'password', 'Paul', 'McCartney', 1111, 'paulmccartney@email.com', 12345678, 'Address', NULL);
-INSERT INTO user VALUES(66666666, 'Student', 'password', 'George', 'Harrison', 2222, 'georgeharrison@email.com', 87654321, 'Address', NULL);
-INSERT INTO user VALUES(99999999, 'Student', 'password', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
-INSERT INTO user VALUES(12345678, 'Alumni', 'password', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 222222222, 'Address', NULL);
-INSERT INTO user VALUES(12121212, 'GS', 'password', 'John', 'Snow', 5555, 'johnsnow@email.com', 3333333333, 'Address', NULL);
-INSERT INTO user VALUES(22222221, 'Faculty', 'password', 'Bhagirath', 'Narahari', 6666, 'bnarahari@email.com', 4444444444, 'Address', NULL);
-INSERT INTO user VALUES(33333331, 'Faculty', 'password', 'Gabe', 'Parmer', 7777, 'gparmer@email.com', 5555555555, 'Address', NULL);
-INSERT INTO user VALUES(13131313, 'Admin', 'password', 'Jett', 'Jacobs', 8888, 'jettjacobs@email.com', 6666666666, 'Address', NULL);
+INSERT INTO user VALUES(55555555, 'Student', 'pass', 'Paul', 'McCartney', 1111, 'paulmccartney@email.com', 12345678, 'Address', NULL);
+INSERT INTO user VALUES(66666666, 'Student', 'pass', 'George', 'Harrison', 2222, 'georgeharrison@email.com', 87654321, 'Address', NULL);
+INSERT INTO user VALUES(99999999, 'Student', 'pass', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
+INSERT INTO user VALUES(77777777, 'Alumni', 'pass', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 222222222, 'Address', NULL);
+INSERT INTO user VALUES(12121212, 'GS', 'pass', 'John', 'Snow', 5555, 'johnsnow@email.com', 3333333333, 'Address', NULL);
+INSERT INTO user VALUES(22222221, 'Faculty', 'pass', 'Bhagirath', 'Narahari', 6666, 'bnarahari@email.com', 4444444444, 'Address', NULL);
+INSERT INTO user VALUES(33333331, 'Faculty', 'pass', 'Gabe', 'Parmer', 7777, 'gparmer@email.com', 5555555555, 'Address', NULL);
+INSERT INTO user VALUES(13131313, 'Admin', 'pass', 'Jett', 'Jacobs', 8888, 'jettjacobs@email.com', 6666666666, 'Address', NULL);
 
 INSERT INTO faculty VALUES(22222221, 'CSCI');
 INSERT INTO faculty VALUES(33333331, 'CSCI');
 INSERT INTO student VALUES(55555555, 22222221, 0.0, 'Masters', 'Incomplete', FALSE);
 INSERT INTO student VALUES(66666666, 22222221, 0.0, 'Masters', 'Incomplete', FALSE);
 INSERT INTO student VALUES(99999999, 33333331, 0.0, 'PhD', 'Incomplete', FALSE);
-INSERT INTO alumni VALUES(12345678, 2024, 'Masters');
+INSERT INTO alumni VALUES(77777777, 2024, 'Masters');
 INSERT INTO grad_secretary VALUES(12121212, NULL);
 INSERT INTO admin VALUES(13131313, NULL);
 
@@ -469,8 +469,8 @@ INSERT INTO transcript VALUES (55555555, 13, 1, 'Fall', 2024, 'B', TRUE);
 
 -- George Harrison (UID: 66666666)
 INSERT INTO transcript VALUES (66666666, 4, 1, 'Fall', 2023, 'C', TRUE);
-INSERT INTO transcript VALUES (66666666, 1, 1, 'Fall', 2023, 'C', TRUE);
-INSERT INTO transcript VALUES (66666666, 100, 1, 'Fall', 2023, 'C', TRUE);
+INSERT INTO transcript VALUES (66666666, 1, 1, 'Fall', 2023, 'B', TRUE);
+INSERT INTO transcript VALUES (66666666, 100, 1, 'Fall', 2023, 'B', TRUE);
 INSERT INTO transcript VALUES (66666666, 101, 1, 'Fall', 2023, 'B', TRUE);
 INSERT INTO transcript VALUES (66666666, 5, 1, 'Fall', 2023, 'B', TRUE);
 INSERT INTO transcript VALUES (66666666, 12, 1, 'Spring', 2024, 'B', TRUE);

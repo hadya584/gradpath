@@ -43,8 +43,9 @@
                   {% endif %}
                 </p>
                 <p><strong>GPA:</strong> {{ userdata['GPA'] }}</p>
-
+                {% if role == 'GS' or role == 'Admin' %}
                 <a href="{{ url_for('assign_advisor', student_UID=userdata['UID']) }}" class="btn btn-outline-light btn-sm">Change Advisor</a>
+                {% endif %}
               </div>
             </div>
 
