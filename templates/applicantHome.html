@@ -99,12 +99,12 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-5 mb-2">
                       <label for="priorMajor1" class="form-label">Major</label>
                       <input type="text" class="form-control" id="priorMajor1" name="priorMajor1"
                         value="{{ priors[0].major if priors[0] else None }}" readonly>
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-4 mb-2">
                       <label for="priorGPA1" class="form-label">GPA</label>
                       <input type="text" class="form-control" id="priorGPA1" name="priorGPA1"
                         value="{{ priors[0].GPA if priors[0] else None }}" readonly>
@@ -139,12 +139,12 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-5 mb-2">
                       <label for="priorMajor2" class="form-label">Major</label>
                       <input type="text" class="form-control" id="priorMajor2" name="priorMajor2"
                         value="{{ priors[1].major if priors[1] else None }}" readonly>
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-4 mb-2">
                       <label for="priorGPA2" class="form-label">GPA</label>
                       <input type="text" class="form-control" id="priorGPA2" name="priorGPA2"
                         value="{{ priors[1].GPA if priors[1] else None}}" readonly>
@@ -235,7 +235,7 @@
                 <input type="text" class="form-control" id="addr1" name="addr1" value="{{ persInfo.address }}" required>
               </div>
               <div class="mb-1">
-                <label for="addr2" class="form-label">Address 2</label>
+                <label for="addr2" class="form-label">Address 2 (Optional)</label>
                 <input type="text" class="form-control" id="addr2" name="addr2" value="{{ persInfo.address2 }}">
               </div>
 
@@ -351,17 +351,17 @@
                   <div class="col-md-6 mb-1">
                     <label for="greVerbal" class="form-label">Verbal</label>
                     <input type="text" class="form-control" id="greVerbal" name="greVerbal"
-                      value="{{ pastInfo.GRE_Verbal }}">
+                      value="{{ pastInfo.GRE_Verbal }}" placeholder="130 < Score < 170">
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="greQuant" class="form-label">Quantitative</label>
                     <input type="text" class="form-control" id="greQuant" name="greQuant"
-                      value="{{ pastInfo.GRE_Quant }}">
+                      value="{{ pastInfo.GRE_Quant }}" placeholder="130 < Score < 170">
                   </div>
                 </div>
                 <div class="mb-1">
                   <label for="greYear" class="form-label">Year of Exam</label>
-                  <input type="text" class="form-control" id="greYear" name="greYear" value="{{ pastInfo.GRE_Year }}">
+                  <input type="text" class="form-control" id="greYear" name="greYear" value="{{ pastInfo.GRE_Year }}" placeholder="YYYY">
                 </div>
               </div>
 
@@ -372,12 +372,12 @@
                   <div class="col-md-6 mb-1">
                     <label for="greAdScore" class="form-label">Score</label>
                     <input type="text" class="form-control" id="greAdScore" name="greAdScore"
-                      value="{{ pastInfo.GRE_Advanced }}">
+                      value="{{ pastInfo.GRE_Advanced }}" placeholder="130 < Score < 170">
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="greAdSubject" class="form-label">Subject</label>
                     <input type="text" class="form-control" id="greAdSubject" name="greAdSubject"
-                      value="{{ pastInfo.GRE_Subject }}">
+                      value="{{ pastInfo.GRE_Subject }}" placeholder="Enter The Subject">
                   </div>
                 </div>
               </div>
@@ -389,12 +389,12 @@
                   <div class="col-md-6 mb-1">
                     <label for="toeflScore" class="form-label">Score</label>
                     <input type="text" class="form-control" id="toeflScore" name="toeflScore"
-                      value="{{ pastInfo.TOEFL_Score }}">
+                      value="{{ pastInfo.TOEFL_Score }}" placeholder="0 < Socre < 120">
                   </div>
                   <div class="col-md-6 mb-1">
                     <label for="toeflDate" class="form-label">Date of Exam</label>
                     <input type="text" class="form-control" id="toeflDate" name="toeflDate"
-                      value="{{ pastInfo.TOEFL_Date }}">
+                      value="{{ pastInfo.TOEFL_Date }}" placeholder="YYYY-MM-DD">
                   </div>
                 </div>
               </div>
@@ -418,20 +418,20 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-5 mb-2">
                       <label for="priorMajor1" class="form-label">Major</label>
                       <input type="text" class="form-control" id="priorMajor1" name="priorMajor1"
                         value="{{ priors[0].major if priors[0] else '' }}">
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-4 mb-2">
                       <label for="priorGPA1" class="form-label">GPA</label>
                       <input type="text" class="form-control" id="priorGPA1" name="priorGPA1"
-                        value="{{ priors[0].GPA if priors[0] else '' }}">
+                        value="{{ priors[0].GPA if priors[0] else '' }}" placeholder="0.0 < GPA < 4.0">
                     </div>
                     <div class="col-md-3 mb-2">
                       <label for="priorYear1" class="form-label">Year</label>
                       <input type="text" class="form-control" id="priorYear1" name="priorYear1"
-                        value="{{ priors[0].year if priors[0] else '' }}">
+                        value="{{ priors[0].year if priors[0] else '' }}" placeholder="YYYY">
                     </div>
                   </div>
                 </div>
@@ -458,20 +458,20 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-5 mb-2">
                       <label for="priorMajor2" class="form-label">Major</label>
                       <input type="text" class="form-control" id="priorMajor2" name="priorMajor2"
-                        value="{{ priors[1].major if priors[1] else '' }}">
+                        value="{{ priors[1].major if priors[1] else '' }}" >
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-4 mb-2">
                       <label for="priorGPA2" class="form-label">GPA</label>
                       <input type="text" class="form-control" id="priorGPA2" name="priorGPA2"
-                        value="{{ priors[1].GPA if priors[1] else '' }}">
+                        value="{{ priors[1].GPA if priors[1] else '' }}" placeholder="0.0 < GPA < 4.0">
                     </div>
                     <div class="col-md-3 mb-2">
                       <label for="priorYear2" class="form-label">Year</label>
                       <input type="text" class="form-control" id="priorYear2" name="priorYear2"
-                        value="{{ priors[1].year if priors[1] else '' }}">
+                        value="{{ priors[1].year if priors[1] else '' }}" placeholder="YYYY">
                     </div>
                   </div>
                 </div>
@@ -554,7 +554,7 @@
                 <input type="text" class="form-control" id="addr1" name="addr1" value="{{ persInfo.address }}" required>
               </div>
               <div class="mb-1">
-                <label for="addr2" class="form-label">Address 2</label>
+                <label for="addr2" class="form-label">Address 2 (Optional)</label>
                 <input type="text" class="form-control" id="addr2" name="addr2" value="{{ persInfo.address2 }}">
               </div>
 
