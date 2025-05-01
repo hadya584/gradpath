@@ -495,5 +495,16 @@ INSERT INTO transcript VALUES (99999991, 13, 1, 'Fall', 2024, 'A', TRUE);
 INSERT INTO transcript VALUES (99999991, 14, 1, 'Fall', 2024, 'A', TRUE);
 INSERT INTO transcript VALUES (99999991, 15, 1, 'Fall', 2024, 'A', TRUE);
 
+INSERT INTO transcript VALUES (77777777, 1, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (77777777, 100, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (77777777, 101, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (77777777, 5, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (77777777, 12, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (77777777, 6, 1, 'Spring', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (77777777, 14, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (77777777, 8, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (77777777, 17, 1, 'Fall', 2024, 'B', TRUE);
+INSERT INTO transcript VALUES (77777777, 13, 1, 'Fall', 2024, 'B', TRUE);
+
 INSERT INTO user VALUES(00000001, 'Student', 'password', 'Chloe', 'Anderson', 8888, 'chloeanderson@email.com', 6666666667, 'Address', NULL);
 INSERT INTO student VALUES(00000001, 33333331, 0.0, 'Masters', 'Incomplete', TRUE);
