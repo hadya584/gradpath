@@ -244,16 +244,22 @@ INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, a
 (40000001, 'Oprah', 'Winfrey', 'oprah.gs@uni.edu', 'pass', 'GS', '000-00-0017', '555-0017', 'Grad Sec St', NULL),
 (40000002, 'Ellen', 'DeGeneres', 'ellen.gs@uni.edu', 'pass', 'GS', '000-00-0018', '555-0018', 'Grad Sec St', NULL),
 (40000003, 'Jimmy', 'Fallon', 'jimmy.gs@uni.edu', 'pass', 'GS', '000-00-0019', '555-0019', 'Grad Sec St', NULL),
-(11111111, 'Grace', 'gs', 'gs@uni.edu', 'gspass', 'GS', '000-00-0020', '555-0020', 'gs Office', NULL),
+(10100011, 'Grace', 'gs', 'gs@uni.edu', 'gspass', 'GS', '000-00-0020', '555-0020', 'gs Office', NULL),
 (50000001, 'Albert', 'Einstein', 'einstein@uni.edu', 'pass', 'Faculty', '000-00-0021', '555-0021', 'Science Hall', NULL),
 (50000002, 'Marie', 'Curie', 'curie@uni.edu', 'pass', 'Faculty', '000-00-0022', '555-0022', 'Science Hall', NULL),
 (50000003, 'Isaac', 'Newton', 'newton@uni.edu', 'pass', 'Faculty', '000-00-0023', '555-0023', 'Science Hall', NULL),
 (50000004, 'Katherine', 'Johnson', 'kjohnson@uni.edu', 'pass', 'Faculty', '000-00-0024', '555-0024', 'Science Hall', NULL),
 (50000005, 'Ada', 'Lovelace', 'ada@uni.edu', 'pass', 'Faculty', '000-00-0025', '555-0025', 'Science Hall', NULL),
-(22222222, 'Narahari', 'Prof', 'narahari@uni.edu', 'naraharipass', 'Faculty', '000-00-0026', '555-0026', 'Science Hall', NULL),
-(33333333, 'Choi', 'Prof', 'choi@uni.edu', 'choipass', 'Faculty', '000-00-0027', '555-0027', 'Science Hall', NULL),
+(22002020, 'Narahari', 'Prof', 'narahari@uni.edu', 'naraharipass', 'Faculty', '000-00-0026', '555-0026', 'Science Hall', NULL),
+(30330303, 'Choi', 'Prof', 'choi@uni.edu', 'choipass', 'Faculty', '000-00-0027', '555-0027', 'Science Hall', NULL),
 (60000001, 'CAC', 'CAC', 'cac@uni.edu', 'pass', 'CAC', '020-00-0027', '525-0027', 'Science Hall', NULL),
-(70000001, 'Applicant', 'test', 'user@uer.ej', 'pass', 'Applicant', '101-01-0101', '234-345-3452', 'home', NULL);
+(70000001, 'Applicant', 'test', 'user@uer.ej', 'pass', 'Applicant', '101-01-0101', '234-345-3452', 'home', NULL),
+(12312312, 'Applicant', 'test', 'user@uygur.ej', 'pass', 'Applicant', '111-11-1111', '238-345-3452', 'home', NULL),
+(66666667, 'Ringo', 'Starr', 'Ringo.starr@uer.ej', 'pass', 'Applicant', '222-11-1111', '239-345-3452', 'home', NULL);
+
+INSERT INTO application (UID, applicationStatus, applySemester, applyYear, decisionType, recommendedAdvisor, deficiencyCourses, rejectReason, finalDecisionDate) VALUES (12312312, 'Complete and Under Review', 'Fall', '2025', NULL, NULL, NULL, NULL, NULL);
+
+INSERT INTO academicInformation (UID, degree, GRE_Verbal, GRE_Quant, GRE_Year, GRE_Advanced, GRE_Subject, TOEFL_Score, TOEFL_Date, areasOfInterest, priorWorkExp, transcripts, applySemester, applyYear) VALUES (12312312,'MS', '160', '165', '2024', '5.0', 'Computer Science', '110', '2024-01-15', 'Artificial Intelligence, Machine Learning', '2 years at XYZ Corp as a Software Engineer', 'transcript123.pdf', 'Fall', '2025');
 
 -- INSTRUCTORS
 INSERT INTO faculty (UID, dept) VALUES
@@ -262,8 +268,8 @@ INSERT INTO faculty (UID, dept) VALUES
 (50000003, 'CSCI'), 
 (50000004, 'CSCI'), 
 (50000005, 'CSCI'),
-(22222222, 'CSCI'), 
-(33333333, 'CSCI'),
+(22002020, 'CSCI'), 
+(30330303, 'CSCI'),
 (60000001, 'CSCI');
 
 -- populate with additional info - about each typeuser, grad year, address, etc
@@ -291,12 +297,12 @@ INSERT INTO grad_secretary (UID, office) VALUES
 (40000001, 'Room 101'), 
 (40000002, 'Room 102'), 
 (40000003, 'Room 103'),
-(11111111, 'gs Office');
+(10100011, 'gs Office');
 
 INSERT INTO course (course_id, dept, course_num, title, credits, instructor_id) VALUES
 (1, 'CSCI', '6221', 'SW Paradigms', 3, 50000001),
-(100, 'CSCI', '6461', 'Computer Architecture', 3, 22222222),
-(101, 'CSCI', '6212', 'Algorithms', 3, 33333333),
+(100, 'CSCI', '6461', 'Computer Architecture', 3, 22002020),
+(101, 'CSCI', '6212', 'Algorithms', 3, 30330303),
 (4, 'CSCI', '6220', 'Machine Learning', 3, 50000001),
 (5, 'CSCI', '6232', 'Networks 1', 3, 50000002),
 (6, 'CSCI', '6233', 'Networks 2', 3, 50000003),
@@ -304,7 +310,7 @@ INSERT INTO course (course_id, dept, course_num, title, credits, instructor_id) 
 (8, 'CSCI', '6242', 'Database 2', 3, 50000004),
 (9, 'CSCI', '6246', 'Compilers', 3, 50000005),
 (10, 'CSCI', '6260', 'Multimedia', 3, 50000005),
-(11, 'CSCI', '6251', 'Cloud Computing', 3, 22222222),
+(11, 'CSCI', '6251', 'Cloud Computing', 3, 22002020),
 (12, 'CSCI', '6254', 'SW Engineering', 3, 50000002),
 (13, 'CSCI', '6262', 'Graphics 1', 3, 50000003),
 (14, 'CSCI', '6283', 'Security 1', 3, 50000004),
@@ -312,21 +318,21 @@ INSERT INTO course (course_id, dept, course_num, title, credits, instructor_id) 
 (16, 'CSCI', '6286', 'Network Security', 3, 50000001),
 (17, 'CSCI', '6325', 'Algorithms 2', 3, 50000002),
 (18, 'CSCI', '6339', 'Embedded Systems', 3, 50000003),
-(19, 'CSCI', '6384', 'Cryptography 2', 3, 33333333),
+(19, 'CSCI', '6384', 'Cryptography 2', 3, 30330303),
 (20, 'ECE', '6241', 'Communication Theory', 3, 50000005),
 (21, 'ECE', '6242', 'Information Theory', 2, 50000001),
 (22, 'MATH', '6210', 'Logic', 2, 50000002);
 
 INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instructor_id) VALUES
 (1, 'Fall', 1, 2021, 'M', '15:00-17:30', 50000001),       -- CSCI 6221 Fall 2021
-(100, 'Spring', 1, 2020, 'T', '16:00-18:30', 22222222),   -- CSCI 6461 Spring 2020
-(101, 'Fall', 1, 2022, 'W', '15:00-17:30', 33333333),     -- CSCI 6212 Fall 2022
+(100, 'Spring', 1, 2020, 'T', '16:00-18:30', 22002020),   -- CSCI 6461 Spring 2020
+(101, 'Fall', 1, 2022, 'W', '15:00-17:30', 30330303),     -- CSCI 6212 Fall 2022
 (4, 'Spring', 1, 2020, 'R', '18:00-20:30', 50000001),     -- CSCI 6220 Spring 2020
 (5, 'Fall', 1, 2023, 'F', '15:00-17:30', 50000002),       -- CSCI 6232 Fall 2023
 (6, 'Spring', 1, 2022, 'M', '16:00-18:30', 50000003),
 (1, 'Fall', 1, 2024, 'M', '15:00-17:30', 50000001),
-(100, 'Fall', 1, 2024, 'M', '15:00-17:30', 22222222),
-(101, 'Fall', 1, 2024, 'W', '15:00-17:30', 33333333),
+(100, 'Fall', 1, 2024, 'M', '15:00-17:30', 22002020),
+(101, 'Fall', 1, 2024, 'W', '15:00-17:30', 30330303),
 (4, 'Fall', 1, 2024, 'R', '15:00-17:30', 50000001),
 (5, 'Fall', 1, 2024, 'F', '16:00-18:30', 50000002),
 (6, 'Fall', 1, 2024, 'M', '18:00-20:30', 50000003),
@@ -334,7 +340,7 @@ INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instru
 (8, 'Fall', 1, 2024, 'W', '15:00-17:30', 50000004),
 (9, 'Fall', 1, 2024, 'R', '16:00-18:30', 50000005),
 (10, 'Fall', 1, 2024, 'F', '18:00-20:30', 50000005),
-(11, 'Fall', 1, 2024, 'M', '15:00-17:30', 22222222),
+(11, 'Fall', 1, 2024, 'M', '15:00-17:30', 22002020),
 (12, 'Fall', 1, 2024, 'T', '16:00-18:30', 50000002),
 (13, 'Fall', 1, 2024, 'W', '18:00-20:30', 50000003),
 (14, 'Fall', 1, 2024, 'R', '15:00-17:30', 50000004),
@@ -342,7 +348,7 @@ INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instru
 (16, 'Fall', 1, 2024, 'M', '18:00-20:30', 50000001),
 (17, 'Fall', 1, 2024, 'T', '15:00-17:30', 50000002),
 (18, 'Fall', 1, 2024, 'W', '15:00-17:30', 50000003),
-(19, 'Fall', 1, 2024, 'R', '16:00-18:30', 33333333),
+(19, 'Fall', 1, 2024, 'R', '16:00-18:30', 30330303),
 (20, 'Fall', 1, 2024, 'F', '18:00-20:30', 50000005),
 (21, 'Fall', 1, 2024, 'M', '15:00-17:30', 50000001),
 (22, 'Fall', 1, 2024, 'T', '16:00-18:30', 50000002);
@@ -410,9 +416,9 @@ INSERT INTO transcript (Student_uid, course_id, section, semester, year, grade, 
 -- ads
 INSERT INTO user VALUES(55555555, 'Student', 'pass', 'Paul', 'McCartney', 1111, 'paulmccartney@email.com', 12345678, 'Address', NULL);
 INSERT INTO user VALUES(66666666, 'Student', 'pass', 'George', 'Harrison', 2222, 'georgeharrison@email.com', 87654321, 'Address', NULL);
-INSERT INTO user VALUES(99999991, 'Student', 'pass', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
-INSERT INTO user VALUES(77777777, 'Alumni', 'pass', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 222222222, 'Address', NULL);
-INSERT INTO user VALUES(12121212, 'GS', 'pass', 'John', 'Snow', 5555, 'johnsnow@email.com', 3333333333, 'Address', NULL);
+INSERT INTO user VALUES(99999991, 'Student', 'pass', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1010001111, 'Address', NULL);
+INSERT INTO user VALUES(77777777, 'Alumni', 'pass', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 220020202, 'Address', NULL);
+INSERT INTO user VALUES(12121212, 'GS', 'pass', 'John', 'Snow', 5555, 'johnsnow@email.com', 3033030333, 'Address', NULL);
 INSERT INTO user VALUES(22222221, 'Faculty', 'pass', 'Bhagirath', 'Narahari', 6666, 'bnarahari@email.com', 4444444444, 'Address', NULL);
 INSERT INTO user VALUES(33333331, 'Faculty', 'pass', 'Gabe', 'Parmer', 7777, 'gparmer@email.com', 5555555555, 'Address', NULL);
 INSERT INTO user VALUES(13131313, 'Admin', 'pass', 'Jett', 'Jacobs', 8888, 'jettjacobs@email.com', 6666666666, 'Address', NULL);
@@ -433,8 +439,8 @@ DELETE FROM schedule;
 -- Now insert matching schedule
 INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instructor_id) VALUES
 (1, 'Fall', 1, 2023, 'M', '15:00-17:30', 50000001),      -- SW Paradigms
-(100, 'Fall', 1, 2023, 'T', '16:00-18:30', 22222222),    -- Computer Architecture
-(101, 'Fall', 1, 2023, 'W', '15:00-17:30', 33333333),    -- Algorithms
+(100, 'Fall', 1, 2023, 'T', '16:00-18:30', 22002020),    -- Computer Architecture
+(101, 'Fall', 1, 2023, 'W', '15:00-17:30', 30330303),    -- Algorithms
 (4, 'Fall', 1, 2023, 'R', '18:00-20:30', 50000001),      -- Machine Learning
 (5, 'Fall', 1, 2023, 'F', '16:00-18:30', 50000002),      -- Networks 1
 
@@ -444,7 +450,7 @@ INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instru
 (9, 'Fall', 1, 2024, 'R', '16:00-18:30', 50000005),      -- Compilers
 (10, 'Fall', 1, 2024, 'F', '18:00-20:30', 50000005),     -- Multimedia
 
-(11, 'Fall', 1, 2024, 'M', '15:00-17:30', 22222222),     -- Cloud Computing
+(11, 'Fall', 1, 2024, 'M', '15:00-17:30', 22002020),     -- Cloud Computing
 (12, 'Spring', 1, 2024, 'T', '16:00-18:30', 50000002),   -- SW Engineering
 (13, 'Fall', 1, 2024, 'W', '18:00-20:30', 50000003),     -- Graphics 1
 (14, 'Fall', 1, 2024, 'R', '15:00-17:30', 50000004),     -- Security 1
@@ -453,7 +459,7 @@ INSERT INTO schedule (course_id, semester, section, year, day, time_slot, instru
 (16, 'Fall', 1, 2024, 'M', '18:00-20:30', 50000001),     -- Network Security
 (17, 'Fall', 1, 2024, 'T', '15:00-17:30', 50000002),     -- Algorithms 2
 (18, 'Fall', 1, 2024, 'W', '15:00-17:30', 50000003),     -- Embedded Systems
-(19, 'Fall', 1, 2024, 'R', '16:00-18:30', 33333333);     -- Cryptography 2
+(19, 'Fall', 1, 2024, 'R', '16:00-18:30', 30330303);     -- Cryptography 2
 
 
 -- Paul McCartney (UID: 55555555)
