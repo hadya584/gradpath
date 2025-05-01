@@ -237,7 +237,7 @@ INSERT INTO user (UID, firstName, lastName, email, password, role, ssn, phone, a
 (20000009, 'Dwayne', 'Johnson', 'dwayne@uni.edu', 'pass', 'Student', '000-00-0010', '555-0010', '901 Rock Blvd', NULL),
 (20000010, 'Selena', 'Gomez', 'selena@uni.edu', 'pass', 'Student', '000-00-0011', '555-0011', '012 Star Way', NULL),
 (88888888, 'Billie', 'Holiday', 'billie@uni.edu', 'billiepass', 'Student', '000-00-0012', '555-0012', '100 Jazz St', NULL),
-(99999991, 'Diana', 'Krall', 'diana@uni.edu', 'dianapass', 'Student', '000-00-0013', '555-0013', '101 Blues St', NULL),
+(99999999, 'Diana', 'Krall', 'diana@uni.edu', 'dianapass', 'Student', '000-00-0013', '555-0013', '101 Blues St', NULL),
 (30000001, 'Leonardo', 'DiCaprio', 'leo@alumni.edu', 'pass', 'Alumni', '000-00-0014', '555-0014', 'alumni Way', NULL),
 (30000002, 'Natalie', 'Portman', 'natalie@alumni.edu', 'pass', 'Alumni', '000-00-0015', '555-0015', 'alumni Way', NULL),
 (30000003, 'Morgan', 'Freeman', 'morgan@alumni.edu', 'pass', 'Alumni', '000-00-0016', '555-0016', 'alumni Way', NULL),
@@ -409,7 +409,7 @@ INSERT INTO transcript (Student_uid, course_id, section, semester, year, grade, 
 -- ads
 INSERT INTO user VALUES(55555555, 'Student', 'pass', 'Paul', 'McCartney', 1111, 'paulmccartney@email.com', 12345678, 'Address', NULL);
 INSERT INTO user VALUES(66666666, 'Student', 'pass', 'George', 'Harrison', 2222, 'georgeharrison@email.com', 87654321, 'Address', NULL);
-INSERT INTO user VALUES(99999999, 'Student', 'pass', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
+INSERT INTO user VALUES(99999991, 'Student', 'pass', 'Ringo', 'Starr', 3333, 'ringostarr@email.com', 1111111111, 'Address', NULL);
 INSERT INTO user VALUES(77777777, 'Alumni', 'pass', 'Eric', 'Clapton', 4444, 'ericclapton@email.com', 222222222, 'Address', NULL);
 INSERT INTO user VALUES(12121212, 'GS', 'pass', 'John', 'Snow', 5555, 'johnsnow@email.com', 3333333333, 'Address', NULL);
 INSERT INTO user VALUES(22222221, 'Faculty', 'pass', 'Bhagirath', 'Narahari', 6666, 'bnarahari@email.com', 4444444444, 'Address', NULL);
@@ -420,7 +420,7 @@ INSERT INTO faculty VALUES(22222221, 'CSCI');
 INSERT INTO faculty VALUES(33333331, 'CSCI');
 INSERT INTO student VALUES(55555555, 22222221, 0.0, 'Masters', 'Incomplete', FALSE);
 INSERT INTO student VALUES(66666666, 22222221, 0.0, 'Masters', 'Incomplete', FALSE);
-INSERT INTO student VALUES(99999999, 33333331, 0.0, 'PhD', 'Incomplete', FALSE);
+INSERT INTO student VALUES(99999991, 33333331, 0.0, 'PhD', 'Incomplete', FALSE);
 INSERT INTO alumni VALUES(77777777, 2024, 'Masters');
 INSERT INTO grad_secretary VALUES(12121212, NULL);
 INSERT INTO admin VALUES(13131313, NULL);
@@ -480,19 +480,19 @@ INSERT INTO transcript VALUES (66666666, 17, 1, 'Fall', 2024, 'B', TRUE);
 INSERT INTO transcript VALUES (66666666, 18, 1, 'Fall', 2024, 'B', TRUE);
 
 
--- Ringo Starr (UID: 99999999)
-INSERT INTO transcript VALUES (99999999, 1, 1, 'Fall', 2023, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 100, 1, 'Fall', 2023, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 101, 1, 'Fall', 2023, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 4, 1, 'Fall', 2023, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 5, 1, 'Fall', 2023, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 6, 1, 'Spring', 2024, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 7, 1, 'Fall', 2024, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 8, 1, 'Fall', 2024, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 12, 1, 'Spring', 2024, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 13, 1, 'Fall', 2024, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 14, 1, 'Fall', 2024, 'A', TRUE);
-INSERT INTO transcript VALUES (99999999, 15, 1, 'Fall', 2024, 'A', TRUE);
+-- Ringo Starr (UID: 99999991)
+INSERT INTO transcript VALUES (99999991, 1, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 100, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 101, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 4, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 5, 1, 'Fall', 2023, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 6, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 7, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 8, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 12, 1, 'Spring', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 13, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 14, 1, 'Fall', 2024, 'A', TRUE);
+INSERT INTO transcript VALUES (99999991, 15, 1, 'Fall', 2024, 'A', TRUE);
 
 INSERT INTO user VALUES(00000001, 'Student', 'password', 'Chloe', 'Anderson', 8888, 'chloeanderson@email.com', 6666666667, 'Address', NULL);
 INSERT INTO student VALUES(00000001, 33333331, 0.0, 'Masters', 'Incomplete', TRUE);
