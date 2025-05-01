@@ -230,10 +230,14 @@ def register_course():
               ON s.course_id = t.course_id AND s.section = t.section AND s.semester = t.semester AND s.year = t.year
             WHERE t.student_uid = ? AND t.semester = ? AND t.year = ?
         ''', (student_uid, semester, year))
+
         for row in cursor.fetchall():
-            if row['day'] == schedule['day'] and row['time_slot'] == schedule['time_slot']:
-                flash("Error: schedule conflict.", "error")
-                return redirect(url_for('register_course', semester=semester, year=year))
+            if row['day'] == schedule['day']:
+                s_start, s_end = [datetime.strptime(t, "%H:%M") for t in schedule['time_slot'].split('-')]
+                r_start, r_end = [datetime.strptime(t, "%H:%M") for t in row['time_slot'].split('-')]
+                if s_start < r_end and r_start < s_end:
+                    flash("Error: schedule conflict with another registered course.", "error")
+                    return redirect(url_for('register_course', semester=semester, year=year))
 
         # Check prerequisites
         cursor.execute('SELECT prereq_id FROM course_prerequisite WHERE course_id = ?', (course_id,))
@@ -354,17 +358,18 @@ def personal_info():
             cursor.execute('UPDATE user SET password = ? WHERE UID = ?', (new_password, uid))
 
         if role == 'Student':
-            new_program = request.form['program'].strip().title()
-            new_gpa = request.form['GPA'].strip()
-            new_thesis_status = request.form['thesis_status'].strip()
-            cursor.execute('''
-                UPDATE student
-                SET program = ?, GPA = ?, thesis_status = ?
-                WHERE UID = ?
-            ''', (new_program, new_gpa, new_thesis_status, uid))
+            new_program = request.form.get('program', '').strip().title()
+            new_gpa = request.form.get('GPA', '').strip()
+            new_thesis_status = request.form.get('tesis_status', '').strip().title()
+            if new_program and new_gpa and new_thesis_status:
+              cursor.execute('''
+                  UPDATE student
+                  SET program = ?, GPA = ?, thesis_status = ?
+                  WHERE UID = ?
+              ''', (new_program, new_gpa, new_thesis_status, uid))
 
         elif role == 'GS':
-            new_office = request.form['office'].strip()
+            new_office = request.form.get('office', '').strip().title()
             cursor.execute('''
                 UPDATE grad_secretary
                 SET office = ?
