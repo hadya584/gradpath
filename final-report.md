@@ -1,7 +1,7 @@
 # Phase-2
 
 ## **DB Design**
-An ER or SQL Table Diagram updated to reflect your final design and an explanation for what normal form you believe your tables meet.
+<img width="727" alt="Screenshot 2025-05-03 at 8 46 08 PM" src="https://github.com/user-attachments/assets/931a5976-1c3b-4093-8ecf-ad90a5d6d060" />
 
 ### **Our DB was in 3NF for the following reasons:**
 
