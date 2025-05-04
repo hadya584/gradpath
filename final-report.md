@@ -1,9 +1,11 @@
 # Phase-2
 
 ## **DB Design**
-<img width="727" alt="Screenshot 2025-05-03 at 8 46 08 PM" src="https://github.com/user-attachments/assets/931a5976-1c3b-4093-8ecf-ad90a5d6d060" />
 
 ### **Our DB was in 3NF for the following reasons:**
+
+![Database Design Screenshot](./Phase-2-DB.png)
+
 
 #### 1NF:
 - All tables have a primary key.
