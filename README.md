@@ -26,13 +26,13 @@ GradPath is an integrated graduate information system built for the Database Sys
 
 A user moves through the system seamlessly. An **applicant** who is admitted becomes a **student** in REGS, registers and completes courses, applies to graduate through ADS, and becomes an **alumni** record. Each role sees a dashboard tailored to its permissions.
 
-<!-- Screenshots: add images to a /screenshots folder and uncomment.
+
 <p align="center">
   <img src="screenshots/login.png" width="260" />
-  <img src="screenshots/student-dashboard.png" width="260" />
+  <img src="screenshots/dashboard.png" width="260" />
   <img src="screenshots/registration.png" width="260" />
 </p>
--->
+
 
 ## Features
 
